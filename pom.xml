@@ -102,25 +102,25 @@
 
   </dependencies>
 
-  <repositories>
-    <repository>
-      <id>hops-repository</id>
-      <name>Hops Repository</name>
-      <url>https://bbc1.sics.se/archiva/repository/Hops/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <!-- MapR-FS Repo -->
-    <!--<repository>
-          <id>MapR-Repo</id>
-          <name>MapR-Repo</name>
-          <url>http://repository.mapr.com/maven/</url>
-        </repository>-->
-  </repositories>
+<!--  <repositories>-->
+<!--    <repository>-->
+<!--      <id>hops-repository</id>-->
+<!--      <name>Hops Repository</name>-->
+<!--      <url>https://bbc1.sics.se/archiva/repository/Hops/</url>-->
+<!--      <releases>-->
+<!--        <enabled>true</enabled>-->
+<!--      </releases>-->
+<!--      <snapshots>-->
+<!--        <enabled>true</enabled>-->
+<!--      </snapshots>-->
+<!--    </repository>-->
+<!--    &lt;!&ndash; MapR-FS Repo &ndash;&gt;-->
+<!--    &lt;!&ndash;<repository>-->
+<!--          <id>MapR-Repo</id>-->
+<!--          <name>MapR-Repo</name>-->
+<!--          <url>http://repository.mapr.com/maven/</url>-->
+<!--        </repository>&ndash;&gt;-->
+<!--  </repositories>-->
 
   <build>
     <plugins>
