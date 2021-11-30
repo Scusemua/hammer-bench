@@ -16,7 +16,7 @@
  */
 package io.hops.experiments.benchmarks.common;
 
-import io.hops.experiments.benchmarks.blockreporting.BlockReportingBenchmark;
+//import io.hops.experiments.benchmarks.blockreporting.BlockReportingBenchmark;
 import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.benchmarks.interleaved.InterleavedBenchmark;
@@ -70,7 +70,8 @@ public abstract class Benchmark {
     } else if (bmConf.getBenchMarkType() == BenchmarkType.INTERLEAVED) {
       return new InterleavedBenchmark(conf, bmConf);
     } else if (bmConf.getBenchMarkType() == BenchmarkType.BR) {
-         return new BlockReportingBenchmark(conf, bmConf, slaveID);
+         throw new UnsupportedOperationException(
+                 "Block Report benchmarking is not currently supported for serverless HopsFS.");
     } else {
       throw new UnsupportedOperationException("Unsupported Benchmark " + bmConf.getBenchMarkType());
     }

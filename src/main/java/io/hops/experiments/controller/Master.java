@@ -16,9 +16,9 @@
  */
 package io.hops.experiments.controller;
 
-import io.hops.experiments.benchmarks.blockreporting.BlockReportBMResults;
-import io.hops.experiments.benchmarks.blockreporting.BlockReportingBenchmarkCommand;
-import io.hops.experiments.benchmarks.blockreporting.BlockReportingWarmUp;
+//import io.hops.experiments.benchmarks.blockreporting.BlockReportBMResults;
+//import io.hops.experiments.benchmarks.blockreporting.BlockReportingBenchmarkCommand;
+//import io.hops.experiments.benchmarks.blockreporting.BlockReportingWarmUp;
 import io.hops.experiments.benchmarks.common.BMResult;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
@@ -75,7 +75,7 @@ public class Master {
       config = new BMConfiguration(configFilePath);
 
       removeExistingResultsFiles();
-      
+
       startRemoteLogger(config.getSlavesList().size());
 
       connectSlaves();
@@ -88,7 +88,7 @@ public class Master {
       startCommander();
 
       generateResultsFile();
-      
+
       printAllResults();
     } catch (Exception e) {
       e.printStackTrace();
@@ -111,7 +111,8 @@ public class Master {
     } else if (config.getBenchMarkType() == BenchmarkType.INTERLEAVED) {
       startInterleavedCommander();
     } else if (config.getBenchMarkType() == BenchmarkType.BR) {
-      startBlockReportingCommander();
+      // startBlockReportingCommander();
+      throw new IllegalStateException("Block Reporting benchmarking is not supported for serverless HopsFS.");
     } else {
       throw new IllegalStateException("Unsupported Benchmark ");
     }
@@ -214,43 +215,43 @@ public class Master {
     }
   }
 
-  private void startBlockReportingCommander() throws IOException, ClassNotFoundException {
-    System.out.println("Starting BlockReporting Benchmark ...");
-    prompt();
-    BlockReportingBenchmarkCommand.Request request = new BlockReportingBenchmarkCommand.Request();
-
-    sendToAllSlaves(request, 0/*delay*/);
-
-    Collection<Object> responses = receiveFromAllSlaves(Integer.MAX_VALUE);
-    DescriptiveStatistics successfulOps = new DescriptiveStatistics();
-    DescriptiveStatistics failedOps = new DescriptiveStatistics();
-    DescriptiveStatistics speed = new DescriptiveStatistics();
-    DescriptiveStatistics avgTimePerReport = new DescriptiveStatistics();
-    DescriptiveStatistics avgTimeTogetANewNameNode = new DescriptiveStatistics();
-    DescriptiveStatistics noOfNNs = new DescriptiveStatistics();
-
-    for (Object obj : responses) {
-      if (!(obj instanceof BlockReportingBenchmarkCommand.Response)) {
-        throw new IllegalStateException("Wrong response received from the client");
-      } else {
-        BlockReportingBenchmarkCommand.Response response = (BlockReportingBenchmarkCommand.Response) obj;
-        successfulOps.addValue(response.getSuccessfulOps());
-        failedOps.addValue(response.getFailedOps());
-        speed.addValue(response.getSpeed());
-        avgTimePerReport.addValue(response.getAvgTimePerReport());
-        avgTimeTogetANewNameNode.addValue(response.getAvgTimeTogetNewNameNode());
-        noOfNNs.addValue(response.getNnCount());
-      }
-    }
-
-    BlockReportBMResults result = new BlockReportBMResults(config.getNamenodeCount(),
-            (int)Math.floor(noOfNNs.getMean()),
-            config.getNdbNodesCount(),
-            speed.getSum(), successfulOps.getSum(),
-            failedOps.getSum(), avgTimePerReport.getMean(), avgTimeTogetANewNameNode.getMean());
-
-    printMasterResultMessages(result);
-  }
+//  private void startBlockReportingCommander() throws IOException, ClassNotFoundException {
+//    System.out.println("Starting BlockReporting Benchmark ...");
+//    prompt();
+//    BlockReportingBenchmarkCommand.Request request = new BlockReportingBenchmarkCommand.Request();
+//
+//    sendToAllSlaves(request, 0/*delay*/);
+//
+//    Collection<Object> responses = receiveFromAllSlaves(Integer.MAX_VALUE);
+//    DescriptiveStatistics successfulOps = new DescriptiveStatistics();
+//    DescriptiveStatistics failedOps = new DescriptiveStatistics();
+//    DescriptiveStatistics speed = new DescriptiveStatistics();
+//    DescriptiveStatistics avgTimePerReport = new DescriptiveStatistics();
+//    DescriptiveStatistics avgTimeTogetANewNameNode = new DescriptiveStatistics();
+//    DescriptiveStatistics noOfNNs = new DescriptiveStatistics();
+//
+//    for (Object obj : responses) {
+//      if (!(obj instanceof BlockReportingBenchmarkCommand.Response)) {
+//        throw new IllegalStateException("Wrong response received from the client");
+//      } else {
+//        BlockReportingBenchmarkCommand.Response response = (BlockReportingBenchmarkCommand.Response) obj;
+//        successfulOps.addValue(response.getSuccessfulOps());
+//        failedOps.addValue(response.getFailedOps());
+//        speed.addValue(response.getSpeed());
+//        avgTimePerReport.addValue(response.getAvgTimePerReport());
+//        avgTimeTogetANewNameNode.addValue(response.getAvgTimeTogetNewNameNode());
+//        noOfNNs.addValue(response.getNnCount());
+//      }
+//    }
+//
+//    BlockReportBMResults result = new BlockReportBMResults(config.getNamenodeCount(),
+//            (int)Math.floor(noOfNNs.getMean()),
+//            config.getNdbNodesCount(),
+//            speed.getSum(), successfulOps.getSum(),
+//            failedOps.getSum(), avgTimePerReport.getMean(), avgTimeTogetANewNameNode.getMean());
+//
+//    printMasterResultMessages(result);
+//  }
 
   private void startInterleavedCommander() throws IOException, ClassNotFoundException, InterruptedException {
     System.out.println("Starting Interleaved Benchmark ...");
@@ -291,7 +292,8 @@ public class Master {
               config.getFileSizeDistribution(), config.getAppendFileSize(),
               config.getBaseDir(), config.getReadFilesFromDisk(), config.getDiskNameSpacePath());
     } else if (config.getBenchMarkType() == BenchmarkType.BR) {
-      warmUpCommand = new BlockReportingWarmUp.Request(config);
+      // warmUpCommand = new BlockReportingWarmUp.Request(config);
+      throw new UnsupportedOperationException("Block Reporting benchmarking is not supported for serverless HopsFS.");
     } else {
       throw new UnsupportedOperationException("Wrong Benchmark type for"
               + " warm up " + config.getBenchMarkType());
