@@ -106,74 +106,72 @@ source $exp_deploy_script
 echo "Repeating experiment $REPEAT_EXP_TIMES times."
 
 while [  $counter -lt $REPEAT_EXP_TIMES ]; do
-        let counter+=1
-        currentDir="$All_Results_Folder/run_$counter"
-        mkdir -p $currentDir
+  let counter+=1
+  echo "Preparing for executing # $counter of experiment..."
+  currentDir="$All_Results_Folder/run_$counter"
+  mkdir -p $currentDir
 
-        currentNNIndex=$EXP_START_INDEX
-        while [ $currentNNIndex -le ${#NNS_FullList[@]} ]; do
-                    for ((e_x = 0; e_x < ${#Benchmark_Types[@]}; e_x++)) do
-                        BenchMark=${Benchmark_Types[$e_x]}
+  currentNNIndex=$EXP_START_INDEX
+  for ((e_x = 0; e_x < ${#Benchmark_Types[@]}; e_x++)) do
+    BenchMark=${Benchmark_Types[$e_x]}
 
-                        DNS_FullList_STR=""
-                        HBTime=3
-                        if [ $BenchMark = "BR" ]; then
-                            DNS_FullList_STR=""
-                            HBTime=9223372036854775807
-                        else
-                            for ((e_dn = 0; e_dn < ${#DNS_FullList[@]}; e_dn++)) do
-                                DNS_FullList_STR="$DNS_FullList_STR ${DNS_FullList[$e_dn]}"
-                            done
-                            HBTime=3
-                        fi
+    DNS_FullList_STR=""
+    HBTime=3
+    if [ $BenchMark = "BR" ]; then
+      DNS_FullList_STR=""
+      HBTime=9223372036854775807
+    else
+      for ((e_dn = 0; e_dn < ${#DNS_FullList[@]}; e_dn++)) do
+        DNS_FullList_STR="$DNS_FullList_STR ${DNS_FullList[$e_dn]}"
+      done
+      HBTime=3
+    fi
 
 
-                        currentDirBM="$currentDir/$BenchMark"
-                        mkdir -p $currentDirBM
-                            TotalNNCount=$currentNNIndex
+    currentDirBM="$currentDir/$BenchMark"
+    mkdir -p $currentDirBM
+    TotalNNCount=$currentNNIndex
 
-                            TotalSlaves=${#BM_Machines_FullList[@]}
+    TotalSlaves=${#BM_Machines_FullList[@]}
 
-                            ClientsPerSlave=1
-                            EXP_WARM_UP_TIME=30000 #10 mins
-                            TotalClients=$(echo "scale=2; ($TotalNNCount * $DFS_CLIENTS_PER_NAMENODE)" | bc)
-                            ClientsPerSlave=$(echo "scale=2; ($TotalClients)/$TotalSlaves" | bc)
+    ClientsPerSlave=1
+    EXP_WARM_UP_TIME=30000 #10 mins
+    TotalClients=$(echo "scale=2; ($TotalNNCount * $DFS_CLIENTS_PER_NAMENODE)" | bc)
+    ClientsPerSlave=$(echo "scale=2; ($TotalClients)/$TotalSlaves" | bc)
 
-                            #ceiling
-                            ClientsPerSlave=$(echo "scale=2; ($ClientsPerSlave + 0.5) " | bc)
-                            ClientsPerSlave=$(echo "($ClientsPerSlave/1)" | bc)
-                            TotalClients=$(echo "($ClientsPerSlave * $TotalSlaves)" | bc) #recalculate
+    #ceiling
+    ClientsPerSlave=$(echo "scale=2; ($ClientsPerSlave + 0.5) " | bc)
+    ClientsPerSlave=$(echo "($ClientsPerSlave/1)" | bc)
+    TotalClients=$(echo "($ClientsPerSlave * $TotalSlaves)" | bc) #recalculate
 
-                            echo "ClientsPerSlave: $ClientsPerSlave"
-                            echo "TotalClients: $TotalClients"
+    echo "ClientsPerSlave: $ClientsPerSlave"
+    echo "TotalClients: $TotalClients"
 
-                            ExpSlaves=""
-                            ExpMaster=""
-                            for ((e_k = 0; e_k < ${#BM_Machines_FullList[@]}; e_k++)) do
-                                if [ -z "$ExpMaster" ]; then
-                                    ExpMaster=${BM_Machines_FullList[$e_k]}
-                                else
-                                    ExpSlaves="$ExpSlaves ${BM_Machines_FullList[$e_k]}"
-                                fi
-                            done
+    ExpSlaves=""
+    ExpMaster=""
+    for ((e_k = 0; e_k < ${#BM_Machines_FullList[@]}; e_k++)) do
+        if [ -z "$ExpMaster" ]; then
+            ExpMaster=${BM_Machines_FullList[$e_k]}
+        else
+            ExpSlaves="$ExpSlaves ${BM_Machines_FullList[$e_k]}"
+        fi
+    done
 
-                            echo "ExpSlaves: $ExpSlaves"
-                            echo "ExpMaster: $ExpMaster"
+    echo "ExpSlaves: $ExpSlaves"
+    echo "ExpMaster: $ExpMaster"
 
-                            if [ -z "$NameNodeRpcPort" ]; then
-                               BOOT_STRAP_NN="hdfs://$Current_Leader_NN"
-                            else
-                               RPC_PORT=$(echo "($NameNodeRpcPort)" | bc)
-                               BOOT_STRAP_NN="hdfs://$Current_Leader_NN:$RPC_PORT"
-                            fi
+    if [ -z "$NameNodeRpcPort" ]; then
+       BOOT_STRAP_NN="hdfs://$Current_Leader_NN"
+    else
+       RPC_PORT=$(echo "($NameNodeRpcPort)" | bc)
+       BOOT_STRAP_NN="hdfs://$Current_Leader_NN:$RPC_PORT"
+    fi
 
-                            currentExpDir="$currentDirBM/$TotalNNCount-NN-$TotalClients-Clients-$BenchMark-BenchMark"
-                            mkdir -p  $currentExpDir
-                            run
+    currentExpDir="$currentDirBM/$TotalNNCount-NN-$TotalClients-Clients-$BenchMark-BenchMark"
+    mkdir -p  $currentExpDir
+    run
 
-                done
-                currentNNIndex=$(echo "($currentNNIndex + $NN_INCREMENT)" | bc)
-        done
+  done
 
 done
 exit
