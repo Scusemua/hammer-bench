@@ -19,6 +19,8 @@ package io.hops.experiments.controller;
 //import io.hops.experiments.benchmarks.blockreporting.BlockReportBMResults;
 //import io.hops.experiments.benchmarks.blockreporting.BlockReportingBenchmarkCommand;
 //import io.hops.experiments.benchmarks.blockreporting.BlockReportingWarmUp;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import io.hops.experiments.benchmarks.common.BMResult;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
@@ -50,6 +52,7 @@ import java.util.*;
  * @author salman
  */
 public class Master {
+  public static final Log LOG = LogFactory.getLog(Master.class);
 
   Set<InetAddress> misbehavingSlaves = new HashSet<InetAddress>();
   Map<InetAddress, SlaveConnection> slavesConnections = new HashMap<InetAddress, SlaveConnection>();
@@ -57,6 +60,7 @@ public class Master {
   BMConfiguration config;
 
   public static void main(String[] argv) throws Exception {
+    LOG.debug("Master has started running.");
     String configFilePath = "master.properties";
     if (argv.length == 1) {
       if (argv[0].compareToIgnoreCase("help") == 0) {
@@ -71,28 +75,37 @@ public class Master {
 
   public void start(String configFilePath) throws Exception {
     try {
-      System.out.println("*** Starting the master ***");
+      printMasterLogMessages("*** Starting the master ***");
       config = new BMConfiguration(configFilePath);
 
+      printMasterLogMessages("Removing existing result files...");
       removeExistingResultsFiles();
 
+      printMasterLogMessages("Starting remote logger...");
       startRemoteLogger(config.getSlavesList().size());
 
+      printMasterLogMessages("Connecting to slaves...");
       connectSlaves();
 
+      printMasterLogMessages("Performing handshake with slaves...");
       handShakeWithSlaves(); // Let all the clients know show is the master
 
+      printMasterLogMessages("Warming up slaves...");
       warmUpSlaves();
 
+      printMasterLogMessages("Starting the commander...");
       //start the commander
       startCommander();
 
+      printMasterLogMessages("Generating the results file...");
       generateResultsFile();
 
+      printMasterLogMessages("Printing all results...");
       printAllResults();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("Exception encountered: ", e);
     } finally {
+      printMasterLogMessages("Sending KILL command to all slaves.");
       sendToAllSlaves(new KillSlave(), 0/*delay*/);
       System.exit(0);
     }
@@ -102,7 +115,7 @@ public class Master {
     Logger.LogListener listener = new Logger.LogListener(config.getRemoteLoggingPort(),maxSlaves);
     Thread thread = new Thread(listener);
     thread.start();
-    System.out.println("Logger started.");
+    printMasterLogMessages("Remote logger started.");
   }
 
   private void startCommander() throws IOException, InterruptedException, ClassNotFoundException {
@@ -216,7 +229,7 @@ public class Master {
   }
 
 //  private void startBlockReportingCommander() throws IOException, ClassNotFoundException {
-//    System.out.println("Starting BlockReporting Benchmark ...");
+//    LOG.debug("Starting BlockReporting Benchmark ...");
 //    prompt();
 //    BlockReportingBenchmarkCommand.Request request = new BlockReportingBenchmarkCommand.Request();
 //
@@ -254,7 +267,7 @@ public class Master {
 //  }
 
   private void startInterleavedCommander() throws IOException, ClassNotFoundException, InterruptedException {
-    System.out.println("Starting Interleaved Benchmark ...");
+    printMasterLogMessages("Starting Interleaved Benchmark ...");
     prompt();
     InterleavedBenchmarkCommand.Request request =
             new InterleavedBenchmarkCommand.Request(config);
@@ -404,6 +417,7 @@ public class Master {
   private void removeExistingResultsFiles() throws IOException{
     File dir = new File(config.getResultsDir());
     if(dir.exists()){
+      printMasterLogMessages("Existing results directory exists -- removing it now...");
        FileUtils.deleteDirectory(dir);
     }
     dir.mkdirs();
@@ -446,19 +460,19 @@ public class Master {
   }
 
   private void redColoredText(String msg) {
-    System.out.println((char) 27 + "[31m" + msg);
-    System.out.print((char) 27 + "[0m");
+    LOG.debug((char) 27 + "[31m" + msg);
+    LOG.debug((char) 27 + "[0m");
   }
 
   public static void blueColoredText(String msg) {
-    System.out.println((char) 27 + "[36m" + msg);
-    System.out.print((char) 27 + "[0m");
+    LOG.debug((char) 27 + "[36m" + msg);
+    LOG.debug((char) 27 + "[0m");
   }
 
   private void printAllResults() throws FileNotFoundException, IOException {
-    System.out.println("\n\n\n");
-    System.out.println("************************ All Results ************************");
-    System.out.println("\n\n\n");
+    LOG.debug("\n\n\n");
+    LOG.debug("************************ All Results ************************");
+    LOG.debug("\n\n\n");
     
     String filePath = config.getResultsDir();
     if(!filePath.endsWith("/")){
@@ -479,7 +493,7 @@ public class Master {
     } finally {
       br.close();
     }
-    System.out.println("\n\n\n");
+    LOG.debug("\n\n\n");
   }
 
   public class SlaveConnection {
