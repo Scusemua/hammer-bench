@@ -103,6 +103,7 @@ counter=0
 
 echo "*** deploying experiment jars ***"
 source $exp_deploy_script
+echo "Repeating experiment $REPEAT_EXP_TIMES times."
 
 while [  $counter -lt $REPEAT_EXP_TIMES ]; do
         let counter+=1
