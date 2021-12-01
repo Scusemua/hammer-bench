@@ -167,7 +167,7 @@ public class RawBenchmark extends Benchmark {
           }
 
           long fileSize = -1;
-          if (opType == opType.CREATE_FILE) {
+          if (opType == BenchmarkOperations.CREATE_FILE) {
             /*For logging file size distribution
             synchronized (this) {
               Long count = stats.get(fileSize);

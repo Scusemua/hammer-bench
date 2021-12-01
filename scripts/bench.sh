@@ -55,7 +55,7 @@ run() {
     source $Start_HopsFS_Script;
  fi
   
-  echo "*** strating the benchmark ***"
+  echo "*** starting the benchmark ***"
   ssh $HopsFS_User@$ExpMaster mkdir -p $exp_remote_bench_mark_result_dir
   source $exp_start_script $ExpMaster 
   scp $HopsFS_User@$ExpMaster:$exp_remote_bench_mark_result_dir/* $currentExpDir/
