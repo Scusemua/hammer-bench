@@ -16,10 +16,7 @@ if [ -z $2 ]; then
 fi
 
 #All Unique Hosts
-All_Hosts_To_Purge=(cloud1 cloud2 cloud3 cloud4 cloud5 cloud6 cloud7 cloud8 cloud9 cloud10 cloud11 cloud12 
-#cloud13
- cloud14 cloud15 cloud16 cloud17 
-  bbc1 bbc2 bbc3 bbc4 bbc5 bbc6 bbc7 salman2 hawtaky snurran maismdell)
+All_Hosts_To_Purge=("10.241.64.12" "10.241.64.14")
 
 
 for i in ${All_Hosts_To_Purge[@]}
