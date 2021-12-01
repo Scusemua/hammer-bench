@@ -154,12 +154,14 @@ while [  $counter -lt $REPEAT_EXP_TIMES ]; do
     echo "ExpSlaves: $ExpSlaves"
     echo "ExpMaster: $ExpMaster"
 
-    if [ -z "$NameNodeRpcPort" ]; then
-       BOOT_STRAP_NN="hdfs://$Current_Leader_NN"
-    else
-       RPC_PORT=$(echo "($NameNodeRpcPort)" | bc)
-       BOOT_STRAP_NN="hdfs://$Current_Leader_NN:$RPC_PORT"
-    fi
+    BOOT_STRAP_NN="$FsDefaultName"
+
+#    if [ -z "$NameNodeRpcPort" ]; then
+#       BOOT_STRAP_NN="hdfs://$Current_Leader_NN"
+#    else
+#       RPC_PORT=$(echo "($NameNodeRpcPort)" | bc)
+#       BOOT_STRAP_NN="hdfs://$Current_Leader_NN:$RPC_PORT"
+#    fi
 
     currentExpDir="$currentDirBM/$TotalNNCount-NN-$TotalClients-Clients-$BenchMark-BenchMark"
     mkdir -p  $currentExpDir

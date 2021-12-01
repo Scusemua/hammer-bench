@@ -56,6 +56,7 @@ NumberNdbDataNodes=1                                                      #added
 
 #HopsFS Distribution Parameters
 HopsFS_User=ubuntu
+FsDefaultName=hdfs://10.241.64.14:9000
 #NameNodeRpcPort=26801
 HopsFS_Remote_Dist_Folder=/tmp/hopsfs
 Datanode_Data_Dir=$HopsFS_Remote_Dist_Folder/Data
