@@ -23,9 +23,6 @@ randomize_NNs_list=true
 #############################################################################################################################
 run() {
   echo "*************************** Exp Params Start ****************************"
-  echo "All_NNs_In_Current_Exp: ${All_NNs_In_Current_Exp[@]}"
-  echo "Current_Leader_NN $Current_Leader_NN"
-  echo "Non_Leader_NNs $Non_Leader_NNs"
   echo "Slaves $ExpMaster ${ExpSlaves[@]}"
   echo "Master $ExpMaster"
   echo "Threads/Slave $ClientsPerSlave"
@@ -115,22 +112,18 @@ while [  $counter -lt $REPEAT_EXP_TIMES ]; do
   for ((e_x = 0; e_x < ${#Benchmark_Types[@]}; e_x++)) do
     BenchMark=${Benchmark_Types[$e_x]}
 
+    echo "Running benchmark '$BenchMark' now"
+
     DNS_FullList_STR=""
     HBTime=3
-    if [ $BenchMark = "BR" ]; then
-      DNS_FullList_STR=""
-      HBTime=9223372036854775807
-    else
-      for ((e_dn = 0; e_dn < ${#DNS_FullList[@]}; e_dn++)) do
-        DNS_FullList_STR="$DNS_FullList_STR ${DNS_FullList[$e_dn]}"
-      done
-      HBTime=3
-    fi
-
+    for ((e_dn = 0; e_dn < ${#DNS_FullList[@]}; e_dn++)) do
+      DNS_FullList_STR="$DNS_FullList_STR ${DNS_FullList[$e_dn]}"
+    done
+    HBTime=3
 
     currentDirBM="$currentDir/$BenchMark"
     mkdir -p $currentDirBM
-    TotalNNCount=$currentNNIndex
+    TotalNNCount=1
 
     TotalSlaves=${#BM_Machines_FullList[@]}
 
