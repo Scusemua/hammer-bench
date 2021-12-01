@@ -52,14 +52,11 @@ REPEAT_EXP_TIMES=1
 
 All_Results_Folder="/tmp/hops-bm/"                                        #This is where the results are saved. 
 exp_remote_bench_mark_result_dir="/tmp/hops-bm-master-results/"           #This the folder on where the master sotres the results. 
-NumberNdbDataNodes=4                                                      #added to the results of the benchmarks. helps in data aggregation. for HDFS set it to 0             
-
-            
-
+NumberNdbDataNodes=1                                                      #added to the results of the benchmarks. helps in data aggregation. for HDFS set it to 0
 
 #HopsFS Distribution Parameters
 HopsFS_User=ubuntu
-NameNodeRpcPort=26801
+#NameNodeRpcPort=26801
 HopsFS_Remote_Dist_Folder=/tmp/hopsfs
 Datanode_Data_Dir=$HopsFS_Remote_Dist_Folder/Data
 #full path to java
