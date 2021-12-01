@@ -31,7 +31,6 @@ then
 	exit 0
 fi
 
-
 echo "Starting Slaves on ${BM_Machines_FullList[*]}"
 $PSSH -H "${BM_Machines_FullList[*]}"  -l $HopsFS_User -i  $HopsFS_Experiments_Remote_Dist_Folder/start-slave.sh 
 
