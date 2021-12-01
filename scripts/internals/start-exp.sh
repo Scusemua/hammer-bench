@@ -23,6 +23,8 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PSSH=$($DIR/psshcmd.sh)
 PRSYNC=$($DIR/prsynccmd.sh)
 
+echo "=== STARTING EXPERIMENT NOW ==="
+
 if test -z "$1"
 then
 	echo "Provide host name where master will be started"

@@ -139,6 +139,7 @@ while [  $counter -lt $REPEAT_EXP_TIMES ]; do
 
     echo "ClientsPerSlave: $ClientsPerSlave"
     echo "TotalClients: $TotalClients"
+    echo "TotalSlaves: $TotalSlaves"
 
     ExpSlaves=""
     ExpMaster=""
