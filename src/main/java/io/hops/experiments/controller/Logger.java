@@ -56,7 +56,8 @@ public class Logger {
         msg += " ... ";
       }
 
-      printMsg(errorCounter+" errors since last error. New error is: "+msg);
+      printMsg(errorCounter+" errors since last error. New error is: " + msg);
+      printMsg(e.getMessage());
       errorCounter=0;
       lastError = System.currentTimeMillis();
     }else{
