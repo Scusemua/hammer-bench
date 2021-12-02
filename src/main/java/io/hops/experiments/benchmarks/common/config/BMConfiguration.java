@@ -594,6 +594,11 @@ public class BMConfiguration implements Serializable {
       dfsClientConf.setProperty("dfs.namenode.rpc-address."+getDfsNameService()+".nn2",props.getProperty("dfs.namenode.rpc-address."+getDfsNameService()+".nn2"));
       dfsClientConf.setProperty("dfs.client.failover.proxy.provider."+getDfsNameService(),props.getProperty("dfs.client.failover.proxy.provider."+getDfsNameService()));
     } else if (getBenchMarkFileSystemName() == BenchMarkFileSystemName.HopsFS) {
+
+      //////////////////////////////////////////
+      /// Original HammerBench Configuration ///
+      //////////////////////////////////////////
+
       System.out.println("Creating config for HopsFS");
       dfsClientConf.setProperty(ConfigKeys.DFS_CLIENT_REFRESH_NAMENODE_LIST_KEY,
               Long.toString(getNameNodeRefreshRate()));
@@ -608,6 +613,23 @@ public class BMConfiguration implements Serializable {
       dfsClientConf.setProperty(ConfigKeys.DFS_DB_FILE_MAX_SIZE_KEY,
               Integer.toString(getInt(ConfigKeys.DFS_DB_FILE_MAX_SIZE_KEY, ConfigKeys.DFS_DB_FILE_MAX_SIZE_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.DFS_CLIENT_DELAY_BEFORE_FILE_CLOSE_KEY, Integer.toString(ConfigKeys.DFS_CLIENT_DELAY_BEFORE_FILE_CLOSE_DEFAULT));
+
+      ////////////////////////////////////////////////
+      /// Serverless HopsFS-Specific Configuration ///
+      ////////////////////////////////////////////////
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_ENDPOINT, getString(ConfigKeys.SERVERLESS_ENDPOINT, ConfigKeys.SERVERLESS_ENDPOINT_DEFAULT));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_PURGE_INTERVAL_MILLISECONDS, Integer.toString(getInt(ConfigKeys.SERVERLESS_PURGE_INTERVAL_MILLISECONDS, ConfigKeys.SERVERLESS_PURGE_INTERVAL_MILLISECONDS_DEFAULT)));
+      dfsClientConf.setProperty("dfs.transaction.stats.enabled", Boolean.toString(getBoolean("dfs.transaction.stats.enabled", true)));
+      dfsClientConf.setProperty("dfs.transaction.stats.detailed.enabled", Boolean.toString(getBoolean("dfs.transaction.stats.detailed.enabled", true)));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_TCP_REQUESTS_ENABLED, Boolean.toString(getBoolean(ConfigKeys.SERVERLESS_TCP_REQUESTS_ENABLED, ConfigKeys.SERVERLESS_TCP_REQUESTS_ENABLED_DEFAULT)));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_HTTP_RETRY_MAX, Integer.toString(getInt(ConfigKeys.SERVERLESS_HTTP_RETRY_MAX, ConfigKeys.SERVERLESS_HTTP_RETRY_MAX_DEFAULT)));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_HTTP_TIMEOUT, Integer.toString(getInt(ConfigKeys.SERVERLESS_HTTP_TIMEOUT, ConfigKeys.SERVERLESS_HTTP_TIMEOUT_DEFAULT)));
+      dfsClientConf.setProperty(ConfigKeys.NDB_DEBUG, Boolean.toString(getBoolean(ConfigKeys.NDB_DEBUG, ConfigKeys.NDB_DEBUG_DEFAULT)));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_DEPLOYMENTS_BASELINE, Integer.toString(getInt(ConfigKeys.SERVERLESS_DEPLOYMENTS_BASELINE, ConfigKeys.SERVERLESS_DEPLOYMENTS_BASELINE_DEFAULT)));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS, Integer.toString(getInt(ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS, ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS_DEFAULT)));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_ENDPOINT, getString(ConfigKeys.SERVERLESS_ENDPOINT, ConfigKeys.SERVERLESS_ENDPOINT_DEFAULT));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_PLATFORM, getString(ConfigKeys.SERVERLESS_PLATFORM, ConfigKeys.SERVERLESS_PLATFORM_DEFAULT));
+
     } else if (getBenchMarkFileSystemName() == BenchMarkFileSystemName.CephFS) {
       System.out.println("Creating config for CephFS");
       dfsClientConf.setProperty(ConfigKeys.FS_CEPH_IMPL_KEY, getFsCephImp());

@@ -22,7 +22,158 @@ package io.hops.experiments.benchmarks.common.config;
  * @author salman
  */
 public class ConfigKeys {
-    
+
+    // START OF SERVERLESS
+    /**
+     * Configuration name for specifying the endpoint to issue HTTP requests to invoke serverless functions.
+     */
+    public static final String SERVERLESS_ENDPOINT = "serverless.endpoint";
+
+    /**
+     * The default endpoint/URI for invoking a serverless function (i.e., namenode).
+     */
+    public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://openwhisk.serverless-mds-cluster-243065a7719552ad2f4388dc81e46642-0000.us-east.containers.appdomain.cloud:443/api/v1/web/whisk.system/default/namenode";
+
+    /**
+     * Configuration property for defining the serverless platform in use.
+     */
+    public static final String SERVERLESS_PLATFORM = "serverless.platform";
+
+    /**
+     * The default serverless platform of Serverless HopsFS.
+     */
+    public static final String SERVERLESS_PLATFORM_DEFAULT = "openwhisk";
+
+    /**
+     * Configuration property for the baseline number of unique serverless functions deployed for use in this
+     * particular Serverless HopsFS cluster. This is different from the max number of deployments, which is the hard
+     * limit for the number of unique serverless functions at disposal.
+     */
+    public static final String SERVERLESS_DEPLOYMENTS_BASELINE = "serverless.deployments.baseline";
+
+    /**
+     * The default number of serverless functions associated with this particular Serverless HopsFS cluster.
+     */
+    public static final int SERVERLESS_DEPLOYMENTS_BASELINE_DEFAULT = 1;
+
+    /**
+     * If true, then we'll pass an argument to the NNs indicating that they should print their
+     * debug output from the underlying NDB C++ library (libndbclient.so).
+     */
+    public static final String NDB_DEBUG = "storage.ndb.debug.enabled";
+    public static final boolean NDB_DEBUG_DEFAULT = false;
+
+    /**
+     * This string is passed to the NDB C++ library (on the NameNodes) if NDB debugging is enabled.
+     */
+    public static final String NDB_DEBUG_STRING = "storage.ndb.debug.string";
+    public static final String NDB_DEBUG_STRING_DEFAULT = "d:t:L:F";
+
+    /**
+     * The maximum number of uniquely-deployed serverless functions available for use with this particular
+     * Serverless HopsFS cluster.
+     */
+    public static final String SERVERLESS_MAX_DEPLOYMENTS = "serverless.deployments.max";
+    public static final int SERVERLESS_MAX_DEPLOYMENTS_DEFAULT = 3;
+
+    public static final String SERVERLESS_METADATA_CACHE_REDIS_ENDPOINT = "serverless.redis.endpoint";
+    public static final String SERVERLESS_METADATA_CACHE_REDIS_ENDPOINT_DEFAULT = "127.0.0.1";
+
+    public static final String SERVERLESS_METADATA_CACHE_REDIS_PORT = "serverless.redis.port";
+    public static final int SERVERLESS_METADATA_CACHE_REDIS_PORT_DEFAULT = 6379;
+
+    /**
+     * Serverless HopsFS clients expose a TCP server that NameNodes establish connections with.
+     * Clients can then use TCP requests to communicate with NameNodes.
+     */
+    public static final String SERVERLESS_TCP_SERVER_PORT = "serverless.tcp.port";
+
+    public static final int SERVERLESS_TCP_SERVER_PORT_DEFAULT = 6000;
+
+    public static final String SERVERLESS_TCP_REQUESTS_ENABLED = "serverless.tcp.enabled";
+    public static final boolean SERVERLESS_TCP_REQUESTS_ENABLED_DEFAULT = true;
+
+    public static final String SERVERLESS_HTTP_RETRY_MAX = "serverless.http.maxretries";
+    public static final int SERVERLESS_HTTP_RETRY_MAX_DEFAULT = 3;
+
+    /**
+     * Time, in seconds, for an HTTP request to a NameNode to timeout. Timed-out
+     * requests will be retried according to the SERVERLESS_HTTP_RETRY_MAX
+     * configuration parameter.
+     */
+    public static final String SERVERLESS_HTTP_TIMEOUT = "serverless.http.timeout";
+    public static final int SERVERLESS_HTTP_TIMEOUT_DEFAULT = 20;
+
+    public static final String SERVERLESS_METADATA_CACHE_ENABLED = "serverless.metadatacache.enabled";
+    public static final boolean SERVERLESS_METADATA_CACHE_ENABLED_DEFAULT = true;
+
+    /**
+     * How often, in seconds, the list of active name nodes should be updated.
+     */
+    public static final String SERVERLESS_ACTIVE_NODE_REFRESH = "serverless.activenodes.refreshinterval";
+    public static final int SERVERLESS_ACTIVE_NODE_REFRESH_DEFAULT = 10;
+
+    /**
+     * How long to wait for the worker thread to execute a given task before timing out.
+     */
+    public static final String SERVERLESS_WORKER_THREAD_TIMEOUT_MILLISECONDS = "serverless.task.timeoutmillis";
+    public static final int SERVERLESS_WORKER_THREAD_TIMEOUT_MILLISECONDS_DEFAULT = 30000;
+
+    /**
+     * How often the worker thread should iterate over its cache to see if any results should be purged.
+     */
+    public static final String SERVERLESS_PURGE_INTERVAL_MILLISECONDS = "serverless.task.purgeinterval";
+    public static final int SERVERLESS_PURGE_INTERVAL_MILLISECONDS_DEFAULT = 300000; // 300 seconds, or 5 minutes.
+
+    /**
+     * How long the worker thread should cache previously-computed results before purging them.
+     */
+    public static final String SERVERLESS_RESULT_CACHE_INTERVAL_MILLISECONDS =  "serverless.task.cacheinterval";
+    public static final int SERVERLESS_RESULT_CACHE_INTERVAL_MILLISECONDS_DEFAULT = 180000; // 180 seconds, or 3 minutes.
+
+    /**
+     * Comma-delimited list of hostnames of ZooKeeper servers.
+     */
+    public static final String SERVERLESS_ZOOKEEPER_HOSTNAMES = "serverless.zookeepers.hosts";
+    public static final String[] SERVERLESS_ZOOKEEPER_HOSTNAMES_DEFAULT = {
+            "10.241.64.15:2181",  // NDB Manager (ndb_mgmd) VM.
+            "10.241.64.16:2181",  // NDB DataNode (ndbd) VM.
+            "10.241.64.14:2181"   // HopsFS Development VM.
+    };
+
+    /**
+     * How long for a connection attempt to the ZooKeeper ensemble to timeout (in milliseconds).
+     *
+     * ZooKeeper's default is 15,000 milliseconds (so, 15 seconds).
+     */
+    public static final String SERVERLESS_ZOOKEEPER_CONNECT_TIMEOUT = "serverless.zookeeper.connectiontimeout";
+    public static final int SERVERLESS_ZOOKEEPER_CONNECT_TIMEOUT_DEFAULT = 15000;
+
+    /**
+     * How long for ZooKeeper to consider a NameNode to have disconnected (in milliseconds).
+     *
+     * ZooKeeper's default is 60,000 milliseconds (so, 60 seconds), which is too long for our use-case.
+     * Transactions will generally time out before then (based on the current configuration at the time of
+     * writing this comment).
+     *
+     * This should be LESS than the transaction acknowledgement phase timeout so that NNs have enough time
+     * to detect ZooKeeper membership changes.
+     */
+    public static final String SERVERLESS_ZOOKEEPER_SESSION_TIMEOUT = "serverless.zookeeper.sessiontimeout";
+    public static final int SERVERLESS_ZOOKEEPER_SESSION_TIMEOUT_DEFAULT = 10000;
+
+    /**
+     * How long the Leader NN should wait for ACKs before aborting the transaction. As of right now, the
+     * Leader NN needs to abort after a little while, or all reads and writes on data modified by the transaction
+     * will be blocked (since the transaction locks the rows in intermediate storage).
+     *
+     * This is in milliseconds.
+     */
+    public static final String SERVERLESS_TRANSACTION_ACK_TIMEOUT = "serverless.tx.ack.timeout";
+    public static final int SERVERLESS_TRANSACTION_ACK_TIMEOUT_DEFAULT = 20000;
+
+    // END OF SERVERLESS
+
     public static final String BENCHMARK_FILE_SYSTEM_NAME_KEY = "benchmark.filesystem.name";
     public static final String BENCHMARK_FILE_SYSTEM_NAME_DEFAULT = "HDFS";
   
