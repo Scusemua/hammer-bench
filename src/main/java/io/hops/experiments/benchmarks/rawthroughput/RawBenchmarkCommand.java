@@ -48,6 +48,11 @@ public class RawBenchmarkCommand {
             return duration;
         }
 
+         @Override
+         public String toString() {
+             return "RawBenchmarkCommandRequest(phase=" + phase.name() + ", duration=" + duration + ")";
+         }
+
         @Override
         public BenchmarkType getBenchMarkType() {
             return BenchmarkType.RAW;

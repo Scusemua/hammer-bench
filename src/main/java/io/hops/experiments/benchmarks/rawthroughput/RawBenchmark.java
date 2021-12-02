@@ -55,6 +55,11 @@ public class RawBenchmark extends Benchmark {
   }
 
   @Override
+  public String toString() {
+    return "RawBenchmark(phaseStartTime=" + phaseStartTime + ", phaseDurationInMS=" + phaseDurationInMS + ")";
+  }
+
+  @Override
   protected WarmUpCommand.Response warmUp(WarmUpCommand.Request cmd)
           throws IOException, InterruptedException {
     // Warn up is done in two stages.

@@ -43,6 +43,11 @@ public class InterleavedBenchmarkCommand {
         }
 
         @Override
+        public String toString() {
+            return "InterleavedBenchmarkCommandRequest()";
+        }
+
+        @Override
         public BenchmarkType getBenchMarkType() {
             return BenchmarkType.INTERLEAVED;
         }

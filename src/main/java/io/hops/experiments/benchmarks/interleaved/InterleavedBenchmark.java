@@ -94,6 +94,11 @@ public class InterleavedBenchmark extends Benchmark {
   }
 
   @Override
+  public String toString() {
+    return "InterleavedBenchmark(startTime=" + startTime + ", duration=" + duration + ")";
+  }
+
+  @Override
   protected BenchmarkCommand.Response processCommandInternal(BenchmarkCommand.Request command) throws IOException, InterruptedException {
     BMConfiguration config = ((InterleavedBenchmarkCommand.Request) command).getConfig();
 

@@ -39,5 +39,10 @@ public class RawBenchmarkCreateCommand {
         public long getMaxFilesToCreate() {
             return maxFilesToCreate;
         }
+
+        @Override
+        public String toString() {
+            return "RawBenchmarkCreateCommandRequest(maxFilesToCreate=" + maxFilesToCreate + ")";
+        }
     }
 }

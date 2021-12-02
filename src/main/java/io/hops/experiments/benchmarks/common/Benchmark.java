@@ -63,6 +63,11 @@ public abstract class Benchmark {
     }
     return processCommandInternal(command);
   }
+
+  @Override
+  public String toString() {
+    return "Benchmark";
+  }
   
   public static Benchmark getBenchmark(Configuration conf, BMConfiguration bmConf, int slaveID) {
     if (bmConf.getBenchMarkType() == BenchmarkType.RAW) {
