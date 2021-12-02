@@ -17,6 +17,7 @@
 package io.hops.experiments.benchmarks.rawthroughput;
 
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
+import io.hops.experiments.controller.Slave;
 import io.hops.experiments.utils.BMOperationsUtils;
 
 import java.io.IOException;
@@ -31,6 +32,8 @@ import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
 import io.hops.experiments.controller.Logger;
 import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.utils.DFSOperationsUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import io.hops.experiments.benchmarks.common.Benchmark;
 import io.hops.experiments.controller.commands.BenchmarkCommand;
@@ -43,7 +46,7 @@ import org.apache.hadoop.fs.FileSystem;
  * @author salman
  */
 public class RawBenchmark extends Benchmark {
-
+  public static final Log LOG = LogFactory.getLog(RawBenchmark.class);
   private AtomicInteger successfulOps = new AtomicInteger(0);
   private AtomicInteger failedOps = new AtomicInteger(0);
   private long phaseStartTime;
@@ -98,13 +101,15 @@ public class RawBenchmark extends Benchmark {
           throws IOException, InterruptedException {
     RawBenchmarkCommand.Request request = (RawBenchmarkCommand.Request) command;
     RawBenchmarkCommand.Response response;
-    System.out.println("Starting the " + request.getPhase() + " duration " + request.getDurationInMS());
+    LOG.debug("Starting the " + request.getPhase() + " duration " + request.getDurationInMS());
     response = startTestPhase(request.getPhase(), request.getDurationInMS(), bmConf.getBaseDir());
     return response;
   }
 
   private RawBenchmarkCommand.Response startTestPhase(BenchmarkOperations opType, long duration, String baseDir) throws InterruptedException, UnknownHostException, IOException {
+    LOG.debug("Starting test phase '" + opType.name() + "' with duration=" + duration + ", baseDir='" + baseDir + "'");
     List workers = new LinkedList<Callable>();
+    LOG.debug("Creating " + bmConf.getSlaveNumThreads() + " worker thread(s) now...");
     for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
       Callable worker = new Generic(baseDir, opType);
       workers.add(worker);
@@ -116,6 +121,8 @@ public class RawBenchmark extends Benchmark {
     executor.invokeAll(workers);// blocking call
     long phaseFinishTime = System.currentTimeMillis();
     long actualExecutionTime = (phaseFinishTime - phaseStartTime);
+
+    LOG.debug("Phase " + opType.name() + " finished in " + actualExecutionTime + " milliseconds.");
 
     double speed = ((double) successfulOps.get() / (double) actualExecutionTime); // p / ms
     speed = speed * 1000;

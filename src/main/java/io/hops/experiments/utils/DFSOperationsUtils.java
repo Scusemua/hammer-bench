@@ -19,6 +19,8 @@ package io.hops.experiments.utils;
 
 import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
 import io.hops.experiments.workload.generator.FileTreeFromDiskGenerator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 
@@ -38,7 +40,7 @@ import io.hops.experiments.workload.generator.FileTreeGenerator;
 import io.hops.experiments.workload.generator.FixeDepthFileTreeGenerator;
 
 public class DFSOperationsUtils {
-
+    public static final Log LOG = LogFactory.getLog(DFSOperationsUtils.class);
     private static final boolean SERVER_LESS_MODE=false; //only for testing. If enabled then the clients will not
     private static Random rand = new Random(System.currentTimeMillis());
                                                         // contact NNs
@@ -57,11 +59,11 @@ public class DFSOperationsUtils {
         if (client == null) {
             client = (FileSystem) FileSystem.newInstance(conf);
             dfsClients.set(client);
-           System.out.println(Thread.currentThread().getName()  +
+            LOG.debug(Thread.currentThread().getName()  +
                 " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
-        }else{
-            System.out.println("Reusing Existing Client "+client);
         }
+        else
+            LOG.debug("Reusing Existing Client "+client);
         return client;
     }
 
@@ -79,9 +81,9 @@ public class DFSOperationsUtils {
             }
             
             filePools.set(filePool);
-            System.out.println("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
+            LOG.debug("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
         }else{
-            System.out.println("Reusing file pool obj "+filePool);
+            LOG.debug("Reusing file pool obj "+filePool);
         }
         return filePool;
     }

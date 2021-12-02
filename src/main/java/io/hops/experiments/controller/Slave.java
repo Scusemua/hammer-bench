@@ -105,6 +105,7 @@ public class Slave {
             Object obj = receiveRequestFromMaster();
             if (obj instanceof BenchmarkCommand.Request) {
                 BenchmarkCommand.Request command = (BenchmarkCommand.Request) obj;
+                LOG.debug("Received command from master: " + command);
                 if (!command.getBenchMarkType().equals(bmConf.getBenchMarkType())) {
                     throw new IllegalStateException("BenchMarkType Mismatch. Expecting " + bmConf.getBenchMarkType() + " Got: " + command.getBenchMarkType());
                 }

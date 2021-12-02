@@ -22,11 +22,14 @@ import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.benchmarks.interleaved.InterleavedBenchmark;
 import io.hops.experiments.benchmarks.rawthroughput.RawBenchmark;
 import io.hops.experiments.controller.Logger;
+import io.hops.experiments.controller.Slave;
 import io.hops.experiments.controller.commands.BenchmarkCommand;
 import io.hops.experiments.controller.commands.Handshake;
 import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.utils.DFSOperationsUtils;
 import io.hops.experiments.workload.generator.FilePool;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
@@ -38,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hadoop.fs.FileSystem;
 
 public abstract class Benchmark {
-
+  public static final Log LOG = LogFactory.getLog(Benchmark.class);
   protected final Configuration conf;
   protected final ExecutorService executor;
   protected AtomicInteger threadsWarmedUp = new AtomicInteger(0);
@@ -84,7 +87,6 @@ public abstract class Benchmark {
   
   protected AtomicLong filesCreatedInWarmupPhase = new AtomicLong(0);
   protected class BaseWarmUp implements Callable {
-
     private FileSystem dfs;
     private FilePool filePool;
     private final int filesToCreate;
@@ -108,9 +110,11 @@ public abstract class Benchmark {
               bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
       String filePath = null;
 
+      LOG.debug("Attempting to create a total of " + filesToCreate + " file(s).");
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
+          LOG.debug("Creating file '" + filePath + "' now...");
           DFSOperationsUtils
                   .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
           filePool.fileCreationSucceeded(filePath);
