@@ -127,7 +127,7 @@ while [  $counter -lt $REPEAT_EXP_TIMES ]; do
 
     TotalSlaves=${#BM_Machines_FullList[@]}
 
-    ClientsPerSlave=1
+    ClientsPerSlave=20
     EXP_WARM_UP_TIME=30000 #10 mins
     TotalClients=$(echo "scale=2; ($TotalNNCount * $DFS_CLIENTS_PER_NAMENODE)" | bc)
     ClientsPerSlave=$(echo "scale=2; ($TotalClients)/$TotalSlaves" | bc)
