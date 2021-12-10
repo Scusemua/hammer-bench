@@ -60,7 +60,7 @@ public class Master {
   BMConfiguration config;
 
   public static void main(String[] argv) throws Exception {
-    LOG.debug("Master has started running.");
+    System.out.println("Master has started running.");
     String configFilePath = "master.properties";
     if (argv.length == 1) {
       if (argv[0].compareToIgnoreCase("help") == 0) {
@@ -229,7 +229,7 @@ public class Master {
   }
 
 //  private void startBlockReportingCommander() throws IOException, ClassNotFoundException {
-//    LOG.debug("Starting BlockReporting Benchmark ...");
+//    System.out.println("Starting BlockReporting Benchmark ...");
 //    prompt();
 //    BlockReportingBenchmarkCommand.Request request = new BlockReportingBenchmarkCommand.Request();
 //
@@ -460,19 +460,19 @@ public class Master {
   }
 
   private void redColoredText(String msg) {
-    LOG.debug((char) 27 + "[31m" + msg);
-    LOG.debug((char) 27 + "[0m");
+    System.out.println((char) 27 + "[31m" + msg);
+    System.out.println((char) 27 + "[0m");
   }
 
   public static void blueColoredText(String msg) {
-    LOG.debug((char) 27 + "[36m" + msg);
-    LOG.debug((char) 27 + "[0m");
+    System.out.println((char) 27 + "[36m" + msg);
+    System.out.println((char) 27 + "[0m");
   }
 
   private void printAllResults() throws FileNotFoundException, IOException {
-    LOG.debug("\n\n\n");
-    LOG.debug("************************ All Results ************************");
-    LOG.debug("\n\n\n");
+    System.out.println("\n\n\n");
+    System.out.println("************************ All Results ************************");
+    System.out.println("\n\n\n");
     
     String filePath = config.getResultsDir();
     if(!filePath.endsWith("/")){
@@ -493,7 +493,7 @@ public class Master {
     } finally {
       br.close();
     }
-    LOG.debug("\n\n\n");
+    System.out.println("\n\n\n");
   }
 
   public class SlaveConnection {

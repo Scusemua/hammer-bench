@@ -110,11 +110,11 @@ public abstract class Benchmark {
               bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
       String filePath = null;
 
-      LOG.debug("Attempting to create a total of " + filesToCreate + " file(s).");
+      System.out.println("Attempting to create a total of " + filesToCreate + " file(s).");
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
-          LOG.debug("Creating file '" + filePath + "' now...");
+          System.out.println("Creating file '" + filePath + "' now...");
           DFSOperationsUtils
                   .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
           filePool.fileCreationSucceeded(filePath);

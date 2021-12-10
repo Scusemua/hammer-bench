@@ -59,11 +59,11 @@ public class DFSOperationsUtils {
         if (client == null) {
             client = (FileSystem) FileSystem.newInstance(conf);
             dfsClients.set(client);
-            LOG.debug(Thread.currentThread().getName()  +
+            System.out.println(Thread.currentThread().getName()  +
                 " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
         }
         else
-            LOG.debug("Reusing Existing Client "+client);
+            System.out.println("Reusing Existing Client "+client);
         return client;
     }
 
@@ -81,9 +81,9 @@ public class DFSOperationsUtils {
             }
             
             filePools.set(filePool);
-            LOG.debug("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
+            System.out.println("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
         }else{
-            LOG.debug("Reusing file pool obj "+filePool);
+            System.out.println("Reusing file pool obj "+filePool);
         }
         return filePool;
     }
