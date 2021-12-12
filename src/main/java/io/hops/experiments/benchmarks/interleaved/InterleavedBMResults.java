@@ -78,15 +78,12 @@ public class InterleavedBMResults extends BMResult {
 
   @Override
   public String toString() {
-
-    String message = "Speed-/sec: " + DFSOperationsUtils.round(speed)
-            + " Successful-Ops: " + DFSOperationsUtils.round(successfulOps)
-            + " Failed-Ops: " + DFSOperationsUtils.round(failedOps)
-            + " Avg-Ops-Latency: " + DFSOperationsUtils.round(avgOpLatency)
-            + " Avg-Test-Duration-sec " + DFSOperationsUtils.round(duration)
-            + " No of Expected NNs : "+super.getNoOfExpectedAliveNNs()
-            + " No of Actual Alive NNs : "+super.getNoOfAcutallAliveNNs();
-
-    return message;
+    return "Speed-/sec: " + DFSOperationsUtils.round(speed)
+            + ", Successful-Ops: " + DFSOperationsUtils.round(successfulOps)
+            + ", Failed-Ops: " + DFSOperationsUtils.round(failedOps)
+            + ", Avg-Ops-Latency: " + DFSOperationsUtils.round(avgOpLatency)
+            + ", Avg-Test-Duration-sec " + DFSOperationsUtils.round(duration)
+            + ", No of Expected NNs : " + super.getNoOfExpectedAliveNNs()
+            + ", No of Actual Alive NNs : " + super.getNoOfAcutallAliveNNs();
   }
 }

@@ -227,7 +227,8 @@ public class RawBenchmark extends Benchmark {
       if ((System.currentTimeMillis() - lastLog) > 5000) {
         lastLog = System.currentTimeMillis();
         if (Logger.canILog()) {
-          Logger.printMsg("Successful " + opType + " ops " + successfulOps.get() + " Failed ops " + failedOps.get() + " Speed: " + DFSOperationsUtils.round(speedPSec(successfulOps, phaseStartTime)));
+          Logger.printMsg("Successful " + opType + " ops: " + successfulOps.get() + ". Failed " + opType + " ops: " +
+                  failedOps.get() + ". Speed: " + DFSOperationsUtils.round(speedPSec(successfulOps, phaseStartTime)));
 
           //log file size distribution
           /*synchronized (this) {
