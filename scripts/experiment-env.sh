@@ -32,7 +32,7 @@ NNS_FullList=(`grep -v "^#" namenodes`)
 NDB_FullList=(`grep -v "^#" ndb-datanodes`)
 
 BM_Machines_FullList=(`grep -v "^#" experiment-nodes`)      #These are the machines that run the benchmark application. Basically, these machines are containers for DFSClients. 
-DFS_CLIENTS_PER_NAMENODE=4                                  #In RAW and INTERLEAVED benchmarks use DFS_CLIENTS_PER_NAMENODE*(No of active namenodes in the experiment) clients to stress the namenodes.
+DFS_CLIENTS_PER_NAMENODE=10                                 #In RAW and INTERLEAVED benchmarks use DFS_CLIENTS_PER_NAMENODE*(No of active namenodes in the experiment) clients to stress the namenodes.
                                                             #These clients are uniformly distributed among the benchmark (BM_Machines_FullList) machines.
                                                             #if DFS_CLIENTS_PER_NAMENODE=1000, 5 namenodes and two benchmark machines (BM_Machines_FullList) then each benchmark machine will have 2500 DFSClients
 TINY_DATANODES_PER_NAMENODE=5                               #No of simulated datanodes for benchmarking the blockreporting system
@@ -49,14 +49,15 @@ NN_INCREMENT=111
 EXP_START_INDEX=1
 REPEAT_EXP_TIMES=1
 
-
 All_Results_Folder="/tmp/hops-bm/"                                        #This is where the results are saved. 
-exp_remote_bench_mark_result_dir="/tmp/hops-bm-master-results/"           #This the folder on where the master sotres the results. 
+exp_remote_bench_mark_result_dir="/tmp/hops-bm-master-results/"           #This the folder on where the master stores the results.
 NumberNdbDataNodes=1                                                      #added to the results of the benchmarks. helps in data aggregation. for HDFS set it to 0
 
 #HopsFS Distribution Parameters
-HopsFS_User=ubuntu
-FsDefaultName=hdfs://10.241.64.14:9000
+#HopsFS_User=ubuntu # This is the IBM Cloud version.
+HopsFS_User=ben     # This is the GCP version.
+#FsDefaultName=hdfs://10.241.64.14:9000 # This is the IBM Cloud version.
+FsDefaultName=hdfs://10.150.0.17        # This is the GCP version.
 #NameNodeRpcPort=26801
 HopsFS_Remote_Dist_Folder=/tmp/hopsfs
 Datanode_Data_Dir=$HopsFS_Remote_Dist_Folder/Data

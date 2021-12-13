@@ -32,7 +32,8 @@ public class ConfigKeys {
     /**
      * The default endpoint/URI for invoking a serverless function (i.e., namenode).
      */
-    public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://openwhisk.serverless-mds-cluster-243065a7719552ad2f4388dc81e46642-0000.us-east.containers.appdomain.cloud:443/api/v1/web/whisk.system/default/namenode";
+    public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://openwhisk.serverless-mds-cluster-243065a7719552ad2f4388dc81e46642-0000.us-east.containers.appdomain.cloud:443/api/v1/web/whisk.system/default/namenode"
+    // public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://openwhisk.serverless-mds-cluster-243065a7719552ad2f4388dc81e46642-0000.us-east.containers.appdomain.cloud:443/api/v1/web/whisk.system/default/namenode";
 
     /**
      * Configuration property for defining the serverless platform in use.
@@ -130,16 +131,6 @@ public class ConfigKeys {
      */
     public static final String SERVERLESS_RESULT_CACHE_INTERVAL_MILLISECONDS =  "serverless.task.cacheinterval";
     public static final int SERVERLESS_RESULT_CACHE_INTERVAL_MILLISECONDS_DEFAULT = 180000; // 180 seconds, or 3 minutes.
-
-    /**
-     * Comma-delimited list of hostnames of ZooKeeper servers.
-     */
-    public static final String SERVERLESS_ZOOKEEPER_HOSTNAMES = "serverless.zookeepers.hosts";
-    public static final String[] SERVERLESS_ZOOKEEPER_HOSTNAMES_DEFAULT = {
-            "10.241.64.15:2181",  // NDB Manager (ndb_mgmd) VM.
-            "10.241.64.16:2181",  // NDB DataNode (ndbd) VM.
-            "10.241.64.14:2181"   // HopsFS Development VM.
-    };
 
     /**
      * How long for a connection attempt to the ZooKeeper ensemble to timeout (in milliseconds).
