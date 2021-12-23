@@ -50,7 +50,7 @@ EXP_START_INDEX=1
 REPEAT_EXP_TIMES=1
 
 All_Results_Folder="/tmp/hops-bm/"                                        #This is where the results are saved. 
-exp_remote_bench_mark_result_dir="/tmp/hops-bm-master-results/"           #This the folder on where the master stores the results.
+exp_remote_bench_mark_result_dir="/tmp/hops-bm-master-results"           #This the folder on where the master stores the results.
 NumberNdbDataNodes=1                                                      #added to the results of the benchmarks. helps in data aggregation. for HDFS set it to 0
 
 #HopsFS Distribution Parameters
