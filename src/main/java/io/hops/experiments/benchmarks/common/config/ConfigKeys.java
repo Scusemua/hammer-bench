@@ -32,7 +32,7 @@ public class ConfigKeys {
     /**
      * The default endpoint/URI for invoking a serverless function (i.e., namenode).
      */
-    public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://openwhisk.serverless-mds-cluster-243065a7719552ad2f4388dc81e46642-0000.us-east.containers.appdomain.cloud:443/api/v1/web/whisk.system/default/namenode"
+    public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://openwhisk.serverless-mds-cluster-243065a7719552ad2f4388dc81e46642-0000.us-east.containers.appdomain.cloud:443/api/v1/web/whisk.system/default/namenode";
     // public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://openwhisk.serverless-mds-cluster-243065a7719552ad2f4388dc81e46642-0000.us-east.containers.appdomain.cloud:443/api/v1/web/whisk.system/default/namenode";
 
     /**
