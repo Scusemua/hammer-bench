@@ -31,6 +31,7 @@ run() {
   echo "HBTime $HBTime"
   echo "DataNodes $DNS_FullList_STR"
   echo "Bootstrap NN $BOOT_STRAP_NN"
+  echo "Number of Deployed NNs $NUM_DEPLOYMENTS"
   echo "*************************** Exp Params End ****************************"
 
   sed -i 's|list.of.slaves.*|list.of.slaves='"$ExpMaster ${ExpSlaves[@]}"'|g'       $exp_master_prop_file
@@ -40,6 +41,8 @@ run() {
   sed -i 's|fs.defaultFS=.*|fs.defaultFS='$BOOT_STRAP_NN'|g'                        $exp_master_prop_file
   sed -i 's|no.of.namenodes.*|no.of.namenodes='$TotalNNCount'|g'                    $exp_master_prop_file
   sed -i 's|no.of.ndb.datanodes=.*|no.of.ndb.datanodes='$NumberNdbDataNodes'|g'     $exp_master_prop_file
+  sed -i 's|serverless.deployments.baseline=.*|serverless.deployments.baseline='$NUM_DEPLOYMENTS'|g'        $exp_master_prop_file
+  sed -i 's|serverless.deployments.max=.*|serverless.deployments.max='$NUM_DEPLOYMENTS'|g'        $exp_master_prop_file
 #  sed -i 's|warmup.phase.wait.time=.*|warmup.phase.wait.time='$EXP_WARM_UP_TIME'|g' $exp_master_prop_file
 
  source $run_nmon_script
