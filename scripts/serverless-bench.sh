@@ -126,7 +126,7 @@ while [  $counter -lt $REPEAT_EXP_TIMES ]; do
 
     currentDirBM="$currentDir/$BenchMark"
     mkdir -p $currentDirBM
-    TotalNNCount=5
+    TotalNNCount=$NUM_DEPLOYMENTS
 
     TotalSlaves=${#BM_Machines_FullList[@]}
 
