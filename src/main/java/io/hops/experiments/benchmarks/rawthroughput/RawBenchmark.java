@@ -17,17 +17,16 @@
 package io.hops.experiments.benchmarks.rawthroughput;
 
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
-import io.hops.experiments.controller.Slave;
 import io.hops.experiments.utils.BMOperationsUtils;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
-import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
 import io.hops.experiments.controller.Logger;
 import io.hops.experiments.controller.commands.WarmUpCommand;
@@ -40,6 +39,8 @@ import io.hops.experiments.controller.commands.BenchmarkCommand;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.workload.generator.FilePool;
 import org.apache.hadoop.fs.FileSystem;
+
+import io.hops.metrics.OperationPerformed;
 
 /**
  *
@@ -109,10 +110,10 @@ public class RawBenchmark extends Benchmark {
 
   private RawBenchmarkCommand.Response startTestPhase(BenchmarkOperations opType, long duration, String baseDir) throws InterruptedException, UnknownHostException, IOException {
     System.out.println("Starting test phase '" + opType.name() + "' with duration=" + duration + ", baseDir='" + baseDir + "'");
-    List workers = new LinkedList<Callable>();
+    List<Callable<Object>> workers = new LinkedList<Callable<Object>>();
     System.out.println("Creating " + bmConf.getSlaveNumThreads() + " worker thread(s) now...");
     for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-      Callable worker = new Generic(baseDir, opType);
+      Generic worker = new Generic(baseDir, opType);
       workers.add(worker);
     }
     setMeasurementVariables(duration);
@@ -129,12 +130,38 @@ public class RawBenchmark extends Benchmark {
     speed = speed * 1000;
 
     RawBenchmarkCommand.Response response =
-            new RawBenchmarkCommand.Response(opType,
-                    actualExecutionTime, successfulOps.get(), failedOps.get(), speed, getAliveNNsCount(), opsExeTimes);
+            new RawBenchmarkCommand.Response(
+                    opType, actualExecutionTime, successfulOps.get(), failedOps.get(), speed, getAliveNNsCount(), opsExeTimes);
+
+    List<OperationPerformed> operationPerformedInstances = new ArrayList<OperationPerformed>();
+    for (Callable<Object> callable : workers) {
+      Generic generic = (Generic)callable;
+      List<OperationPerformed> ops = generic.getOperationPerformedInstances();
+
+      if (ops != null)
+        operationPerformedInstances.addAll(ops);
+    }
+
+    if (operationPerformedInstances.size() == 0)
+      System.out.println("[WARNING] Could not retrieve any OperationPerformed instances.");
+    else {
+      String outputPath = "RawBenchmark-" + startTime + "-" + opType.name() + "-opsPerformed.csv";
+      System.out.println("Writing " + operationPerformedInstances.size() + " OperationPerformed instance(s) to file '" +
+              outputPath + "' now...");
+      BufferedWriter opsPerformedWriter = new BufferedWriter(new FileWriter(outputPath));
+
+      opsPerformedWriter.write(OperationPerformed.getHeader());
+      opsPerformedWriter.newLine();
+      for (OperationPerformed op : operationPerformedInstances) {
+        op.write(opsPerformedWriter);
+      }
+      opsPerformedWriter.close();
+    }
+
     return response;
   }
 
-  public class Generic implements Callable {
+  public class Generic implements Callable<Object> {
 
     private BenchmarkOperations opType;
     private FileSystem dfs;
@@ -145,6 +172,13 @@ public class RawBenchmark extends Benchmark {
     public Generic(String baseDir, BenchmarkOperations opType) throws IOException {
       this.baseDir = baseDir;
       this.opType = opType;
+    }
+
+    /**
+     * Return the list of OperationPerformed instances.
+     */
+    public List<OperationPerformed> getOperationPerformedInstances() {
+      return DFSOperationsUtils.getOperationsPerformed();
     }
 
     Map<Long, Long> stats = new HashMap<Long, Long>();

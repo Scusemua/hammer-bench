@@ -46,11 +46,13 @@ public abstract class Benchmark {
   protected final ExecutorService executor;
   protected AtomicInteger threadsWarmedUp = new AtomicInteger(0);
   protected final BMConfiguration bmConf;
+  protected final long startTime;
 
   public Benchmark(Configuration conf, BMConfiguration bmConf) {
     this.conf = conf;
     this.bmConf = bmConf;
     this.executor = Executors.newFixedThreadPool(bmConf.getSlaveNumThreads());
+    this.startTime = System.currentTimeMillis();
   }
 
   protected abstract WarmUpCommand.Response warmUp(WarmUpCommand.Request warmUp)

@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
+import io.hops.metrics.OperationPerformed;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -49,6 +52,26 @@ public class DFSOperationsUtils {
 
     private static AtomicInteger filePoolCount = new AtomicInteger(0);
     private static AtomicInteger dfsClientsCount = new AtomicInteger(0);
+
+    /**
+     * Return the OperationPerformed instances.
+     */
+    public static List<OperationPerformed> getOperationsPerformed() {
+        FileSystem client = dfsClients.get();
+        if (client == null) {
+            System.out.println("[WARNING] FileSystem client is null. Cannot retrieve 'OperationPerformed' instances.");
+            return null;
+        }
+
+        if (client instanceof DistributedFileSystem) {
+            DistributedFileSystem dfs = (DistributedFileSystem)client;
+            return dfs.getOperationsPerformed();
+        } else {
+            System.out.println("[WARNING] FileSystem client is not an instance of DistributedFileSystem." +
+                    " Cannot retrieve 'OperationPerformed' instances.");
+            return null;
+        }
+    }
 
     public static FileSystem getDFSClient(Configuration conf) throws IOException {
         if(SERVER_LESS_MODE){

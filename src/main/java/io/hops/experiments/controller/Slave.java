@@ -130,6 +130,7 @@ public class Slave {
         Object obj = recvFromMaster.readObject();
         if (obj instanceof KillFollower) {
             System.out.println("Received kill command from master. Exiting now...");
+
             System.exit(0);
         }
         return obj;
