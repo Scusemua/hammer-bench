@@ -34,11 +34,11 @@ public class NamespaceWarmUp {
     private long appendSize;
     private String baseDir;
     private boolean readFilesFromDisk;
-    private String diskFilsPath;
+    private String diskFilesPath;
 
     public Request(BenchmarkType benchMarkType, int filesToCreate,
             short replicationFactor, String fileSizeDistribution, long appendSize, String baseDir,
-                   boolean readFilesFromDisk, String diskFilsPath) {
+                   boolean readFilesFromDisk, String diskFilesPath) {
       this.benchMarkType = benchMarkType;
       this.filesToCreate = filesToCreate;
       this.replicationFactor = replicationFactor;
@@ -46,7 +46,7 @@ public class NamespaceWarmUp {
       this.appendSize = appendSize;
       this.baseDir = baseDir;
       this.readFilesFromDisk = readFilesFromDisk;
-      this.diskFilsPath = diskFilsPath;
+      this.diskFilesPath = diskFilesPath;
     }
 
     public long getAppendSize() {
@@ -77,8 +77,15 @@ public class NamespaceWarmUp {
       return readFilesFromDisk;
     }
 
-    public String getDiskFilsPath() {
-      return diskFilsPath;
+    public String getDiskFilesPath() {
+      return diskFilesPath;
+    }
+
+    @Override
+    public String toString() {
+      return "Request(benchmarkType=" + benchMarkType.name() + ", filesToCreate=" + filesToCreate + ", replicationFactor=" +
+              replicationFactor + ", fileSizeDistribution=" + fileSizeDistribution + ", appendSize=" + appendSize +
+              ", baseDir=" + baseDir + ", readFilesFromDisk=" + readFilesFromDisk + ", diskFilesPath=" + diskFilesPath + ")";
     }
   }
 
