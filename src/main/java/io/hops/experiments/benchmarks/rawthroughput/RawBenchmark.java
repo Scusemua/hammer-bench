@@ -99,6 +99,7 @@ public class RawBenchmark extends Benchmark {
   @Override
   protected BenchmarkCommand.Response processCommandInternal(BenchmarkCommand.Request command)
           throws IOException, InterruptedException {
+    System.out.println("Processing RAW benchmark command now...");
     RawBenchmarkCommand.Request request = (RawBenchmarkCommand.Request) command;
     RawBenchmarkCommand.Response response;
     System.out.println("Starting the " + request.getPhase() + " duration " + request.getDurationInMS());
