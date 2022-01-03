@@ -55,7 +55,7 @@ exp_remote_bench_mark_result_dir="/tmp/hops-bm-master-results/"           #This 
 NumberNdbDataNodes=1                                                      #added to the results of the benchmarks. helps in data aggregation. for HDFS set it to 0
 
 #HopsFS Distribution Parameters
-HopsFS_User=ubuntu
+HopsFS_User=ben
 FsDefaultName=hdfs://10.150.0.48:9000
 #NameNodeRpcPort=26801
 HopsFS_Remote_Dist_Folder=/tmp/hopsfs
