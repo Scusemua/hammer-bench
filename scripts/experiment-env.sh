@@ -62,16 +62,3 @@ HopsFS_Remote_Dist_Folder=/tmp/hopsfs
 Datanode_Data_Dir=$HopsFS_Remote_Dist_Folder/Data
 #full path to java
 JAVA_BIN=java
-
-
-
-
-
-
-
-
-
-
-
-                             
-
