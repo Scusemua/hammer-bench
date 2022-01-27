@@ -147,8 +147,8 @@ while [  $counter -lt $REPEAT_EXP_TIMES ]; do
                                        
                             TotalSlaves=${#BM_Machines_FullList[@]}
                             
-                            ClientsPerSlave=1
-                            EXP_WARM_UP_TIME=600000 #10 mins
+                            ClientsPerSlave=20
+                            EXP_WARM_UP_TIME=30000
                             if [ $BenchMark = "BR" ]; then
                                 TotalClients=$(echo "scale=2; ($TotalNNCount * $TINY_DATANODES_PER_NAMENODE)" | bc)
                                 ClientsPerSlave=$(echo "scale=2; ($TotalClients)/$TotalSlaves" | bc)                              
