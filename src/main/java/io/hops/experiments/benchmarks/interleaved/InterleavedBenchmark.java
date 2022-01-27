@@ -18,7 +18,6 @@ package io.hops.experiments.benchmarks.interleaved;
 
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.utils.BMOperationsUtils;
-import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
 import io.hops.experiments.benchmarks.common.Benchmark;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
@@ -70,7 +69,7 @@ public class InterleavedBenchmark extends Benchmark {
       List workers = new ArrayList<BaseWarmUp>();
       // Stage 1
       threadsWarmedUp.set(0);
-      for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
+      for (int i = 0; i < bmConf.getWorkerNumThreads(); i++) {
         Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
         workers.add(worker);
       }
@@ -79,14 +78,14 @@ public class InterleavedBenchmark extends Benchmark {
 
       // Stage 2
       threadsWarmedUp.set(0);
-      for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
+      for (int i = 0; i < bmConf.getWorkerNumThreads(); i++) {
         Callable worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1,
                 bmConf, "Warming up. Stage2: Creating files/dirs. ");
         workers.add(worker);
       }
       executor.invokeAll(workers); // blocking call
-      Logger.printMsg("Finished. Warmup Phase. Created ("+bmConf.getSlaveNumThreads()+"*"+bmConf.getFilesToCreateInWarmUpPhase()+") = "+
-              (bmConf.getSlaveNumThreads()*bmConf.getFilesToCreateInWarmUpPhase())+" files. ");
+      Logger.printMsg("Finished. Warmup Phase. Created ("+bmConf.getWorkerNumThreads()+"*"+bmConf.getFilesToCreateInWarmUpPhase()+") = "+
+              (bmConf.getWorkerNumThreads()*bmConf.getFilesToCreateInWarmUpPhase())+" files. ");
       workers.clear();
     }
 
@@ -105,7 +104,7 @@ public class InterleavedBenchmark extends Benchmark {
     duration = config.getInterleavedBmDuration();
     System.out.println("Starting " + command.getBenchMarkType() + " for duration " + duration);
     List workers = new ArrayList<Worker>();
-    for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
+    for (int i = 0; i < bmConf.getWorkerNumThreads(); i++) {
       Callable worker = new Worker(config);
       workers.add(worker);
     }

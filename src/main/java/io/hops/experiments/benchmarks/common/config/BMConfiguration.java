@@ -370,7 +370,7 @@ public class BMConfiguration implements Serializable {
     return getLong(ConfigKeys.APPEND_FILE_SIZE_IN_Bytes_KEY, ConfigKeys.APPEND_FILE_SIZE_IN_Bytes_DEFAULT);
   }
 
-  public int getSlaveNumThreads() {
+  public int getWorkerNumThreads() {
     return getInt(ConfigKeys.NUM_SLAVE_THREADS_KEY, ConfigKeys.NUM_SLAVE_THREADS_DEFAULT);
   }
 

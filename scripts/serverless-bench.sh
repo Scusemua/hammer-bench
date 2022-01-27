@@ -123,7 +123,7 @@ while [  $counter -lt $REPEAT_EXP_TIMES ]; do
 
     currentDirBM="$currentDir/$BenchMark"
     mkdir -p $currentDirBM
-    TotalNNCount=1
+    TotalNNCount=1 # In GCP branch, this is equal to $NumDeployments, which is set to 10.
 
     TotalSlaves=${#BM_Machines_FullList[@]}
 

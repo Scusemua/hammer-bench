@@ -17,14 +17,11 @@
 package io.hops.experiments.benchmarks.common;
 
 //import io.hops.experiments.benchmarks.blockreporting.BlockReportingBenchmark;
-import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.benchmarks.interleaved.InterleavedBenchmark;
 import io.hops.experiments.benchmarks.rawthroughput.RawBenchmark;
 import io.hops.experiments.controller.Logger;
-import io.hops.experiments.controller.Slave;
 import io.hops.experiments.controller.commands.BenchmarkCommand;
-import io.hops.experiments.controller.commands.Handshake;
 import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.utils.DFSOperationsUtils;
 import io.hops.experiments.workload.generator.FilePool;
@@ -50,7 +47,7 @@ public abstract class Benchmark {
   public Benchmark(Configuration conf, BMConfiguration bmConf) {
     this.conf = conf;
     this.bmConf = bmConf;
-    this.executor = Executors.newFixedThreadPool(bmConf.getSlaveNumThreads());
+    this.executor = Executors.newFixedThreadPool(bmConf.getWorkerNumThreads());
   }
 
   protected abstract WarmUpCommand.Response warmUp(WarmUpCommand.Request warmUp)
@@ -127,7 +124,7 @@ public abstract class Benchmark {
       }
       log();
       threadsWarmedUp.incrementAndGet();
-      while(threadsWarmedUp.get() != bmConf.getSlaveNumThreads()){ // this is to ensure that all the threads in
+      while(threadsWarmedUp.get() != bmConf.getWorkerNumThreads()){ // this is to ensure that all the threads in
         // the
         // executor service are started during the warmup phase
         Thread.sleep(100);
@@ -139,7 +136,7 @@ public abstract class Benchmark {
 
     private void log() {
       if (Logger.canILog()) {
-        long totalFilesThatWillBeCreated = filesToCreate * bmConf.getSlaveNumThreads();
+        long totalFilesThatWillBeCreated = filesToCreate * bmConf.getWorkerNumThreads();
         double percent = (filesCreatedInWarmupPhase.doubleValue() / totalFilesThatWillBeCreated) * 100;
         Logger.printMsg(stage+" " + DFSOperationsUtils.round(percent) + "%");
       }

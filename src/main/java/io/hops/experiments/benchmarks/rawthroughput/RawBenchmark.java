@@ -17,7 +17,6 @@
 package io.hops.experiments.benchmarks.rawthroughput;
 
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
-import io.hops.experiments.controller.Slave;
 import io.hops.experiments.utils.BMOperationsUtils;
 
 import java.io.IOException;
@@ -26,8 +25,6 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
-import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
 import io.hops.experiments.controller.Logger;
 import io.hops.experiments.controller.commands.WarmUpCommand;
@@ -74,7 +71,8 @@ public class RawBenchmark extends Benchmark {
       List workers = new ArrayList<BaseWarmUp>();
       // Stage 1
       threadsWarmedUp.set(0);
-      for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
+      LOG.info("Creating " + bmConf.getWorkerNumThreads() + " client thread(s).");
+      for (int i = 0; i < bmConf.getWorkerNumThreads(); i++) {
         Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
         workers.add(worker);
       }
@@ -83,14 +81,14 @@ public class RawBenchmark extends Benchmark {
 
       // Stage 2
       threadsWarmedUp.set(0);
-      for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
+      for (int i = 0; i < bmConf.getWorkerNumThreads(); i++) {
         Callable worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1, bmConf,
                 "Warming up. Stage2: Creating files/dirs. ");
         workers.add(worker);
       }
       executor.invokeAll(workers); // blocking call
-      Logger.printMsg("Finished. Warmup Phase. Created (" + bmConf.getSlaveNumThreads() + "*" + bmConf.getFilesToCreateInWarmUpPhase() + ") = " +
-              (bmConf.getSlaveNumThreads() * bmConf.getFilesToCreateInWarmUpPhase()) + " files. ");
+      Logger.printMsg("Finished. Warmup Phase. Created (" + bmConf.getWorkerNumThreads() + "*" + bmConf.getFilesToCreateInWarmUpPhase() + ") = " +
+              (bmConf.getWorkerNumThreads() * bmConf.getFilesToCreateInWarmUpPhase()) + " files. ");
       workers.clear();
     }
     return new NamespaceWarmUp.Response();
@@ -109,8 +107,8 @@ public class RawBenchmark extends Benchmark {
   private RawBenchmarkCommand.Response startTestPhase(BenchmarkOperations opType, long duration, String baseDir) throws InterruptedException, UnknownHostException, IOException {
     System.out.println("Starting test phase '" + opType.name() + "' with duration=" + duration + ", baseDir='" + baseDir + "'");
     List workers = new LinkedList<Callable>();
-    System.out.println("Creating " + bmConf.getSlaveNumThreads() + " worker thread(s) now...");
-    for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
+    System.out.println("Creating " + bmConf.getWorkerNumThreads() + " worker thread(s) now...");
+    for (int i = 0; i < bmConf.getWorkerNumThreads(); i++) {
       Callable worker = new Generic(baseDir, opType);
       workers.add(worker);
     }

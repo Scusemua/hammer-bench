@@ -38,7 +38,6 @@ import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.results.compiler.InterleavedBMResultsAggregator;
 import io.hops.experiments.results.compiler.RawBMResultAggregator;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -326,7 +325,7 @@ public class Master {
 
   public void startRawBenchmarkPhase(RawBenchmarkCommand.Request request) throws IOException, InterruptedException, ClassNotFoundException {
     printMasterLogMessages("Starting " + request.getPhase() + " using "
-            + config.getSlaveNumThreads() * config.getSlavesList().size()
+            + config.getWorkerNumThreads() * config.getSlavesList().size()
             + " client(s). Time phase duration "
             + request.getDurationInMS() / (double) (1000 * 60) + " mins");
     prompt();
