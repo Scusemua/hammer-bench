@@ -156,11 +156,14 @@ while [  $counter -lt $REPEAT_EXP_TIMES ]; do
                             else
                                 TotalClients=$(echo "scale=2; ($TotalNNCount * $DFS_CLIENTS_PER_NAMENODE)" | bc)
                                 ClientsPerSlave=$(echo "scale=2; ($TotalClients)/$TotalSlaves" | bc)
+                                echo "ClientsPerSlave is currently equal to $ClientsPerSlave"
                             fi
                             
                             #ceiling
                             ClientsPerSlave=$(echo "scale=2; ($ClientsPerSlave + 0.5) " | bc)
+                            echo "ClientsPerSlave is currently equal to $ClientsPerSlave"
                             ClientsPerSlave=$(echo "($ClientsPerSlave/1)" | bc)
+                            echo "ClientsPerSlave is currently equal to $ClientsPerSlave"
                             TotalClients=$(echo "($ClientsPerSlave * $TotalSlaves)" | bc) #recalculate
                             
                             ExpSlaves=""
