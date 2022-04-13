@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
@@ -74,7 +75,8 @@ public class RawBenchmark extends Benchmark {
     if (bmConf.getFilesToCreateInWarmUpPhase() > 1) {
       List workers = new ArrayList<BaseWarmUp>();
       // Stage 1
-      threadsWarmedUp.set(0);
+      // threadsWarmedUp.set(0);
+      threadsWarmedUp = new CountDownLatch(bmConf.getSlaveNumThreads());
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
         Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
         workers.add(worker);
@@ -82,8 +84,11 @@ public class RawBenchmark extends Benchmark {
       executor.invokeAll(workers); // blocking call
       workers.clear();
 
+      LOG.debug("Finished stage #1 (creating parent dirs). Moving onto stage #2 (creating files/dirs) now.");
+
       // Stage 2
-      threadsWarmedUp.set(0);
+      // threadsWarmedUp.set(0);
+      threadsWarmedUp = new CountDownLatch(bmConf.getSlaveNumThreads());
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
         Callable worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1, bmConf,
                 "Warming up. Stage2: Creating files/dirs. ");
