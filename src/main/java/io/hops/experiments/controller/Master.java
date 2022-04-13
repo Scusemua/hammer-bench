@@ -522,8 +522,8 @@ public class Master {
         try {
           printMasterLogMessages("SEND " + obj.getClass().getCanonicalName() + " to " + socket.getInetAddress());
           socket.setSendBufferSize(ConfigKeys.BUFFER_SIZE);
-          ObjectOutputStream sendToSlave = new ObjectOutputStream(socket.getOutputStream());
-          sendToSlave.writeObject(obj);
+          ObjectOutputStream sendToFollower = new ObjectOutputStream(socket.getOutputStream());
+          sendToFollower.writeObject(obj);
         } catch (Exception e) {
           handleMisBehavingSlave(socket.getInetAddress());
         }

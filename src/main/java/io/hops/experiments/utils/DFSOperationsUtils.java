@@ -26,6 +26,15 @@ import org.apache.hadoop.fs.Path;
 import io.hops.metrics.OperationPerformed;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 
+import io.hops.metrics.TransactionEvent;
+import io.hops.metrics.TransactionAttempt;
+import io.hops.transaction.context.TransactionsStats;
+import io.hops.metrics.OperationPerformed;
+import io.hops.leader_election.node.SortedActiveNodeList;
+import io.hops.leader_election.node.ActiveNode;
+import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNodeList;
+import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNode;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -70,6 +79,22 @@ public class DFSOperationsUtils {
             System.out.println("[WARNING] FileSystem client is not an instance of DistributedFileSystem." +
                     " Cannot retrieve 'OperationPerformed' instances.");
             return null;
+        }
+    }
+
+    public static void printOperationsPerformed() {
+        FileSystem client = dfsClients.get();
+        if (client == null) {
+            System.out.println("[WARNING] FileSystem client is null. Cannot print operations performed (i.e., debug info).");
+            return;
+        }
+
+        if (client instanceof DistributedFileSystem) {
+            DistributedFileSystem dfs = (DistributedFileSystem)client;
+            return dfs.printOperationsPerformed();
+        } else {
+            System.out.println("[WARNING] FileSystem client is not an instance of DistributedFileSystem." +
+                    " Cannot print operations performed (i.e., debug info).");
         }
     }
 

@@ -100,18 +100,18 @@ public class RawBenchmark extends Benchmark {
   @Override
   protected BenchmarkCommand.Response processCommandInternal(BenchmarkCommand.Request command)
           throws IOException, InterruptedException {
-    System.out.println("Processing RAW benchmark command now...");
+    LOG.debug("Processing RAW benchmark command now...");
     RawBenchmarkCommand.Request request = (RawBenchmarkCommand.Request) command;
     RawBenchmarkCommand.Response response;
-    System.out.println("Starting the " + request.getPhase() + " duration " + request.getDurationInMS());
+    LOG.debug("Starting the " + request.getPhase() + " duration " + request.getDurationInMS());
     response = startTestPhase(request.getPhase(), request.getDurationInMS(), bmConf.getBaseDir());
     return response;
   }
 
   private RawBenchmarkCommand.Response startTestPhase(BenchmarkOperations opType, long duration, String baseDir) throws InterruptedException, UnknownHostException, IOException {
-    System.out.println("Starting test phase '" + opType.name() + "' with duration=" + duration + ", baseDir='" + baseDir + "'");
+    LOG.debug("Starting test phase '" + opType.name() + "' with duration=" + duration + ", baseDir='" + baseDir + "'");
     List<Callable<Object>> workers = new LinkedList<Callable<Object>>();
-    System.out.println("Creating " + bmConf.getSlaveNumThreads() + " worker thread(s) now...");
+    LOG.debug("Creating " + bmConf.getSlaveNumThreads() + " worker thread(s) now...");
     for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
       Generic worker = new Generic(baseDir, opType);
       workers.add(worker);
@@ -124,7 +124,7 @@ public class RawBenchmark extends Benchmark {
     long phaseFinishTime = System.currentTimeMillis();
     long actualExecutionTime = (phaseFinishTime - phaseStartTime);
 
-    System.out.println("Phase " + opType.name() + " finished in " + actualExecutionTime + " milliseconds.");
+    LOG.debug("Phase " + opType.name() + " finished in " + actualExecutionTime + " milliseconds.");
 
     double speed = ((double) successfulOps.get() / (double) actualExecutionTime); // p / ms
     speed = speed * 1000;
@@ -140,13 +140,15 @@ public class RawBenchmark extends Benchmark {
 
       if (ops != null)
         operationPerformedInstances.addAll(ops);
+
+      generic.printOperationsPerformed(); // Print operations performed/debug info for each client/worker.
     }
 
     if (operationPerformedInstances.size() == 0)
-      System.out.println("[WARNING] Could not retrieve any OperationPerformed instances.");
+      LOG.debug("[WARNING] Could not retrieve any OperationPerformed instances.");
     else {
       String outputPath = "RawBenchmark-" + startTime + "-" + opType.name() + "-opsPerformed.csv";
-      System.out.println("Writing " + operationPerformedInstances.size() + " OperationPerformed instance(s) to file '" +
+      LOG.debug("Writing " + operationPerformedInstances.size() + " OperationPerformed instance(s) to file '" +
               outputPath + "' now...");
       BufferedWriter opsPerformedWriter = new BufferedWriter(new FileWriter(outputPath));
 
@@ -179,6 +181,59 @@ public class RawBenchmark extends Benchmark {
      */
     public List<OperationPerformed> getOperationPerformedInstances() {
       return DFSOperationsUtils.getOperationsPerformed();
+    }
+
+    public void printOperationsPerformed() throws IOException {
+      DFSOperationsUtils.printOperationsPerformed();
+
+      HashMap<String, List<TransactionEvent>> transactionEvents = hdfs.getTransactionEvents();
+      ArrayList<TransactionEvent> allTransactionEvents = new ArrayList<TransactionEvent>();
+
+      for (Map.Entry<String, List<TransactionEvent>> entry : transactionEvents.entrySet()) {
+        allTransactionEvents.addAll(entry.getValue());
+      }
+
+      System.out.println("====================== Transaction Events ====================================================================================");
+
+      System.out.println("\n-- SUMS ----------------------------------------------------------------------------------------------------------------------");
+      System.out.println(TransactionEvent.getMetricsHeader());
+      System.out.println(TransactionEvent.getMetricsString(TransactionEvent.getSums(allTransactionEvents)));
+
+      System.out.println("\n-- AVERAGES ------------------------------------------------------------------------------------------------------------------");
+      System.out.println(TransactionEvent.getMetricsHeader());
+      System.out.println(TransactionEvent.getMetricsString(TransactionEvent.getAverages(allTransactionEvents)));
+
+      System.out.println("\n==============================================================================================================================");
+
+      if (input.equalsIgnoreCase("y")) {
+        System.out.print("File path? (no extension)\n> ");
+        String baseFilePath = scanner.nextLine();
+
+        BufferedWriter opsPerformedWriter = new BufferedWriter(new FileWriter(baseFilePath + ".csv"));
+        List<OperationPerformed> operationsPerformed = hdfs.getOperationsPerformed();
+
+        opsPerformedWriter.write(OperationPerformed.getHeader());
+        opsPerformedWriter.newLine();
+        for (OperationPerformed op : operationsPerformed) {
+          op.write(opsPerformedWriter);
+        }
+        opsPerformedWriter.close();
+
+        BufferedWriter txEventsWriter = new BufferedWriter(new FileWriter(baseFilePath + "-txevents.csv"));
+
+        txEventsWriter.write(TransactionEvent.getHeader());
+        txEventsWriter.newLine();
+
+        for (Map.Entry<String, List<TransactionEvent>> entry : transactionEvents.entrySet()) {
+          List<TransactionEvent> txEvents = entry.getValue();
+
+          for (TransactionEvent transactionEvent : txEvents) {
+            transactionEvent.write(txEventsWriter);
+          }
+        }
+
+        txEventsWriter.close();
+      }
     }
 
     Map<Long, Long> stats = new HashMap<Long, Long>();
