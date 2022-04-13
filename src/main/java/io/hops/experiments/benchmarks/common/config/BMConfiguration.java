@@ -625,7 +625,6 @@ public class BMConfiguration implements Serializable {
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_HTTP_RETRY_MAX, Integer.toString(getInt(ConfigKeys.SERVERLESS_HTTP_RETRY_MAX, ConfigKeys.SERVERLESS_HTTP_RETRY_MAX_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_HTTP_TIMEOUT, Integer.toString(getInt(ConfigKeys.SERVERLESS_HTTP_TIMEOUT, ConfigKeys.SERVERLESS_HTTP_TIMEOUT_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.NDB_DEBUG, Boolean.toString(getBoolean(ConfigKeys.NDB_DEBUG, ConfigKeys.NDB_DEBUG_DEFAULT)));
-      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_DEPLOYMENTS_BASELINE, Integer.toString(getInt(ConfigKeys.SERVERLESS_DEPLOYMENTS_BASELINE, ConfigKeys.SERVERLESS_DEPLOYMENTS_BASELINE_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS, Integer.toString(getInt(ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS, ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_ENDPOINT, getString(ConfigKeys.SERVERLESS_ENDPOINT, ConfigKeys.SERVERLESS_ENDPOINT_DEFAULT));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_PLATFORM, getString(ConfigKeys.SERVERLESS_PLATFORM, ConfigKeys.SERVERLESS_PLATFORM_DEFAULT));
