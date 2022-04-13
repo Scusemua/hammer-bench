@@ -204,36 +204,6 @@ public class RawBenchmark extends Benchmark {
       System.out.println(TransactionEvent.getMetricsString(TransactionEvent.getAverages(allTransactionEvents)));
 
       System.out.println("\n==============================================================================================================================");
-
-      if (input.equalsIgnoreCase("y")) {
-        System.out.print("File path? (no extension)\n> ");
-        String baseFilePath = scanner.nextLine();
-
-        BufferedWriter opsPerformedWriter = new BufferedWriter(new FileWriter(baseFilePath + ".csv"));
-        List<OperationPerformed> operationsPerformed = hdfs.getOperationsPerformed();
-
-        opsPerformedWriter.write(OperationPerformed.getHeader());
-        opsPerformedWriter.newLine();
-        for (OperationPerformed op : operationsPerformed) {
-          op.write(opsPerformedWriter);
-        }
-        opsPerformedWriter.close();
-
-        BufferedWriter txEventsWriter = new BufferedWriter(new FileWriter(baseFilePath + "-txevents.csv"));
-
-        txEventsWriter.write(TransactionEvent.getHeader());
-        txEventsWriter.newLine();
-
-        for (Map.Entry<String, List<TransactionEvent>> entry : transactionEvents.entrySet()) {
-          List<TransactionEvent> txEvents = entry.getValue();
-
-          for (TransactionEvent transactionEvent : txEvents) {
-            transactionEvent.write(txEventsWriter);
-          }
-        }
-
-        txEventsWriter.close();
-      }
     }
 
     Map<Long, Long> stats = new HashMap<Long, Long>();
