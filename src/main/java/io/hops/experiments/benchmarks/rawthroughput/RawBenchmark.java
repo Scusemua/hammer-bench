@@ -145,8 +145,6 @@ public class RawBenchmark extends Benchmark {
     if (operationPerformedInstances.size() == 0)
       System.out.println("[WARNING] Could not retrieve any OperationPerformed instances.");
     else {
-
-
       String outputPath = "RawBenchmark-" + startTime + "-" + opType.name() + "-opsPerformed.csv";
       System.out.println("Writing " + operationPerformedInstances.size() + " OperationPerformed instance(s) to file '" +
               outputPath + "' now...");

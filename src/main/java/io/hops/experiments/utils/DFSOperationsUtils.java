@@ -117,6 +117,7 @@ public class DFSOperationsUtils {
             return;
         }
 
+        if (LOG.isDebugEnabled()) LOG.debug("Creating file " + pathStr);
         FSDataOutputStream out = dfs.create(new Path(pathStr), replication);
         long size = filePool.getNewFileSize();
         if(size > 0){
@@ -140,9 +141,11 @@ public class DFSOperationsUtils {
         }
 
         byte[] buf = new byte[1024 * 1024];
+        if (LOG.isDebugEnabled()) LOG.debug("Opening file '" + pathStr + "' now.");
         FSDataInputStream in = dfs.open(new Path(pathStr));
         int read;
         try {
+            if (LOG.isDebugEnabled()) LOG.debug("Reading contents of file " + pathStr);
             while ((read = in.read(buf)) > -1) {
 
             }
@@ -157,6 +160,7 @@ public class DFSOperationsUtils {
             serverLessModeRandomWait();
             return true;
         }
+        if (LOG.isDebugEnabled()) LOG.debug("Renaming file '" + from + "' to '" + to + "'");
         return dfs.rename(from, to);    
     }
 
@@ -165,6 +169,7 @@ public class DFSOperationsUtils {
             serverLessModeRandomWait();
             return true;
         }
+        if (LOG.isDebugEnabled()) LOG.debug("Deleting file '" + pathStr + "'");
         return dfs.delete(new Path(pathStr), true);
     }
     
