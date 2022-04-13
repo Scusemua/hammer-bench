@@ -25,6 +25,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import io.hops.metrics.OperationPerformed;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import java.util.HashMap;
 
 import io.hops.metrics.TransactionEvent;
 import io.hops.metrics.TransactionAttempt;
@@ -85,7 +86,7 @@ public class DFSOperationsUtils {
     public static HashMap<String, List<TransactionEvent>> getTransactionEvents() {
         FileSystem client = dfsClients.get();
         if (client == null) {
-            System.out.println("[WARNING] FileSystem client is null. Cannot print operations performed (i.e., debug info).");
+            System.out.println("[WARNING] FileSystem client is null. Cannot get transaction events.");
             return null;
         }
 
@@ -94,7 +95,7 @@ public class DFSOperationsUtils {
             return dfs.getTransactionEvents();
         } else {
             System.out.println("[WARNING] FileSystem client is not an instance of DistributedFileSystem." +
-                    " Cannot print operations performed (i.e., debug info).");
+                    " Cannot get transaction events.");
         }
         return null;
     }
