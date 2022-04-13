@@ -82,6 +82,23 @@ public class DFSOperationsUtils {
         }
     }
 
+    public static HashMap<String, List<TransactionEvent>> getTransactionEvents() {
+        FileSystem client = dfsClients.get();
+        if (client == null) {
+            System.out.println("[WARNING] FileSystem client is null. Cannot print operations performed (i.e., debug info).");
+            return null;
+        }
+
+        if (client instanceof DistributedFileSystem) {
+            DistributedFileSystem dfs = (DistributedFileSystem)client;
+            return dfs.getTransactionEvents();
+        } else {
+            System.out.println("[WARNING] FileSystem client is not an instance of DistributedFileSystem." +
+                    " Cannot print operations performed (i.e., debug info).");
+        }
+        return null;
+    }
+
     public static void printOperationsPerformed() {
         FileSystem client = dfsClients.get();
         if (client == null) {

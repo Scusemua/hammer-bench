@@ -200,7 +200,11 @@ public class RawBenchmark extends Benchmark {
     public void printOperationsPerformed() throws IOException {
       DFSOperationsUtils.printOperationsPerformed();
 
-      HashMap<String, List<TransactionEvent>> transactionEvents = hdfs.getTransactionEvents();
+      HashMap<String, List<TransactionEvent>> transactionEvents = DFSOperationsUtils.getTransactionEvents();
+      if (transactionEvents == null) {
+        LOG.warn("Transaction Events were null. Cannot print them.");
+        return;
+      }
       ArrayList<TransactionEvent> allTransactionEvents = new ArrayList<TransactionEvent>();
 
       for (Map.Entry<String, List<TransactionEvent>> entry : transactionEvents.entrySet()) {
