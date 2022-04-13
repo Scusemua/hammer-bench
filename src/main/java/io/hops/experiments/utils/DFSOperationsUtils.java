@@ -109,7 +109,7 @@ public class DFSOperationsUtils {
 
         if (client instanceof DistributedFileSystem) {
             DistributedFileSystem dfs = (DistributedFileSystem)client;
-            return dfs.printOperationsPerformed();
+            dfs.printOperationsPerformed();
         } else {
             System.out.println("[WARNING] FileSystem client is not an instance of DistributedFileSystem." +
                     " Cannot print operations performed (i.e., debug info).");
