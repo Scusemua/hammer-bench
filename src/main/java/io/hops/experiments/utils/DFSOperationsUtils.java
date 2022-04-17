@@ -69,7 +69,7 @@ public class DFSOperationsUtils {
     public static List<OperationPerformed> getOperationsPerformed() {
         FileSystem client = dfsClients.get();
         if (client == null) {
-            System.out.println("[WARNING] FileSystem client is null. Cannot retrieve 'OperationPerformed' instances.");
+            LOG.warn("FileSystem client is null. Cannot retrieve 'OperationPerformed' instances.");
             return null;
         }
 
@@ -77,7 +77,7 @@ public class DFSOperationsUtils {
             DistributedFileSystem dfs = (DistributedFileSystem)client;
             return dfs.getOperationsPerformed();
         } else {
-            System.out.println("[WARNING] FileSystem client is not an instance of DistributedFileSystem." +
+            LOG.warn("FileSystem client is not an instance of DistributedFileSystem." +
                     " Cannot retrieve 'OperationPerformed' instances.");
             return null;
         }
@@ -86,7 +86,7 @@ public class DFSOperationsUtils {
     public static HashMap<String, List<TransactionEvent>> getTransactionEvents() {
         FileSystem client = dfsClients.get();
         if (client == null) {
-            System.out.println("[WARNING] FileSystem client is null. Cannot get transaction events.");
+            LOG.warn("FileSystem client is null. Cannot get transaction events.");
             return null;
         }
 
@@ -94,7 +94,7 @@ public class DFSOperationsUtils {
             DistributedFileSystem dfs = (DistributedFileSystem)client;
             return dfs.getTransactionEvents();
         } else {
-            System.out.println("[WARNING] FileSystem client is not an instance of DistributedFileSystem." +
+            LOG.warn("FileSystem client is not an instance of DistributedFileSystem." +
                     " Cannot get transaction events.");
         }
         return null;
@@ -103,7 +103,7 @@ public class DFSOperationsUtils {
     public static void printOperationsPerformed() {
         FileSystem client = dfsClients.get();
         if (client == null) {
-            System.out.println("[WARNING] FileSystem client is null. Cannot print operations performed (i.e., debug info).");
+            LOG.warn("FileSystem client is null. Cannot print operations performed (i.e., debug info).");
             return;
         }
 
@@ -111,7 +111,7 @@ public class DFSOperationsUtils {
             DistributedFileSystem dfs = (DistributedFileSystem)client;
             dfs.printOperationsPerformed();
         } else {
-            System.out.println("[WARNING] FileSystem client is not an instance of DistributedFileSystem." +
+            LOG.warn("FileSystem client is not an instance of DistributedFileSystem." +
                     " Cannot print operations performed (i.e., debug info).");
         }
     }
@@ -125,11 +125,11 @@ public class DFSOperationsUtils {
         if (client == null) {
             client = (FileSystem) FileSystem.newInstance(conf);
             dfsClients.set(client);
-            System.out.println(Thread.currentThread().getName()  +
+            LOG.debug(Thread.currentThread().getName()  +
                 " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
         }
         else
-            System.out.println("Reusing Existing Client "+client);
+            LOG.debug("Reusing Existing Client "+client);
         return client;
     }
 
@@ -147,9 +147,9 @@ public class DFSOperationsUtils {
             }
             
             filePools.set(filePool);
-            System.out.println("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
+            LOG.debug("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
         }else{
-            System.out.println("Reusing file pool obj "+filePool);
+            LOG.debug("Reusing file pool obj "+filePool);
         }
         return filePool;
     }

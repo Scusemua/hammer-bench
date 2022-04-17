@@ -241,7 +241,6 @@ public class RawBenchmark extends Benchmark {
       }
       while (true) {
         try {
-
           String path = BMOperationsUtils.getPath(opType, filePool);
 
           if (path == null) {
