@@ -258,7 +258,7 @@ serverless.http.timeout=45
 #|_________________________________________________________________________
 //values: ceph:///, maprfs:///, hdfs://mycluster, hdfs://host:port
 #fs.defaultFS=hdfs://10.241.64.14:9000  # This is the IBM Cloud version.
-fs.defaultFS=hdfs://10.150.0.17:9000    # This is the GCP version.
+fs.defaultFS=hdfs://10.150.0.10:9000    # This is the GCP version.
 
 #HDFS specific
 

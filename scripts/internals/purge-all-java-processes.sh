@@ -17,7 +17,7 @@ fi
 
 #All Unique Hosts
 # All_Hosts_To_Purge=("10.241.64.12" "10.241.64.14")
-All_Hosts_To_Purge=("10.150.0.17")
+All_Hosts_To_Purge=("10.150.0.10")
 
 for i in ${All_Hosts_To_Purge[@]}
 do
