@@ -255,15 +255,15 @@ public class RawBenchmark extends Benchmark {
             return null;
           }
 
-          long fileSize = -1;
-          if (opType == BenchmarkOperations.CREATE_FILE) {
-            /*For logging file size distribution
+          //long fileSize = -1;
+          /*if (opType == BenchmarkOperations.CREATE_FILE) {
+            For logging file size distribution
             synchronized (this) {
               Long count = stats.get(fileSize);
               Long newCount = count == null ? 1 : count + 1;
               stats.put(fileSize, newCount);
-            }*/
-          }
+            }
+          }*/
 
           long time = 0;
           if (bmConf.isPercentileEnabled()) {
