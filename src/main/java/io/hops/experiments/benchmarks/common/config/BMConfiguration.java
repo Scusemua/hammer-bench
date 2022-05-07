@@ -628,6 +628,9 @@ public class BMConfiguration implements Serializable {
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS, Integer.toString(getInt(ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS, ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_ENDPOINT, getString(ConfigKeys.SERVERLESS_ENDPOINT, ConfigKeys.SERVERLESS_ENDPOINT_DEFAULT));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_PLATFORM, getString(ConfigKeys.SERVERLESS_PLATFORM, ConfigKeys.SERVERLESS_PLATFORM_DEFAULT));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_DEFAULT_LOG_LEVEL, getString(ConfigKeys.SERVERLESS_DEFAULT_LOG_LEVEL, ConfigKeys.SERVERLESS_DEFAULT_LOG_LEVEL_DEFAULT));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_USE_UDP, Boolean.toString(getBoolean(ConfigKeys.SERVERLESS_USE_UDP, ConfigKeys.SERVERLESS_USE_UDP_DEFAULT)));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_ZOOKEEPER_HOSTNAMES, getString(ConfigKeys.SERVERLESS_ZOOKEEPER_HOSTNAMES, ConfigKeys.SERVERLESS_ZOOKEEPER_HOSTNAMES_DEFAULT));
 
     } else if (getBenchMarkFileSystemName() == BenchMarkFileSystemName.CephFS) {
       System.out.println("Creating config for CephFS");
