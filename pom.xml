@@ -180,8 +180,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
       <plugin>
@@ -192,9 +192,9 @@
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
           <archive>
-            <!--manifest>
-              <mainClass>se.sics.hop.experiments.BenchMark</mainClass>
-            </manifest-->
+            <!-- <manifest>
+              <mainClass>io.hops.experiments.controller.Master</mainClass>
+            </manifest> -->
           </archive>
         </configuration>
         <executions>

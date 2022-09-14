@@ -192,12 +192,30 @@ public class ConfigKeys {
     
     public static String BENCHMARK_TYPE_KEY = "benchmark.type";
     public static String BENCHMARK_TYPE_DEFAULT = "RAW";// "Type. RAW | INTERLEAVED | BM ."
+
+    public static String BENCHMARK_RANDOM_SEED_KEY = "benchmark.random.seed";
+    public static long BENCHMARK_RANDOM_SEED_DEFAULT = 0;
     
     public static String GENERATE_PERCENTILES_KEY = "generate.percentiles";
     public static boolean   GENERATE_PERCENTILES_DEFAULT = false;
     
     public static String INTERLEAVED_BM_DURATION_KEY = "interleaved.bm.duration";
     public static long   INTERLEAVED_BM_DURATION_DEFAULT = 60*1000;
+
+    public static String INTERLEAVED_BM_IAT_DISTRIBUTION_KEY = "interleaved.bm.iat.distribution";
+    public static String INTERLEAVED_BM_IAT_DISTRIBUTION_DEFAULT = "UNIFORM";
+
+    public static String INTERLEAVED_BM_IAT_DISTRIBUTION_DEBUG_KEY = "interleaved.bm.iat.distribution.debug";
+    public static boolean INTERLEAVED_BM_IAT_DISTRIBUTION_DEBUG_DEFAULT = false;
+
+    public static String INTERLEAVED_BM_IAT_POISSON_LAMBDA_KEY = "interleaved.bm.iat.poisson.lambda";
+    public static double INTERLEAVED_BM_IAT_POISSON_LAMBDA_DEFAULT = 10.0; // Expected concurrency
+
+    public static String INTERLEAVED_BM_IAT_PARETO_ALPHA_KEY = "interleaved.bm.iat.pareto.alpha";
+    public static double INTERLEAVED_BM_IAT_PARETO_ALPHA_DEFAULT = 2; // Scale parameter
+
+    public static String INTERLEAVED_BM_IAT_PARETO_LOCATION_KEY = "interleaved.bm.iat.pareto.location";
+    public static double INTERLEAVED_BM_IAT_PARETO_LOCATION_DEFAULT = 10.0; // Expected concurrency
     
     public static String RAW_CREATE_PHASE_MAX_FILES_TO_CRAETE_KEY = "raw.create.phase.max.files.to.create";
     public static long RAW_CREATE_PHASE_MAX_FILES_TO_CRAETE_DEFAULT = Long.MAX_VALUE;

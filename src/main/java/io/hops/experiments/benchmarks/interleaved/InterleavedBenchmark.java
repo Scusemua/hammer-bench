@@ -18,8 +18,8 @@ package io.hops.experiments.benchmarks.interleaved;
 
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.utils.BMOperationsUtils;
-import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
 import io.hops.experiments.benchmarks.common.Benchmark;
+import io.hops.experiments.benchmarks.common.BenchmarkDistribution;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
 import io.hops.experiments.benchmarks.interleaved.coin.InterleavedMultiFaceCoin;
@@ -28,6 +28,13 @@ import io.hops.experiments.controller.commands.BenchmarkCommand;
 import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.utils.DFSOperationsUtils;
 import io.hops.experiments.workload.generator.FilePool;
+import io.hops.experiments.workload.limiter.DistributionRateLimiter;
+import io.hops.experiments.workload.limiter.ParetoGenerator;
+import io.hops.experiments.workload.limiter.PoissonGenerator;
+import io.hops.experiments.workload.limiter.RateLimiter;
+import io.hops.experiments.workload.limiter.RateNoLimiter;
+import io.hops.experiments.workload.limiter.WorkerRateLimiter;
+
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -39,6 +46,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -53,9 +61,20 @@ public class InterleavedBenchmark extends Benchmark {
   Map<BenchmarkOperations, AtomicLong> operationsStats = new HashMap<BenchmarkOperations, AtomicLong>();
   HashMap<BenchmarkOperations, ArrayList<Long>> opsExeTimes = new HashMap<BenchmarkOperations, ArrayList<Long>>();
   SynchronizedDescriptiveStatistics avgLatency = new SynchronizedDescriptiveStatistics();
+  protected final RateLimiter limiter;
+  protected boolean debug = false;
 
   public InterleavedBenchmark(Configuration conf, BMConfiguration bmConf) {
     super(conf, bmConf);
+    BenchmarkDistribution distribution = bmConf.getInterleavedBMIaTDistribution();
+    if (distribution == BenchmarkDistribution.POISSON) {
+      limiter = new DistributionRateLimiter(bmConf, new PoissonGenerator(bmConf));
+    } else if (distribution == BenchmarkDistribution.PARETO) {
+      limiter = new DistributionRateLimiter(bmConf, new ParetoGenerator(bmConf));
+    } else {
+      limiter = new RateNoLimiter();
+    }
+    debug = bmConf.getInterleavedBMIaTDistributionDebug();
   }
 
   @Override
@@ -66,7 +85,7 @@ public class InterleavedBenchmark extends Benchmark {
     // and then in the second stage we create the further
     // file/dir in the parent dir.
 
-    if (bmConf.getFilesToCreateInWarmUpPhase() > 1) {
+    if (!debug && bmConf.getFilesToCreateInWarmUpPhase() > 1) {
       List workers = new ArrayList<BaseWarmUp>();
       // Stage 1
       threadsWarmedUp.set(0);
@@ -105,11 +124,22 @@ public class InterleavedBenchmark extends Benchmark {
     duration = config.getInterleavedBmDuration();
     System.out.println("Starting " + command.getBenchMarkType() + " for duration " + duration);
     List workers = new ArrayList<Worker>();
+    // Add limiter as a worker if supported
+    WorkerRateLimiter workerLimiter = null;
+    if (limiter instanceof WorkerRateLimiter) {
+      workerLimiter = (WorkerRateLimiter) limiter;
+      workers.add(workerLimiter);
+    }
     for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
       Callable worker = new Worker(config);
       workers.add(worker);
     }
     startTime = System.currentTimeMillis();
+    if (workerLimiter != null) {
+      workerLimiter.setStart(startTime);
+      workerLimiter.setDuration(duration);
+      workerLimiter.setStat("completed", operationsCompleted);
+    }
 
     FailOverMonitor failOverTester = null;
     List<String> failOverLog = null;
@@ -136,13 +166,16 @@ public class InterleavedBenchmark extends Benchmark {
 
     long totalTime = System.currentTimeMillis() - startTime;
 
-
     System.out.println("Finished " + command.getBenchMarkType() + " in " + totalTime);
 
     double speed = (operationsCompleted.get() / (double) totalTime) * 1000;
 
+    int aliveNNsCount = 0;
+    if (!debug) {
+      aliveNNsCount = getAliveNNsCount();
+    }
     InterleavedBenchmarkCommand.Response response =
-            new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsExeTimes, avgLatency.getMean(), failOverLog, getAliveNNsCount());
+            new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsExeTimes, avgLatency.getMean(), failOverLog, aliveNNsCount);
     return response;
   }
 
@@ -161,11 +194,14 @@ public class InterleavedBenchmark extends Benchmark {
 
     @Override
     public Object call() throws Exception {
-      dfs = DFSOperationsUtils.getDFSClient(conf);
-      filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
-              bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
-              bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
-              bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
+      if (!debug) {
+        dfs = DFSOperationsUtils.getDFSClient(conf);
+        filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
+                bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
+                bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
+                bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
+      }
+      
       opCoin = new InterleavedMultiFaceCoin(config.getInterleavedBmCreateFilesPercentage(),
               config.getInterleavedBmAppendFilePercentage(),
               config.getInterleavedBmReadFilesPercentage(),
@@ -189,6 +225,11 @@ public class InterleavedBenchmark extends Benchmark {
           }
 
           BenchmarkOperations op = opCoin.flip();
+
+          // Wait for the limiter to allow the operation
+          if (!limiter.checkRate()) {
+            return null;
+          }
 
           performOperation(op);
 
@@ -240,7 +281,10 @@ public class InterleavedBenchmark extends Benchmark {
     }
 
     private void performOperation(BenchmarkOperations opType) throws IOException {
-      String path = BMOperationsUtils.getPath(opType, filePool);
+      String path = "";
+      if (!debug) {
+        path = BMOperationsUtils.getPath(opType, filePool);
+      }
       if (path != null) {
         boolean retVal = false;
         long opExeTime = 0;
@@ -248,8 +292,14 @@ public class InterleavedBenchmark extends Benchmark {
           long opStartTime = 0L;
           opStartTime = System.nanoTime();
 
-          BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
-                  config.getAppendFileSize());
+          if (debug) {
+            System.out.println("Performing " + opType);
+            TimeUnit.MILLISECONDS.sleep(10);
+          } else {
+            BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
+                                        config.getAppendFileSize());
+          }    
+
           opExeTime = System.nanoTime() - opStartTime;
           retVal = true;
         } catch (Exception e) {

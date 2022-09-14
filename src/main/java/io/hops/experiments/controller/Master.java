@@ -38,7 +38,6 @@ import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.results.compiler.InterleavedBMResultsAggregator;
 import io.hops.experiments.results.compiler.RawBMResultAggregator;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
 import java.net.InetAddress;
