@@ -74,7 +74,6 @@ public class InterleavedBenchmark extends Benchmark {
     } else {
       limiter = new RateNoLimiter();
     }
-    debug = bmConf.getInterleavedBMIaTDistributionDebug();
   }
 
   @Override
@@ -85,7 +84,7 @@ public class InterleavedBenchmark extends Benchmark {
     // and then in the second stage we create the further
     // file/dir in the parent dir.
 
-    if (!debug && bmConf.getFilesToCreateInWarmUpPhase() > 1) {
+    if (bmConf.getFilesToCreateInWarmUpPhase() > 1) {
       List workers = new ArrayList<BaseWarmUp>();
       // Stage 1
       threadsWarmedUp.set(0);
@@ -171,7 +170,7 @@ public class InterleavedBenchmark extends Benchmark {
     double speed = (operationsCompleted.get() / (double) totalTime) * 1000;
 
     int aliveNNsCount = 0;
-    if (!debug) {
+    if (!dryrun) {
       aliveNNsCount = getAliveNNsCount();
     }
     InterleavedBenchmarkCommand.Response response =
@@ -194,8 +193,9 @@ public class InterleavedBenchmark extends Benchmark {
 
     @Override
     public Object call() throws Exception {
-      if (!debug) {
+      if (!dryrun) {
         dfs = DFSOperationsUtils.getDFSClient(conf);
+      }
         filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
                 bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
                 bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
@@ -281,10 +281,7 @@ public class InterleavedBenchmark extends Benchmark {
     }
 
     private void performOperation(BenchmarkOperations opType) throws IOException {
-      String path = "";
-      if (!debug) {
-        path = BMOperationsUtils.getPath(opType, filePool);
-      }
+      String path = BMOperationsUtils.getPath(opType, filePool);
       if (path != null) {
         boolean retVal = false;
         long opExeTime = 0;
@@ -292,8 +289,8 @@ public class InterleavedBenchmark extends Benchmark {
           long opStartTime = 0L;
           opStartTime = System.nanoTime();
 
-          if (debug) {
-            System.out.println("Performing " + opType);
+          if (dryrun) {
+            System.out.println("Performing " + opType + " on " + path);
             TimeUnit.MILLISECONDS.sleep(10);
           } else {
             BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),

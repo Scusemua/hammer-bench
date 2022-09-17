@@ -184,6 +184,10 @@ public class BMConfiguration implements Serializable {
     return getLong(ConfigKeys.BENCHMARK_RANDOM_SEED_KEY, ConfigKeys.BENCHMARK_RANDOM_SEED_DEFAULT);
   }
 
+  public boolean getBenchmarkDryrun() {
+    return getBoolean(ConfigKeys.BENCHMARK_DRYRUN_KEY, ConfigKeys.BENCHMARK_DRYRUN_DEFAULT);
+  }
+
   public int getNamenodeCount() {
     return getInt(ConfigKeys.NO_OF_NAMENODES_KEY, ConfigKeys.NO_OF_NAMENODES_DEFAULT);
   }
@@ -199,10 +203,6 @@ public class BMConfiguration implements Serializable {
   public BenchmarkDistribution getInterleavedBMIaTDistribution() {
     String val = getString(ConfigKeys.INTERLEAVED_BM_IAT_DISTRIBUTION_KEY, ConfigKeys.INTERLEAVED_BM_IAT_DISTRIBUTION_DEFAULT);
     return BenchmarkDistribution.valueOf(val);
-  }
-
-  public boolean getInterleavedBMIaTDistributionDebug() {
-    return getBoolean(ConfigKeys.INTERLEAVED_BM_IAT_DISTRIBUTION_DEBUG_KEY, ConfigKeys.INTERLEAVED_BM_IAT_DISTRIBUTION_DEBUG_DEFAULT);
   }
 
   public double getInterleavedBMIaTPoissonLambda() {

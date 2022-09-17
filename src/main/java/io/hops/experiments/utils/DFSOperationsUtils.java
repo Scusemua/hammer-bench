@@ -73,9 +73,9 @@ public class DFSOperationsUtils {
         FilePool filePool = filePools.get();
         if (filePool == null) {
             if(fixedDepthTree){
-              filePool = new FixeDepthFileTreeGenerator(baseDir,treeDepth, fileSizeDistribution);
+                filePool = new FixeDepthFileTreeGenerator(baseDir,treeDepth, fileSizeDistribution);
             }if(readFilesFromDisk){
-              filePool = new FileTreeFromDiskGenerator(baseDir,filesPerDir, dirsPerDir,0, diskFilesPath);
+                filePool = new FileTreeFromDiskGenerator(baseDir,filesPerDir, dirsPerDir,0, diskFilesPath);
             } else{
                 filePool = new FileTreeGenerator(baseDir,filesPerDir, dirsPerDir,0, fileSizeDistribution);
             }

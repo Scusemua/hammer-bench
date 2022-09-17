@@ -85,7 +85,7 @@ public class Slave {
                 Logger.setLoggerPort(bmConf.getRemoteLoggingPort());
             }
             Configuration dfsClientConf = null; 
-            if (!bmConf.getInterleavedBMIaTDistributionDebug()) {
+            if (!bmConf.getBenchmarkDryrun()) {
                 dfsClientConf = new Configuration();
                 for(Object key : bmConf.getFsConfig().keySet()){
                 String keyStr = (String)key;

@@ -46,6 +46,7 @@ public abstract class Benchmark {
   protected final ExecutorService executor;
   protected AtomicInteger threadsWarmedUp = new AtomicInteger(0);
   protected final BMConfiguration bmConf;
+  protected boolean dryrun = false;
 
   public Benchmark(Configuration conf, BMConfiguration bmConf) {
     this.conf = conf;
@@ -98,11 +99,15 @@ public abstract class Benchmark {
       this.filesToCreate = filesToCreate;
       this.stage = stage;
       this.bmConf = bmConf;
+      dryrun = bmConf.getBenchmarkDryrun();
+    }
     }
 
     @Override
     public Object call() throws Exception {
-      dfs = DFSOperationsUtils.getDFSClient(conf);
+      if (!dryrun) {
+        dfs = DFSOperationsUtils.getDFSClient(conf);
+      }
       filePool = DFSOperationsUtils.getFilePool(conf,
               bmConf.getBaseDir(), bmConf.getDirPerDir(),
               bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
@@ -115,10 +120,14 @@ public abstract class Benchmark {
         try {
           filePath = filePool.getFileToCreate();
           System.out.println("Creating file '" + filePath + "' now...");
-          DFSOperationsUtils
-                  .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
-          filePool.fileCreationSucceeded(filePath);
-          DFSOperationsUtils.readFile(dfs, filePath);
+          if (!dryrun) {
+            DFSOperationsUtils
+                    .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
+            filePool.fileCreationSucceeded(filePath);
+            DFSOperationsUtils.readFile(dfs, filePath);
+          } else {
+            filePool.fileCreationSucceeded(filePath);
+          }
           filesCreatedInWarmupPhase.incrementAndGet();
           log();
         } catch (Exception e) {

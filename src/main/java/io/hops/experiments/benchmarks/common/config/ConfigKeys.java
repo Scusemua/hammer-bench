@@ -195,6 +195,9 @@ public class ConfigKeys {
 
     public static String BENCHMARK_RANDOM_SEED_KEY = "benchmark.random.seed";
     public static long BENCHMARK_RANDOM_SEED_DEFAULT = 0;
+
+    public static String BENCHMARK_DRYRUN_KEY = "benchmark.dryrun";
+    public static boolean BENCHMARK_DRYRUN_DEFAULT = false;
     
     public static String GENERATE_PERCENTILES_KEY = "generate.percentiles";
     public static boolean   GENERATE_PERCENTILES_DEFAULT = false;
@@ -204,9 +207,6 @@ public class ConfigKeys {
 
     public static String INTERLEAVED_BM_IAT_DISTRIBUTION_KEY = "interleaved.bm.iat.distribution";
     public static String INTERLEAVED_BM_IAT_DISTRIBUTION_DEFAULT = "UNIFORM";
-
-    public static String INTERLEAVED_BM_IAT_DISTRIBUTION_DEBUG_KEY = "interleaved.bm.iat.distribution.debug";
-    public static boolean INTERLEAVED_BM_IAT_DISTRIBUTION_DEBUG_DEFAULT = false;
 
     public static String INTERLEAVED_BM_IAT_POISSON_LAMBDA_KEY = "interleaved.bm.iat.poisson.lambda";
     public static double INTERLEAVED_BM_IAT_POISSON_LAMBDA_DEFAULT = 10.0; // Expected concurrency
