@@ -18,10 +18,13 @@ package io.hops.experiments.workload.generator;
 
 import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.common.config.ConfigKeys;
+import io.hops.experiments.workload.random.NumberRandom;
+import io.hops.experiments.workload.random.SimpleLongRandom;
+import io.hops.experiments.workload.random.ZipfianRandom;
+import io.hops.experiments.workload.random.ScrambledZipfianRandom;
 import io.hops.experiments.controller.Logger;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -31,9 +34,10 @@ import java.util.*;
  *
  * @author salman
  */
-public class FileTreeGenerator implements FilePool {
+public class FileTreeGenerator implements FilePool, Mergable, Cloneable {
 
-  private Random rand1;
+  // private Random rand1;
+  private NumberRandom rand1;
   private UUID uuid = null;
   protected List<String> allThreadFiles;
   protected List<String> allThreadDirs;
@@ -44,13 +48,19 @@ public class FileTreeGenerator implements FilePool {
   private FileSizeMultiFaceCoin fileSizeCoin;
   private long currentFileSize = -1;
   private long currentFileDataRead = -1;
+  protected boolean ready = false;
+
+  public FileTreeGenerator(int fileSize, int dirSize) {
+    this.allThreadFiles = new ArrayList<String>(fileSize);
+    this.allThreadDirs = new ArrayList<String>(dirSize);
+  }
 
   public FileTreeGenerator(String baseDir, int filesPerDir,
           int dirPerDir, int initialTreeDepth, String fileDistribution) {
 
     this.allThreadFiles = new ArrayList<String>(10000);
     this.allThreadDirs = new ArrayList<String>(10000);
-    this.rand1 = new Random(System.currentTimeMillis());
+    this.rand1 = new SimpleLongRandom();
     uuid = UUID.randomUUID();
 
     if (fileDistribution == null){// return 0
@@ -64,7 +74,7 @@ public class FileTreeGenerator implements FilePool {
     try {
       machineName = InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {
-      machineName = "Client_Machine+" + rand1.nextInt();
+      machineName = "Client_Machine+" + rand1.nextValue();
     }
 
     baseDir = baseDir.trim();
@@ -80,9 +90,9 @@ public class FileTreeGenerator implements FilePool {
 
     String[] comp = PathUtils.getPathNames(threadDir);
 
-    int more = 0;
+    // int more = 0;
     if (initialTreeDepth - comp.length > 0) {
-      more = initialTreeDepth - comp.length;
+      // more = initialTreeDepth - comp.length;
       for (int i = comp.length; i < (initialTreeDepth); i++) {
         threadDir += "/added_depth_" + i;
       }
@@ -110,6 +120,16 @@ public class FileTreeGenerator implements FilePool {
   }
 
   @Override
+  public void setReady() {
+    // Reset rand1 as desired file distribution.
+    if (!ready) {
+      ready = true;
+      perm();
+      resetDistribution();
+    }
+  }
+
+  @Override
   public String getFileToRead() {
     return getRandomFile();
   }
@@ -121,7 +141,7 @@ public class FileTreeGenerator implements FilePool {
     }
 
     for (int i = 0; i < allThreadFiles.size(); i++) {
-      currIndex = rand1.nextInt(allThreadFiles.size());
+      currIndex = rand1.nextValue().intValue();
       String path = allThreadFiles.get(currIndex);
       if (getPathLength(path) < THRESHOLD) {
         continue;
@@ -254,7 +274,7 @@ public class FileTreeGenerator implements FilePool {
   private String getRandomFile() {
     if (!allThreadFiles.isEmpty()) {
       for (int i = 0; i < allThreadFiles.size(); i++) {
-        currIndex = rand1.nextInt(allThreadFiles.size());
+        currIndex = rand1.nextValue().intValue();
         String path = allThreadFiles.get(currIndex);
         if (getPathLength(path) < THRESHOLD) {
           continue;
@@ -277,7 +297,10 @@ public class FileTreeGenerator implements FilePool {
   public String getRandomDir() {
     if (!allThreadFiles.isEmpty()) {
       for (int i = 0; i < allThreadFiles.size(); i++) {
-        currIndex = rand1.nextInt(allThreadFiles.size());
+        currIndex = rand1.nextValue().intValue();
+        if (currIndex == 1 && allThreadFiles.size() == 1) {
+          System.out.println("detect 1 out of 1 bound, random: " + rand1.getClass().getName());
+        }
         String path = allThreadFiles.get(currIndex);
         int dirIndex = path.lastIndexOf("/");
         path = path.substring(0, dirIndex);
@@ -294,5 +317,39 @@ public class FileTreeGenerator implements FilePool {
     return null;
   }
 
+  @Override
+  public Collection<String> allFiles() {
+    return allThreadFiles;
+  }
+
+  @Override
+  public Collection<String> allDirs() {
+    return allThreadDirs;
+  }
+
+  @Override
+  public void addAll(Mergable another) {
+    allThreadFiles.addAll(another.allFiles());
+    allThreadDirs.addAll(another.allDirs());
+  }
+
+  @Override
+  public Object clone() throws CloneNotSupportedException {
+    FileTreeGenerator newObj = new FileTreeGenerator(allThreadFiles.size(), allThreadDirs.size());
+    newObj.addAll(this);
+    newObj.fileSizeCoin = this.fileSizeCoin;
+    newObj.resetDistribution();
+
+    return newObj;
+  }
+
+  protected void resetDistribution() {
+    rand1 = new ZipfianRandom(allThreadFiles.size());
+  }
+
+  protected void perm() {
+    Collections.shuffle(allThreadFiles);
+    Collections.shuffle(allThreadDirs);
+  }
 }
 

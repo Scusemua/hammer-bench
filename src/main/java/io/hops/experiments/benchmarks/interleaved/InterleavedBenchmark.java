@@ -28,6 +28,7 @@ import io.hops.experiments.controller.commands.BenchmarkCommand;
 import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.utils.DFSOperationsUtils;
 import io.hops.experiments.workload.generator.FilePool;
+import io.hops.experiments.workload.generator.Mergable;
 import io.hops.experiments.workload.limiter.DistributionRateLimiter;
 import io.hops.experiments.workload.limiter.ParetoGenerator;
 import io.hops.experiments.workload.limiter.PoissonGenerator;
@@ -62,7 +63,7 @@ public class InterleavedBenchmark extends Benchmark {
   HashMap<BenchmarkOperations, ArrayList<Long>> opsExeTimes = new HashMap<BenchmarkOperations, ArrayList<Long>>();
   SynchronizedDescriptiveStatistics avgLatency = new SynchronizedDescriptiveStatistics();
   protected final RateLimiter limiter;
-  protected boolean debug = false;
+  protected FilePool sharedFilePool;
 
   public InterleavedBenchmark(Configuration conf, BMConfiguration bmConf) {
     super(conf, bmConf);
@@ -105,6 +106,20 @@ public class InterleavedBenchmark extends Benchmark {
       executor.invokeAll(workers); // blocking call
       Logger.printMsg("Finished. Warmup Phase. Created ("+bmConf.getSlaveNumThreads()+"*"+bmConf.getFilesToCreateInWarmUpPhase()+") = "+
               (bmConf.getSlaveNumThreads()*bmConf.getFilesToCreateInWarmUpPhase())+" files. ");
+
+      // Merge FilePools
+      if (workers.size() > 0) {
+        sharedFilePool = ((BaseWarmUp)workers.get(0)).getFilePool();
+        if (sharedFilePool instanceof Mergable) {
+          for (int i = 1; i < workers.size(); i++) {
+            FilePool anotherPool = ((BaseWarmUp)workers.get(i)).getFilePool();
+            if (anotherPool instanceof Mergable) {
+              ((Mergable) sharedFilePool).addAll((Mergable) anotherPool);
+            }
+          }
+        }
+        sharedFilePool.setReady();
+      }
       workers.clear();
     }
 
@@ -196,10 +211,14 @@ public class InterleavedBenchmark extends Benchmark {
       if (!dryrun) {
         dfs = DFSOperationsUtils.getDFSClient(conf);
       }
+      try {
+        filePool = (FilePool)sharedFilePool.clone();
+      } catch (CloneNotSupportedException e) {
         filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
-                bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
-                bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
-                bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
+              bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
+              bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
+              bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
+        filePool.setReady();
       }
       
       opCoin = new InterleavedMultiFaceCoin(config.getInterleavedBmCreateFilesPercentage(),

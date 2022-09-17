@@ -76,11 +76,13 @@ public class BMConfiguration implements Serializable {
       throw new IllegalArgumentException("You must write some files before testing other filesystem operations");
     }
 
-    if (getInterleavedBmCreateFilesPercentage().doubleValue() <= 0 && getBenchMarkType() == BenchmarkType.INTERLEAVED) {
-      throw new IllegalArgumentException("You must write some files before testing other filesystem operations");
-    }
+    // if (getInterleavedBmCreateFilesPercentage().doubleValue() <= 0 && getBenchMarkType() == BenchmarkType.INTERLEAVED) {
+    //   throw new IllegalArgumentException("You must write some files before testing other filesystem operations");
+    // }
 
-    if (getInterleavedBmCreateFilesPercentage().doubleValue() <= getInterleavedBmDeleteFilesPercentage().doubleValue() && getBenchMarkType() == BenchmarkType.INTERLEAVED) {
+    if (getInterleavedBmCreateFilesPercentage().doubleValue() <= getInterleavedBmDeleteFilesPercentage().doubleValue() &&
+      getInterleavedBmDeleteFilesPercentage().doubleValue() > 0 && 
+      getBenchMarkType() == BenchmarkType.INTERLEAVED) {
       throw new IllegalArgumentException("Delete operations can not be more than create operations");
     }
 

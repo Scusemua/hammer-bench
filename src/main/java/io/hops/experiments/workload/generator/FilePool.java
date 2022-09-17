@@ -17,7 +17,6 @@
  */
 package io.hops.experiments.workload.generator;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -31,6 +30,8 @@ public interface FilePool {
   public String getFileToCreate();
   
   public void fileCreationSucceeded(String file);
+
+  public void setReady();
 
   public String getFileToAppend();
   
@@ -65,4 +66,6 @@ public interface FilePool {
   public long getNewFileSize() throws IOException;
 
   public boolean hasMoreFilesToWrite();
+
+  public Object clone() throws CloneNotSupportedException;
 }

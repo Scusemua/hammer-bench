@@ -16,19 +16,9 @@
  */
 package io.hops.experiments.workload.generator;
 
-import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
-import io.hops.experiments.controller.Logger;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 
 /**
  *
