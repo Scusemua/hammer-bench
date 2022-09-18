@@ -30,6 +30,7 @@ public class DistributionGenerator {
 
   public DistributionGenerator(BMConfiguration bmConf) {
     this.seed = bmConf.getBenchMarkRandomSeed();
+    System.out.println("Confirmed seed used for bursty workload generator: " + seed);
     this.rand = new Random(seed);
   }
 

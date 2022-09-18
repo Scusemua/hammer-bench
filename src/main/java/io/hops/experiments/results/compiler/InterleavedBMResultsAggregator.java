@@ -16,6 +16,7 @@
  */
 package io.hops.experiments.results.compiler;
 
+import io.hops.experiments.benchmarks.common.BMOpStats;
 import io.hops.experiments.benchmarks.common.BMResult;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.interleaved.InterleavedBMResults;
@@ -174,13 +175,16 @@ public class InterleavedBMResultsAggregator extends Aggregator {
 
 
         System.out.println("Writing CSV results ");
-        HashMap<BenchmarkOperations, ArrayList<Long>> times = response.getOpsExeTimes();
-        for(BenchmarkOperations op : times.keySet()){
+        HashMap<BenchmarkOperations, ArrayList<BMOpStats>> stats = response.getOpsStats();
+        for(BenchmarkOperations op : stats.keySet()){
           filePath=args.getResultsDir();
           filePath+=op.toString()+".txt";
           FileWriter out = new FileWriter(filePath, true);
-          for(Long time : times.get(op)){
-            out.write(((double)time/1000000.0)+"\n");
+          for(BMOpStats stat : stats.get(op)){
+            out.write(String.valueOf(stat.OpStart));
+            out.write(",");
+            out.write(String.valueOf(stat.OpDuration));
+            out.write("\n");
           }
           out.close();
 

@@ -21,34 +21,14 @@ import java.io.Serializable;
 
 /**
  *
- * @author salman
+ * @author Tianium
  */
-public abstract class BMResult implements Serializable{
-  private final BenchmarkType benchMarkType;
-  private final int noOfExpectedAliveNNs;
-  private final int noOfAcutallAliveNNs;
-  private final int noOfNDBDataNodes;
+public class BMOpStats implements Serializable{
+  public final long OpStart;
+  public final long OpDuration;
 
-  public BMResult(int noOfExpectedAliveNNs, int noOfAcutallAliveNNs, int noOfNDBDataNodes, BenchmarkType benchMarkType) {
-    this.benchMarkType = benchMarkType;
-    this.noOfExpectedAliveNNs = noOfExpectedAliveNNs;
-    this.noOfNDBDataNodes = noOfNDBDataNodes;
-    this.noOfAcutallAliveNNs = noOfAcutallAliveNNs;
-  }
-  
-  public BenchmarkType getBenchMarkType(){
-    return benchMarkType;
-  }
-  
-  public int getNoOfExpectedAliveNNs(){
-    return noOfExpectedAliveNNs;
-  }
-  
-  public int getNoOfNDBDataNodes(){
-    return noOfNDBDataNodes;
-  }
-
-  public int getNoOfAcutallAliveNNs() {
-    return noOfAcutallAliveNNs;
+  public BMOpStats(long start, long duration) {
+    this.OpStart = start;
+    this.OpDuration = duration;
   }
 }

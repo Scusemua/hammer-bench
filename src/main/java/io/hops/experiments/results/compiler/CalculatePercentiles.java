@@ -5,6 +5,8 @@
 package io.hops.experiments.results.compiler;
 
 import com.google.common.primitives.Doubles;
+
+import io.hops.experiments.benchmarks.common.BMOpStats;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.interleaved.InterleavedBenchmarkCommand;
 import io.hops.experiments.benchmarks.common.config.ConfigKeys;
@@ -88,16 +90,20 @@ public class CalculatePercentiles {
     Map<BenchmarkOperations, ArrayList<Long>> allOpsExecutionTimesList = new HashMap<BenchmarkOperations, ArrayList<Long>>();
     for (Object obj : responses) {
       InterleavedBenchmarkCommand.Response response = (InterleavedBenchmarkCommand.Response) obj;
-      HashMap<BenchmarkOperations, ArrayList<Long>> opsExeTimes = response.getOpsExeTimes();
-      for (BenchmarkOperations opType : opsExeTimes.keySet()) {
+      HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats = response.getOpsStats();
+      for (BenchmarkOperations opType : opsStats.keySet()) {
         if (toProcess.contains(opType)) {
-          ArrayList<Long> opExeTimesFromSlave = opsExeTimes.get(opType);
+          ArrayList<BMOpStats> opStatsFromSlave = opsStats.get(opType);
           ArrayList<Long> opAllExeTimes = allOpsExecutionTimesList.get(opType);
           if (opAllExeTimes == null) {
-            opAllExeTimes = new ArrayList<Long>();
+            opAllExeTimes = new ArrayList<Long>(opStatsFromSlave.size());
             allOpsExecutionTimesList.put(opType, opAllExeTimes);
           }
-          opAllExeTimes.addAll(opExeTimesFromSlave);
+          opAllExeTimes.ensureCapacity(opAllExeTimes.size() + opStatsFromSlave.size());
+          for (int i = 0; i < opStatsFromSlave.size(); i++) {
+            // checkNotNull for GWT (do not optimize)
+            opAllExeTimes.add(opStatsFromSlave.get(i).OpDuration);
+          }
         }
       }
     }

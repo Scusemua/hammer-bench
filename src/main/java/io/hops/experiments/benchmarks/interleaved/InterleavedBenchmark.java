@@ -21,6 +21,7 @@ import io.hops.experiments.utils.BMOperationsUtils;
 import io.hops.experiments.benchmarks.common.Benchmark;
 import io.hops.experiments.benchmarks.common.BenchmarkDistribution;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
+import io.hops.experiments.benchmarks.common.BMOpStats;
 import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
 import io.hops.experiments.benchmarks.interleaved.coin.InterleavedMultiFaceCoin;
 import io.hops.experiments.controller.Logger;
@@ -60,7 +61,7 @@ public class InterleavedBenchmark extends Benchmark {
   AtomicLong operationsCompleted = new AtomicLong(0);
   AtomicLong operationsFailed = new AtomicLong(0);
   Map<BenchmarkOperations, AtomicLong> operationsStats = new HashMap<BenchmarkOperations, AtomicLong>();
-  HashMap<BenchmarkOperations, ArrayList<Long>> opsExeTimes = new HashMap<BenchmarkOperations, ArrayList<Long>>();
+  HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats = new HashMap<BenchmarkOperations, ArrayList<BMOpStats>>();
   SynchronizedDescriptiveStatistics avgLatency = new SynchronizedDescriptiveStatistics();
   protected final RateLimiter limiter;
   protected FilePool sharedFilePool;
@@ -189,7 +190,7 @@ public class InterleavedBenchmark extends Benchmark {
       aliveNNsCount = getAliveNNsCount();
     }
     InterleavedBenchmarkCommand.Response response =
-            new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsExeTimes, avgLatency.getMean(), failOverLog, aliveNNsCount);
+            new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsStats, avgLatency.getMean(), failOverLog, aliveNNsCount);
     return response;
   }
 
@@ -304,10 +305,8 @@ public class InterleavedBenchmark extends Benchmark {
       if (path != null) {
         boolean retVal = false;
         long opExeTime = 0;
+        long opStartTime = System.nanoTime();
         try {
-          long opStartTime = 0L;
-          opStartTime = System.nanoTime();
-
           if (dryrun) {
             System.out.println("Performing " + opType + " on " + path);
             TimeUnit.MILLISECONDS.sleep(10);
@@ -321,14 +320,14 @@ public class InterleavedBenchmark extends Benchmark {
         } catch (Exception e) {
           Logger.error(e);
         }
-        updateStats(opType, retVal, opExeTime);
+        updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime));
       } else {
         Logger.printMsg("Could not perform operation " + opType + ". Got Null from the file pool");
 //                System.exit(-1);
       }
     }
 
-    private void updateStats(BenchmarkOperations opType, boolean success, long opExeTime) {
+    private void updateStats(BenchmarkOperations opType, boolean success, BMOpStats stats) {
       AtomicLong stat = operationsStats.get(opType);
       if (stat == null) { // this should be synchronized to get accurate stats. However, this will slow down and these stats are just for log messages. Some inconsistencies are OK
         stat = new AtomicLong(0);
@@ -338,15 +337,15 @@ public class InterleavedBenchmark extends Benchmark {
 
       if (success) {
         operationsCompleted.incrementAndGet();
-        avgLatency.addValue(opExeTime);
+        avgLatency.addValue(stats.OpDuration);
         if (bmConf.isPercentileEnabled()) {
-          synchronized (opsExeTimes) {
-            ArrayList<Long> times = opsExeTimes.get(opType);
+          synchronized (opsStats) {
+            ArrayList<BMOpStats> times = opsStats.get(opType);
             if (times == null) {
-              times = new ArrayList<Long>();
-              opsExeTimes.put(opType, times);
+              times = new ArrayList<BMOpStats>();
+              opsStats.put(opType, times);
             }
-            times.add(opExeTime);
+            times.add(stats);
           }
         }
       } else {
