@@ -159,7 +159,7 @@ public abstract class Benchmark {
     FileSystem fs = DFSOperationsUtils.getDFSClient(conf);
     int actualNNCount = 0;
     try {
-      actualNNCount = DFSOperationsUtils.getActiveNameNodesCount(bmConf.getBenchMarkFileSystemName(), fs);
+      actualNNCount = 999; // DFSOperationsUtils.getActiveNameNodesCount(bmConf.getBenchMarkFileSystemName(), fs);
     } catch (Exception e) {
       Logger.error(e);
     }
