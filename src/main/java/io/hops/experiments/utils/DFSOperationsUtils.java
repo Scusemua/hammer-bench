@@ -207,6 +207,7 @@ public class DFSOperationsUtils {
             serverLessModeRandomWait();
             return true;
         }
+        LOG.debug("Renaming \"" + from + "\" to \"" + to + "\" now...");
         return dfs.rename(from, to);    
     }
 
