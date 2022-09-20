@@ -204,11 +204,10 @@ public class InterleavedBenchmark extends Benchmark {
       if (!dryrun) {
         dfs = DFSOperationsUtils.getDFSClient(conf);
       }
-        filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
-                bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
-                bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
-                bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
-      }
+      filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
+              bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
+              bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
+              bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
       
       opCoin = new InterleavedMultiFaceCoin(config.getInterleavedBmCreateFilesPercentage(),
               config.getInterleavedBmAppendFilePercentage(),

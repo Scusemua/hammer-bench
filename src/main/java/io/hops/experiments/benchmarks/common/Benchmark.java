@@ -101,7 +101,6 @@ public abstract class Benchmark {
       this.bmConf = bmConf;
       dryrun = bmConf.getBenchmarkDryrun();
     }
-    }
 
     @Override
     public Object call() throws Exception {
