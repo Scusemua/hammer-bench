@@ -51,18 +51,18 @@ public class DFSOperationsUtils {
     private static AtomicInteger dfsClientsCount = new AtomicInteger(0);
 
     public static FileSystem getDFSClient(Configuration conf) throws IOException {
-        if(SERVER_LESS_MODE){
-            serverLessModeRandomWait();
-            return null;
-        }
+//        if(SERVER_LESS_MODE){
+//            serverLessModeRandomWait();
+//            return null;
+//        }
         FileSystem client = dfsClients.get();
         if (client == null) {
-            client = FileSystem.newInstance(conf);
-            dfsClients.set(client);
             System.out.println(Thread.currentThread().getName()  +
-                " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
+                    " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
             LOG.debug(Thread.currentThread().getName()  +
                     " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
+            client = FileSystem.newInstance(conf);
+            dfsClients.set(client);
         }
         else {
             System.out.println("Reusing Existing Client " + client);
