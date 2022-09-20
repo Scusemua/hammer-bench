@@ -130,14 +130,11 @@ public class DFSOperationsUtils {
         if (client == null) {
             LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
             client = initDfsClient();
-            System.out.println(Thread.currentThread().getName()  +
-                    " Created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
             LOG.debug(Thread.currentThread().getName()  +
                     " created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
             dfsClients.set(client);
         }
         else {
-            System.out.println("Reusing Existing Client " + client);
             LOG.debug("Reusing Existing Client " + client);
         }
         return client;
@@ -165,10 +162,10 @@ public class DFSOperationsUtils {
     }
     
     public static void createFile(FileSystem dfs, String pathStr, short replication, FilePool filePool) throws IOException {
-        if(SERVER_LESS_MODE){
-            serverLessModeRandomWait();
-            return;
-        }
+//        if(SERVER_LESS_MODE){
+//            serverLessModeRandomWait();
+//            return;
+//        }
 
         FSDataOutputStream out = dfs.create(new Path(pathStr), replication);
         long size = filePool.getNewFileSize();

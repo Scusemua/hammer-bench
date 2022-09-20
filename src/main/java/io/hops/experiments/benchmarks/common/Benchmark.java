@@ -122,16 +122,13 @@ public abstract class Benchmark {
         LOG.error("Exception encountered while obtaining DFS client:", ex);
       }
 
-      System.out.println("File pool: " + filePool.toString());
-      LOG.debug("File pool: " + filePool.toString());
-      String filePath = null;
+      String filePath;
 
-      System.out.println("Attempting to create a total of " + filesToCreate + " file(s).");
       LOG.debug("Attempting to create a total of " + filesToCreate + " file(s).");
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
-          System.out.println("Creating file '" + filePath + "' now...");
+          LOG.debug("Creating file '" + filePath + "' now...");
           if (!dryrun) {
             DFSOperationsUtils
                     .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
