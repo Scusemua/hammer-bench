@@ -96,16 +96,16 @@ public class InterleavedBenchmark extends Benchmark {
         workers.add(worker);
       }
 
-      for (Callable<Object> worker : workers) {
-        try {
-          worker.call();
-        } catch (Exception ex) {
-          LOG.debug("Exception encountered:", ex);
-          LOG.error("Exception encountered:", ex);
-        }
-      }
+//      for (Callable<Object> worker : workers) {
+//        try {
+//          worker.call();
+//        } catch (Exception ex) {
+//          LOG.debug("Exception encountered:", ex);
+//          LOG.error("Exception encountered:", ex);
+//        }
+//      }
 
-      // executor.invokeAll(workers); // blocking call
+      executor.invokeAll(workers); // blocking call
       workers.clear();
 
       // Stage 2
