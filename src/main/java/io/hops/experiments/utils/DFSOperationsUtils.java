@@ -25,9 +25,14 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 
 import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,6 +43,8 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import io.hops.experiments.workload.generator.FilePool;
 import io.hops.experiments.workload.generator.FileTreeGenerator;
 import io.hops.experiments.workload.generator.FixeDepthFileTreeGenerator;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.log4j.lf5.LogLevel;
 
 public class DFSOperationsUtils {
     public static final Log LOG = LogFactory.getLog(DFSOperationsUtils.class);
@@ -50,6 +57,69 @@ public class DFSOperationsUtils {
     private static AtomicInteger filePoolCount = new AtomicInteger(0);
     private static AtomicInteger dfsClientsCount = new AtomicInteger(0);
 
+    /**
+     * Fully-qualified path of hdfs-site.xml configuration file.
+     */
+    public static String hdfsConfigFilePath = "/home/ubuntu/repos/hops/hadoop-dist/target/hadoop-3.2.0.3-SNAPSHOT/etc/hadoop/hdfs-site.xml";
+    public static final String NAME_NODE_ENDPOINT = "hdfs://10.150.0.10:9000/";
+
+    /**
+     * Create and return an HDFS Configuration object with the hdfs-site.xml file added as a resource.
+     *
+     * @param path Fully-qualified path to the configuration file.
+     */
+    public static Configuration getConfiguration(String path) {
+        Configuration configuration = new Configuration();
+        try {
+            File configFile = new File(path);
+            URL configFileURL = configFile.toURI().toURL();
+            configuration.addResource(configFileURL);
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
+        return configuration;
+    }
+
+    /**
+     * Create an HDFS client.
+     */
+    public static DistributedFileSystem initDfsClient() {
+        LOG.debug("Creating HDFS client now...");
+        Configuration hdfsConfiguration = getConfiguration(hdfsConfigFilePath);
+        try {
+            hdfsConfiguration.addResource(new File(hdfsConfigFilePath).toURI().toURL());
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
+        LOG.info("Created configuration.");
+        DistributedFileSystem hdfs = new DistributedFileSystem();
+        LOG.info("Created DistributedFileSystem object.");
+
+        try {
+            hdfs.initialize(new URI(NAME_NODE_ENDPOINT), hdfsConfiguration);
+            LOG.info("Called initialize() successfully.");
+        } catch (URISyntaxException | IOException ex) {
+            LOG.error("");
+            LOG.error("");
+            LOG.error("ERROR: Encountered exception while initializing DistributedFileSystem object.");
+            ex.printStackTrace();
+            System.exit(1);
+        }
+
+        // For the HDFS instance we're creating, toggle the consistency protocol + benchmark mode
+        // based on whether the client has toggled those options within the benchmarking application.
+        // hdfs.setConsistencyProtocolEnabled(consistencyEnabled);
+        // hdfs.setBenchmarkModeEnabled(Commands.BENCHMARKING_MODE);
+
+        // The primary HDFS instance should use whatever the default log level is for the HDFS instance we create,
+        // as HopsFS has a default log level. If we're creating a non-primary HDFS instance, then we just assign it
+        // whatever our primary instance has been set to (as it can change dynamically).
+        hdfs.setServerlessFunctionLogLevel("DEBUG");
+        hdfs.setConsistencyProtocolEnabled(true);
+
+        return hdfs;
+    }
+
     public static FileSystem getDFSClient(Configuration conf) throws IOException {
 //        if(SERVER_LESS_MODE){
 //            serverLessModeRandomWait();
@@ -58,7 +128,7 @@ public class DFSOperationsUtils {
         FileSystem client = dfsClients.get();
         if (client == null) {
             LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
-            client = FileSystem.newInstance(conf);
+            client = initDfsClient();
             System.out.println(Thread.currentThread().getName()  +
                     " Created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
             LOG.debug(Thread.currentThread().getName()  +

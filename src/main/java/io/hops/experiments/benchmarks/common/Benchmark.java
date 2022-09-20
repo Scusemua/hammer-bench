@@ -106,14 +106,18 @@ public abstract class Benchmark {
     @Override
     public Object call() throws Exception {
       LOG.debug("BaseWarmUp thread has started running.");
-      if (!dryrun) {
-        dfs = DFSOperationsUtils.getDFSClient(conf);
+      try {
+        if (!dryrun) {
+          dfs = DFSOperationsUtils.getDFSClient(conf);
+        }
+        filePool = DFSOperationsUtils.getFilePool(conf,
+                bmConf.getBaseDir(), bmConf.getDirPerDir(),
+                bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
+                bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
+                bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
+      } catch (Exception ex) {
+        LOG.error("Exception encountered while obtaining DFS client:", ex);
       }
-      filePool = DFSOperationsUtils.getFilePool(conf,
-              bmConf.getBaseDir(), bmConf.getDirPerDir(),
-              bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
-              bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
-              bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
 
       System.out.println("File pool: " + filePool.toString());
       LOG.debug("File pool: " + filePool.toString());
