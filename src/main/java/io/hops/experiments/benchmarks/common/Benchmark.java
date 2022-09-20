@@ -84,7 +84,7 @@ public abstract class Benchmark {
   }
   
   protected AtomicLong filesCreatedInWarmupPhase = new AtomicLong(0);
-  protected class BaseWarmUp implements Callable {
+  protected class BaseWarmUp implements Callable<Object> {
     private FileSystem dfs;
     private FilePool filePool;
     private final int filesToCreate;
