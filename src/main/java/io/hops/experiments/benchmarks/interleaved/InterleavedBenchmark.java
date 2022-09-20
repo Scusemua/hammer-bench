@@ -161,28 +161,28 @@ public class InterleavedBenchmark extends Benchmark {
       workerLimiter.setStat("completed", operationsCompleted);
     }
 
-    FailOverMonitor failOverTester = null;
-    List<String> failOverLog = null;
-    if (config.testFailover()) {
-      boolean canIKillNamenodes = InetAddress.getLocalHost().getHostName().compareTo(config.getNamenodeKillerHost()) == 0;
-      if (canIKillNamenodes) {
-        Logger.printMsg("Responsible for killing/restarting namenodes");
-      }
-      failOverTester = startFailoverTestDeamon(
-              config.getNameNodeRestartCommands(),
-              config.getFailOverTestDuration(),
-              config.getFailOverTestStartTime(),
-              config.getNameNodeRestartTimePeriod(),
-              canIKillNamenodes);
-    }
+//    FailOverMonitor failOverTester = null;
+//    List<String> failOverLog = null;
+//    if (config.testFailover()) {
+//      boolean canIKillNamenodes = InetAddress.getLocalHost().getHostName().compareTo(config.getNamenodeKillerHost()) == 0;
+//      if (canIKillNamenodes) {
+//        Logger.printMsg("Responsible for killing/restarting namenodes");
+//      }
+//      failOverTester = startFailoverTestDeamon(
+//              config.getNameNodeRestartCommands(),
+//              config.getFailOverTestDuration(),
+//              config.getFailOverTestStartTime(),
+//              config.getNameNodeRestartTimePeriod(),
+//              canIKillNamenodes);
+//    }
 
     Logger.resetTimer();
 
     executor.invokeAll(workers); // blocking call
-    if (config.testFailover()) {
-      failOverTester.stop();
-      failOverLog = failOverTester.getFailoverLog();
-    }
+//    if (config.testFailover()) {
+//      failOverTester.stop();
+//      failOverLog = failOverTester.getFailoverLog();
+//    }
 
     long totalTime = System.currentTimeMillis() - startTime;
 
@@ -190,10 +190,10 @@ public class InterleavedBenchmark extends Benchmark {
 
     double speed = (operationsCompleted.get() / (double) totalTime) * 1000;
 
-    int aliveNNsCount = 0;
-    if (!dryrun) {
-      aliveNNsCount = getAliveNNsCount();
-    }
+//    int aliveNNsCount = 0;
+//    if (!dryrun) {
+//      aliveNNsCount = getAliveNNsCount();
+//    }
     InterleavedBenchmarkCommand.Response response =
             new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsStats, avgLatency.getMean(), failOverLog, aliveNNsCount);
     return response;
@@ -306,6 +306,7 @@ public class InterleavedBenchmark extends Benchmark {
     }
 
     private void performOperation(BenchmarkOperations opType) throws IOException {
+      System.out.println("Performing operation: " + opType.name());
       String path = BMOperationsUtils.getPath(opType, filePool);
       if (path != null) {
         boolean retVal = false;

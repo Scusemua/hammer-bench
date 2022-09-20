@@ -156,13 +156,14 @@ public abstract class Benchmark {
   };
 
   protected int getAliveNNsCount() throws IOException {
-    FileSystem fs = DFSOperationsUtils.getDFSClient(conf);
-    int actualNNCount = 0;
-    try {
-      actualNNCount = 999; // DFSOperationsUtils.getActiveNameNodesCount(bmConf.getBenchMarkFileSystemName(), fs);
-    } catch (Exception e) {
-      Logger.error(e);
-    }
-    return actualNNCount;
+    return 999;
+//    FileSystem fs = DFSOperationsUtils.getDFSClient(conf);
+//    int actualNNCount = 0;
+//    try {
+//      actualNNCount = 999; // DFSOperationsUtils.getActiveNameNodesCount(bmConf.getBenchMarkFileSystemName(), fs);
+//    } catch (Exception e) {
+//      Logger.error(e);
+//    }
+//    return actualNNCount;
   }
 }
