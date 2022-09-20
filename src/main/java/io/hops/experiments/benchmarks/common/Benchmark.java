@@ -105,6 +105,16 @@ public abstract class Benchmark {
 
     @Override
     public Object call() throws Exception {
+      try {
+        return callImpl();
+      }
+      catch (Exception e) {
+        Logger.printMsg("Exception in warmup: " + e);
+        throw e;
+      }
+    }
+
+    public Object callImpl() throws Exception {
       if (!dryrun) {
         dfs = DFSOperationsUtils.getDFSClient(conf);
       }
