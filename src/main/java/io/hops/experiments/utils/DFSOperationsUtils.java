@@ -92,11 +92,6 @@ public class DFSOperationsUtils {
     public static DistributedFileSystem initDfsClient() {
         LOG.debug("Creating HDFS client now...");
         Configuration hdfsConfiguration = getConfiguration(hdfsConfigFilePath);
-        try {
-            hdfsConfiguration.addResource(new File(hdfsConfigFilePath).toURI().toURL());
-        } catch (MalformedURLException ex) {
-            ex.printStackTrace();
-        }
         LOG.info("Created configuration.");
         DistributedFileSystem hdfs = new DistributedFileSystem();
         LOG.info("Created DistributedFileSystem object.");
