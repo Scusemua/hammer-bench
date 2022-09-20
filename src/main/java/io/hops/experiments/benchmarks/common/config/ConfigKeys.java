@@ -176,6 +176,9 @@ public class ConfigKeys {
 
     public static final String BENCHMARK_FILE_SYSTEM_NAME_KEY = "benchmark.filesystem.name";
     public static final String BENCHMARK_FILE_SYSTEM_NAME_DEFAULT = "HDFS";
+
+    public static final String HADOOP_HOME_DIR_KEY = "hadoop.home.dir";
+    public static final String HADOOP_HOME_DIR_DEFAULT = ""; // using the system environment variable
   
     public static final int BUFFER_SIZE = 4*1024*1024; 
     

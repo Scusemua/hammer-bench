@@ -16,6 +16,7 @@
  */
 package io.hops.experiments.benchmarks.interleaved;
 
+import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.utils.BMOperationsUtils;
 import io.hops.experiments.benchmarks.common.Benchmark;
@@ -75,6 +76,12 @@ public class InterleavedBenchmark extends Benchmark {
       limiter = new DistributionRateLimiter(bmConf, new ParetoGenerator(bmConf));
     } else {
       limiter = new RateNoLimiter();
+    }
+
+    if (bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HDFS || bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HopsFS) {
+      if (bmConf.getHadoopHomeDir() != "") {
+        System.setProperty("hadoop.home.dir", bmConf.getHadoopHomeDir());
+      }
     }
   }
 

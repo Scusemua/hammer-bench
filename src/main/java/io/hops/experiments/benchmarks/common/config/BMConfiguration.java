@@ -169,6 +169,10 @@ public class BMConfiguration implements Serializable {
     return BenchMarkFileSystemName.fromString(getString(ConfigKeys.BENCHMARK_FILE_SYSTEM_NAME_KEY, ConfigKeys.BENCHMARK_FILE_SYSTEM_NAME_DEFAULT));
   }
 
+  public String getHadoopHomeDir() {
+    return getString(ConfigKeys.HADOOP_HOME_DIR_KEY, ConfigKeys.HADOOP_HOME_DIR_DEFAULT);
+  }
+
   public int getSlaveListeningPort() {
     return getInt(ConfigKeys.SLAVE_LISTENING_PORT_KEY, ConfigKeys.SLAVE_LISTENING_PORT_DEFAULT);
   }
