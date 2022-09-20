@@ -90,6 +90,7 @@ public class InterleavedBenchmark extends Benchmark {
       List workers = new ArrayList<BaseWarmUp>();
       // Stage 1
       threadsWarmedUp.set(0);
+      LOG.debug("Creating " + bmConf.getSlaveNumThreads() + " workers for warm-up (create parent dirs).");
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
         Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
         workers.add(worker);
@@ -99,6 +100,7 @@ public class InterleavedBenchmark extends Benchmark {
 
       // Stage 2
       threadsWarmedUp.set(0);
+      LOG.debug("Creating " + bmConf.getSlaveNumThreads() + " workers for warm-up (create files/dirs).");
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
         Callable worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1,
                 bmConf, "Warming up. Stage2: Creating files/dirs. ");

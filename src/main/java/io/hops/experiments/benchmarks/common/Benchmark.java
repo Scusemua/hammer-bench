@@ -105,6 +105,7 @@ public abstract class Benchmark {
 
     @Override
     public Object call() throws Exception {
+      LOG.debug("BaseWarmUp thread has started running.");
       if (!dryrun) {
         dfs = DFSOperationsUtils.getDFSClient(conf);
       }
@@ -116,6 +117,7 @@ public abstract class Benchmark {
       String filePath = null;
 
       System.out.println("Attempting to create a total of " + filesToCreate + " file(s).");
+      LOG.debug("Attempting to create a total of " + filesToCreate + " file(s).");
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
