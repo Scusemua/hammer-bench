@@ -111,6 +111,7 @@ public abstract class Benchmark {
         if (!dryrun) {
           dfs = DFSOperationsUtils.getDFSClient(conf);
           dfs.setConsistencyProtocolEnabled(false); // No consistency protocol during warm-up.
+          dfs.setServerlessFunctionLogLevel("DEBUG");
         }
         filePool = DFSOperationsUtils.getFilePool(conf,
                 bmConf.getBaseDir(), bmConf.getDirPerDir(),
