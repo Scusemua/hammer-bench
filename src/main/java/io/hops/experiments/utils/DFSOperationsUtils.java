@@ -78,8 +78,10 @@ public class DFSOperationsUtils {
             LOG.debug("Successfully added resource to file.");
         } catch (MalformedURLException ex) {
             LOG.error("Invalid path specified for Configuration: '" + path + "':", ex);
+            LOG.debug("Invalid path specified for Configuration: '" + path + "':", ex);
         } catch (Exception ex) {
             LOG.error("Unexpected error while getting Configuration from file '" + path + "':", ex);
+            LOG.debug("Unexpected error while getting Configuration from file '" + path + "':", ex);
         }
         return configuration;
     }
