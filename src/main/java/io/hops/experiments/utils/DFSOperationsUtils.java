@@ -73,9 +73,12 @@ public class DFSOperationsUtils {
         try {
             File configFile = new File(path);
             URL configFileURL = configFile.toURI().toURL();
+            LOG.debug("Adding resource to file: " + configFileURL);
             configuration.addResource(configFileURL);
         } catch (MalformedURLException ex) {
-            ex.printStackTrace();
+            LOG.error("Invalid path specified for Configuration: '" + path + "':", ex);
+        } catch (Exception ex) {
+            LOG.error("Unexpected error while getting Configuration from file '" + path + "':", ex);
         }
         return configuration;
     }
