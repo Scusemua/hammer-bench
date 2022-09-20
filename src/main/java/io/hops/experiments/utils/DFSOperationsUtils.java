@@ -57,11 +57,12 @@ public class DFSOperationsUtils {
 //        }
         FileSystem client = dfsClients.get();
         if (client == null) {
-            System.out.println(Thread.currentThread().getName()  +
-                    " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
-            LOG.debug(Thread.currentThread().getName()  +
-                    " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
+            LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
             client = FileSystem.newInstance(conf);
+            System.out.println(Thread.currentThread().getName()  +
+                    " Created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
+            LOG.debug(Thread.currentThread().getName()  +
+                    " created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
             dfsClients.set(client);
         }
         else {
