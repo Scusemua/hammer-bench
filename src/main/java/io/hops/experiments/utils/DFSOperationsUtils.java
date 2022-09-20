@@ -75,6 +75,7 @@ public class DFSOperationsUtils {
             URL configFileURL = configFile.toURI().toURL();
             LOG.debug("Adding resource to file: " + configFileURL);
             configuration.addResource(configFileURL);
+            LOG.debug("Successfully added resource to file.");
         } catch (MalformedURLException ex) {
             LOG.error("Invalid path specified for Configuration: '" + path + "':", ex);
         } catch (Exception ex) {
