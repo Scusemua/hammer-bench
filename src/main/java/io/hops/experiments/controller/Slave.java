@@ -45,7 +45,7 @@ public class Slave {
     public static final Log LOG = LogFactory.getLog(Slave.class);
 
     public static void main(String[] argv) throws Exception {
-        System.out.println("Slave process has started executing.");
+        LOG.info("Worker process has started executing.");
         String configFilePath = "slave.properties";
         if (argv.length == 1) {
             configFilePath = argv[0];
@@ -62,17 +62,17 @@ public class Slave {
 
     public void start(String configFilePath) throws Exception {
         args = new SlaveArgsReader(configFilePath);
-        System.out.println("Connecting now...");
+        LOG.info("Connecting now...");
         connect();
-        System.out.println("Performing handshake with master now...");
+        LOG.info("Performing handshake with master now...");
         handShakeWithMaster();
-        System.out.println("Starting listener now...");
+        LOG.info("Starting listener now...");
         startListener();
     }
 
     private void handShakeWithMaster() throws IOException, ClassNotFoundException {
-        
-        System.out.println("Waiting for handshake message ");
+
+        LOG.info("Waiting for handshake message ");
         Object obj = receiveRequestFromMaster();
 
         int slaveId = 0;
@@ -108,7 +108,7 @@ public class Slave {
             Object obj = receiveRequestFromMaster();
             if (obj instanceof BenchmarkCommand.Request) {
                 BenchmarkCommand.Request command = (BenchmarkCommand.Request) obj;
-                System.out.println("Received command from master: " + command);
+                LOG.debug("Received command from master: " + command);
                 if (!command.getBenchMarkType().equals(bmConf.getBenchMarkType())) {
                     throw new IllegalStateException("BenchMarkType Mismatch. Expecting " + bmConf.getBenchMarkType() + " Got: " + command.getBenchMarkType());
                 }
@@ -139,11 +139,13 @@ public class Slave {
     }
 
     private void sendResponseToMaster(Object obj) throws IOException {
-        System.out.println("Sending response to master ... ");
+        if (LOG.isDebugEnabled())
+            LOG.debug("Sending response to master ... ");
         long startTime = System.currentTimeMillis();
         connectionWithMaster.setSendBufferSize(ConfigKeys.BUFFER_SIZE);
         ObjectOutputStream sendToMaster = new ObjectOutputStream(connectionWithMaster.getOutputStream());
         sendToMaster.writeObject(obj);
-        System.out.println("Sent response to master. Time: "+(System.currentTimeMillis() - startTime)+" ms");
+        if (LOG.isDebugEnabled())
+            LOG.debug("Sent response to master. Time: "+(System.currentTimeMillis() - startTime)+" ms");
     }
 }

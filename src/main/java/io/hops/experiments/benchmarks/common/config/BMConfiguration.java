@@ -615,7 +615,7 @@ public class BMConfiguration implements Serializable {
     Properties dfsClientConf = new Properties();
     dfsClientConf.setProperty(ConfigKeys.FS_DEFAULTFS_KEY, getNameNodeRpcAddress());
     if (getBenchMarkFileSystemName() == BenchMarkFileSystemName.HDFS) {
-      System.out.println("Creating config for HDFS");
+      // System.out.println("Creating config for HDFS");
       dfsClientConf.setProperty("dfs.ha.namenodes."+getDfsNameService(),props.getProperty("dfs.ha.namenodes."+getDfsNameService()));
       dfsClientConf.setProperty("dfs.nameservices",props.getProperty("dfs.nameservices"));
       dfsClientConf.setProperty("dfs.namenode.rpc-address."+getDfsNameService()+".nn1",props.getProperty("dfs.namenode.rpc-address."+getDfsNameService()+".nn1"));
@@ -627,7 +627,7 @@ public class BMConfiguration implements Serializable {
       /// Original HammerBench Configuration ///
       //////////////////////////////////////////
 
-      System.out.println("Creating config for HopsFS");
+      // System.out.println("Creating config for HopsFS");
       dfsClientConf.setProperty(ConfigKeys.DFS_CLIENT_REFRESH_NAMENODE_LIST_KEY,
               Long.toString(getNameNodeRefreshRate()));
       dfsClientConf.setProperty(ConfigKeys.DFS_NAMENODE_SELECTOR_POLICY_KEY,
@@ -659,7 +659,7 @@ public class BMConfiguration implements Serializable {
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_PLATFORM, getString(ConfigKeys.SERVERLESS_PLATFORM, ConfigKeys.SERVERLESS_PLATFORM_DEFAULT));
 
     } else if (getBenchMarkFileSystemName() == BenchMarkFileSystemName.CephFS) {
-      System.out.println("Creating config for CephFS");
+      // System.out.println("Creating config for CephFS");
       dfsClientConf.setProperty(ConfigKeys.FS_CEPH_IMPL_KEY, getFsCephImp());
       dfsClientConf.setProperty(ConfigKeys.CEPH_AUTH_KEYRING_KEY, getCephAuthKeyRing());
       dfsClientConf.setProperty(ConfigKeys.CEPH_CONF_FILE_KEY, getCephConfigFile());
@@ -667,7 +667,7 @@ public class BMConfiguration implements Serializable {
       dfsClientConf.setProperty(ConfigKeys.CEPH_MON_ADDRESS_KEY, getCephMonAddress());
       dfsClientConf.setProperty(ConfigKeys.CEPH_AUTH_ID_KEY, getCephAuthId());
     } else if (getBenchMarkFileSystemName() == BenchMarkFileSystemName.MapRFS) {
-      System.out.println("Creating config for MapR-FS");
+      // System.out.println("Creating config for MapR-FS");
       //FS_DEFAULTFS_KEY is already defined
     } else {
       throw new UnsupportedOperationException(getBenchMarkFileSystemName() + " is not yet supported");

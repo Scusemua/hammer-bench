@@ -111,15 +111,15 @@ public class RawBenchmark extends Benchmark {
           throws IOException, InterruptedException {
     RawBenchmarkCommand.Request request = (RawBenchmarkCommand.Request) command;
     RawBenchmarkCommand.Response response;
-    System.out.println("Starting the " + request.getPhase() + " duration " + request.getDurationInMS());
+    LOG.info("Starting the " + request.getPhase() + " duration " + request.getDurationInMS());
     response = startTestPhase(request.getPhase(), request.getDurationInMS(), bmConf.getBaseDir());
     return response;
   }
 
   private RawBenchmarkCommand.Response startTestPhase(BenchmarkOperations opType, long duration, String baseDir) throws InterruptedException, UnknownHostException, IOException {
-    System.out.println("Starting test phase '" + opType.name() + "' with duration=" + duration + ", baseDir='" + baseDir + "'");
+    LOG.info("Starting test phase '" + opType.name() + "' with duration=" + duration + ", baseDir='" + baseDir + "'");
     List workers = new LinkedList<Callable>();
-    System.out.println("Creating " + bmConf.getSlaveNumThreads() + " worker thread(s) now...");
+    LOG.debug("Creating " + bmConf.getSlaveNumThreads() + " worker thread(s) now...");
     for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
       Callable worker = new Generic(baseDir, opType);
       workers.add(worker);
@@ -132,7 +132,7 @@ public class RawBenchmark extends Benchmark {
     long phaseFinishTime = System.currentTimeMillis();
     long actualExecutionTime = (phaseFinishTime - phaseStartTime);
 
-    System.out.println("Phase " + opType.name() + " finished in " + actualExecutionTime + " milliseconds.");
+    LOG.info("Phase " + opType.name() + " finished in " + actualExecutionTime + " milliseconds.");
 
     double speed = ((double) successfulOps.get() / (double) actualExecutionTime); // p / ms
     speed = speed * 1000;

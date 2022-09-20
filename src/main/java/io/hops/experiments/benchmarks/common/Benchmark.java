@@ -124,11 +124,13 @@ public abstract class Benchmark {
 
       String filePath;
 
-      LOG.debug("Attempting to create a total of " + filesToCreate + " file(s).");
+      if (LOG.isDebugEnabled())
+        LOG.debug("Attempting to create a total of " + filesToCreate + " file(s).");
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
-          LOG.debug("Creating file '" + filePath + "' now...");
+          if (LOG.isDebugEnabled())
+            LOG.debug("Creating file '" + filePath + "' now...");
           if (!dryrun) {
             DFSOperationsUtils
                     .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);

@@ -59,7 +59,7 @@ public class Master {
   BMConfiguration config;
 
   public static void main(String[] argv) throws Exception {
-    System.out.println("Master has started running.");
+    LOG.info("Master has started running.");
     String configFilePath = "master.properties";
     if (argv.length == 1) {
       if (argv[0].compareToIgnoreCase("help") == 0) {
