@@ -69,7 +69,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-math3</artifactId>
-      <version>3.0</version>
+      <version>3.1.1</version>
     </dependency>
     
     <dependency>
@@ -93,6 +93,7 @@
       <artifactId>woodstox-core</artifactId>
       <version>5.0.3</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-configuration2 -->
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>

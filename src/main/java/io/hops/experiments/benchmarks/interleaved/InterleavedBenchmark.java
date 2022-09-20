@@ -105,7 +105,6 @@ public class InterleavedBenchmark extends Benchmark {
         }
       }
 
-
       // executor.invokeAll(workers); // blocking call
       workers.clear();
 
