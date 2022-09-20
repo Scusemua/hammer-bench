@@ -57,13 +57,17 @@ public class DFSOperationsUtils {
         }
         FileSystem client = dfsClients.get();
         if (client == null) {
-            client = (FileSystem) FileSystem.newInstance(conf);
+            client = FileSystem.newInstance(conf);
             dfsClients.set(client);
             System.out.println(Thread.currentThread().getName()  +
                 " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
+            LOG.debug(Thread.currentThread().getName()  +
+                    " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
         }
-        else
-            System.out.println("Reusing Existing Client "+client);
+        else {
+            System.out.println("Reusing Existing Client " + client);
+            LOG.debug("Reusing Existing Client " + client);
+        }
         return client;
     }
 

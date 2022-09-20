@@ -114,6 +114,9 @@ public abstract class Benchmark {
               bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
               bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
               bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
+
+      System.out.println("File pool: " + filePool.toString());
+      LOG.debug("File pool: " + filePool.toString());
       String filePath = null;
 
       System.out.println("Attempting to create a total of " + filesToCreate + " file(s).");
