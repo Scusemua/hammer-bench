@@ -32,7 +32,7 @@ public class ConfigKeys {
     /**
      * The default endpoint/URI for invoking a serverless function (i.e., namenode).
      */
-    public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://openwhisk.serverless-mds-cluster-243065a7719552ad2f4388dc81e46642-0000.us-east.containers.appdomain.cloud:443/api/v1/web/whisk.system/default/namenode";
+    public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://34.86.224.47:444/api/v1/web/whisk.system/default/namenode";
 
     /**
      * Configuration property for defining the serverless platform in use.
@@ -54,7 +54,7 @@ public class ConfigKeys {
     /**
      * The default number of serverless functions associated with this particular Serverless HopsFS cluster.
      */
-    public static final int SERVERLESS_DEPLOYMENTS_BASELINE_DEFAULT = 1;
+    public static final int SERVERLESS_DEPLOYMENTS_BASELINE_DEFAULT = 20;
 
     /**
      * If true, then we'll pass an argument to the NNs indicating that they should print their
@@ -74,7 +74,7 @@ public class ConfigKeys {
      * Serverless HopsFS cluster.
      */
     public static final String SERVERLESS_MAX_DEPLOYMENTS = "serverless.deployments.max";
-    public static final int SERVERLESS_MAX_DEPLOYMENTS_DEFAULT = 3;
+    public static final int SERVERLESS_MAX_DEPLOYMENTS_DEFAULT = 20;
 
     public static final String SERVERLESS_METADATA_CACHE_REDIS_ENDPOINT = "serverless.redis.endpoint";
     public static final String SERVERLESS_METADATA_CACHE_REDIS_ENDPOINT_DEFAULT = "127.0.0.1";
@@ -102,7 +102,7 @@ public class ConfigKeys {
      * configuration parameter.
      */
     public static final String SERVERLESS_HTTP_TIMEOUT = "serverless.http.timeout";
-    public static final int SERVERLESS_HTTP_TIMEOUT_DEFAULT = 20;
+    public static final int SERVERLESS_HTTP_TIMEOUT_DEFAULT = 60;
 
     public static final String SERVERLESS_METADATA_CACHE_ENABLED = "serverless.metadatacache.enabled";
     public static final boolean SERVERLESS_METADATA_CACHE_ENABLED_DEFAULT = true;
@@ -136,9 +136,9 @@ public class ConfigKeys {
      */
     public static final String SERVERLESS_ZOOKEEPER_HOSTNAMES = "serverless.zookeepers.hosts";
     public static final String[] SERVERLESS_ZOOKEEPER_HOSTNAMES_DEFAULT = {
-            "10.241.64.15:2181",  // NDB Manager (ndb_mgmd) VM.
-            "10.241.64.16:2181",  // NDB DataNode (ndbd) VM.
-            "10.241.64.14:2181"   // HopsFS Development VM.
+            "10.150.0.46:2181",
+            "10.150.0.79:2181",
+            "10.150.0.81:2181"
     };
 
     /**
