@@ -51,7 +51,7 @@ public class DFSOperationsUtils {
     private static final boolean SERVER_LESS_MODE=false; //only for testing. If enabled then the clients will not
     private static Random rand = new Random(System.currentTimeMillis());
                                                         // contact NNs
-    private static ThreadLocal<FileSystem> dfsClients = new ThreadLocal<FileSystem>();
+    private static ThreadLocal<DistributedFileSystem> dfsClients = new ThreadLocal<>();
     private static ThreadLocal<FilePool> filePools = new ThreadLocal<FilePool>();
 
     private static AtomicInteger filePoolCount = new AtomicInteger(0);
@@ -121,12 +121,12 @@ public class DFSOperationsUtils {
         return hdfs;
     }
 
-    public static FileSystem getDFSClient(Configuration conf) throws IOException {
+    public static DistributedFileSystem getDFSClient(Configuration conf) throws IOException {
 //        if(SERVER_LESS_MODE){
 //            serverLessModeRandomWait();
 //            return null;
 //        }
-        FileSystem client = dfsClients.get();
+        DistributedFileSystem client = dfsClients.get();
         if (client == null) {
             LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
             client = initDfsClient();

@@ -36,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 
 public abstract class Benchmark {
   public static final Log LOG = LogFactory.getLog(Benchmark.class);
@@ -85,7 +86,7 @@ public abstract class Benchmark {
   
   protected AtomicLong filesCreatedInWarmupPhase = new AtomicLong(0);
   protected class BaseWarmUp implements Callable<Object> {
-    private FileSystem dfs;
+    private DistributedFileSystem dfs;
     private FilePool filePool;
     private final int filesToCreate;
     private final String stage;
@@ -109,6 +110,7 @@ public abstract class Benchmark {
       try {
         if (!dryrun) {
           dfs = DFSOperationsUtils.getDFSClient(conf);
+          dfs.setConsistencyProtocolEnabled(false); // No consistency protocol during warm-up.
         }
         filePool = DFSOperationsUtils.getFilePool(conf,
                 bmConf.getBaseDir(), bmConf.getDirPerDir(),
