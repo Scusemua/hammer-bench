@@ -86,6 +86,7 @@ public class Slave {
             }
             Configuration dfsClientConf = null; 
             if (!bmConf.getBenchmarkDryrun()) {
+                System.setProperty("hadoop.home.dir", "/");
                 dfsClientConf = new Configuration();
                 for(Object key : bmConf.getFsConfig().keySet()){
                 String keyStr = (String)key;

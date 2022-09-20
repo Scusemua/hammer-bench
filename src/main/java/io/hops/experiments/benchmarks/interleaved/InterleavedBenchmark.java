@@ -110,6 +110,7 @@ public class InterleavedBenchmark extends Benchmark {
 
       // Merge FilePools
       if (workers.size() > 0) {
+        int sharedSize = 0;
         sharedFilePool = ((BaseWarmUp)workers.get(0)).getFilePool();
         if (sharedFilePool instanceof Mergable) {
           for (int i = 1; i < workers.size(); i++) {
@@ -118,8 +119,12 @@ public class InterleavedBenchmark extends Benchmark {
               ((Mergable) sharedFilePool).addAll((Mergable) anotherPool);
             }
           }
+          sharedSize = ((Mergable)sharedFilePool).allFiles().size();
         }
-        sharedFilePool.setReady();
+        if (sharedFilePool != null) {
+          sharedFilePool.setReady();
+        }
+        Logger.printMsg("Using shared file pool of total "+sharedSize+" files. ");
       }
       workers.clear();
     }
