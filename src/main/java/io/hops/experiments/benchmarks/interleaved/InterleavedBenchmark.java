@@ -191,7 +191,7 @@ public class InterleavedBenchmark extends Benchmark {
       aliveNNsCount = getAliveNNsCount();
     }
     InterleavedBenchmarkCommand.Response response =
-            new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsStats, avgLatency.getMean(), failOverLog, aliveNNsCount);
+            new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsStats, avgLatency.getMean(), null, aliveNNsCount);
     return response;
   }
 
