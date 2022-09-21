@@ -22,6 +22,7 @@ parser.add_argument("--start", action = 'store_true', help = "Start the benchmar
 parser.add_argument("--stop", action = 'store_true', help = "Stop the benchmark.")
 parser.add_argument("-k", "--key-file", dest = "key_file", type = str, default = "~/.ssh/id_rsa", help = "Path to keyfile.")
 parser.add_argument("-u", "--user", type = str, default = "ben", help = "Username for SSH.")
+parser.add_argument("-h", "--hdfs-site", type = str, dest = "hdfs_site", default = "/home/ubuntu/repos/hops/hadoop-dist/target/hadoop-3.2.0.3-SNAPSHOT/etc/hadoop/hdfs-site.xml", help = "Location of the hdfs-site.xml file.")
 
 args = parser.parse_args()
 
@@ -30,6 +31,7 @@ sync_dest = os.path.expanduser(args.sync_dest)
 ip_file_path = args.input
 key_file = args.key_file
 user = args.user
+hdfs_site_path = args.hdfs_site
 
 hosts = []
 with open(ip_file_path, 'r') as ip_file:
@@ -44,6 +46,11 @@ if args.sync:
     client.run_command("mkdir -p {}".format(sync_dest), stop_on_errors=False)
     greenlet = client.copy_file(sync_path, sync_dest, recurse=True)
     gevent.joinall(greenlet, raise_error=True)
+
+    print("Next, copying hdfs-site.xml configuration file...")
+    greenlet = client.copy_file(hdfs_site_path, hdfs_site_path, recurse=True)
+    gevent.joinall(greenlet, raise_error=True)
+
     output = list()
 
 if args.start:
