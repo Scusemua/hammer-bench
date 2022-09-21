@@ -23,18 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
-import io.hops.metrics.OperationPerformed;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
-import java.util.HashMap;
-
-import io.hops.metrics.TransactionEvent;
-import io.hops.metrics.TransactionAttempt;
-import io.hops.transaction.context.TransactionsStats;
-import io.hops.metrics.OperationPerformed;
-import io.hops.leader_election.node.SortedActiveNodeList;
-import io.hops.leader_election.node.ActiveNode;
-import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNodeList;
-import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNode;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -42,7 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -63,59 +50,6 @@ public class DFSOperationsUtils {
     private static AtomicInteger filePoolCount = new AtomicInteger(0);
     private static AtomicInteger dfsClientsCount = new AtomicInteger(0);
 
-    /**
-     * Return the OperationPerformed instances.
-     */
-    public static List<OperationPerformed> getOperationsPerformed() {
-        FileSystem client = dfsClients.get();
-        if (client == null) {
-            LOG.warn("FileSystem client is null. Cannot retrieve 'OperationPerformed' instances.");
-            return null;
-        }
-
-        if (client instanceof DistributedFileSystem) {
-            DistributedFileSystem dfs = (DistributedFileSystem)client;
-            return dfs.getOperationsPerformed();
-        } else {
-            LOG.warn("FileSystem client is not an instance of DistributedFileSystem." +
-                    " Cannot retrieve 'OperationPerformed' instances.");
-            return null;
-        }
-    }
-
-    public static HashMap<String, List<TransactionEvent>> getTransactionEvents() {
-        FileSystem client = dfsClients.get();
-        if (client == null) {
-            LOG.warn("FileSystem client is null. Cannot get transaction events.");
-            return null;
-        }
-
-        if (client instanceof DistributedFileSystem) {
-            DistributedFileSystem dfs = (DistributedFileSystem)client;
-            return dfs.getTransactionEvents();
-        } else {
-            LOG.warn("FileSystem client is not an instance of DistributedFileSystem." +
-                    " Cannot get transaction events.");
-        }
-        return null;
-    }
-
-    public static void printOperationsPerformed() {
-        FileSystem client = dfsClients.get();
-        if (client == null) {
-            LOG.warn("FileSystem client is null. Cannot print operations performed (i.e., debug info).");
-            return;
-        }
-
-        if (client instanceof DistributedFileSystem) {
-            DistributedFileSystem dfs = (DistributedFileSystem)client;
-            dfs.printOperationsPerformed();
-        } else {
-            LOG.warn("FileSystem client is not an instance of DistributedFileSystem." +
-                    " Cannot print operations performed (i.e., debug info).");
-        }
-    }
-
     public static FileSystem getDFSClient(Configuration conf) throws IOException {
         if(SERVER_LESS_MODE){
             serverLessModeRandomWait();
@@ -125,11 +59,11 @@ public class DFSOperationsUtils {
         if (client == null) {
             client = (FileSystem) FileSystem.newInstance(conf);
             dfsClients.set(client);
-            LOG.debug(Thread.currentThread().getName()  +
+            System.out.println(Thread.currentThread().getName()  +
                 " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
         }
         else
-            LOG.debug("Reusing Existing Client "+client);
+            System.out.println("Reusing Existing Client "+client);
         return client;
     }
 
@@ -147,9 +81,9 @@ public class DFSOperationsUtils {
             }
             
             filePools.set(filePool);
-            LOG.debug("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
+            System.out.println("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
         }else{
-            LOG.debug("Reusing file pool obj "+filePool);
+            System.out.println("Reusing file pool obj "+filePool);
         }
         return filePool;
     }
@@ -160,7 +94,6 @@ public class DFSOperationsUtils {
             return;
         }
 
-        if (LOG.isDebugEnabled()) LOG.debug("Creating file " + pathStr);
         FSDataOutputStream out = dfs.create(new Path(pathStr), replication);
         long size = filePool.getNewFileSize();
         if(size > 0){
@@ -184,11 +117,9 @@ public class DFSOperationsUtils {
         }
 
         byte[] buf = new byte[1024 * 1024];
-        if (LOG.isDebugEnabled()) LOG.debug("Opening file '" + pathStr + "' now.");
         FSDataInputStream in = dfs.open(new Path(pathStr));
         int read;
         try {
-            if (LOG.isDebugEnabled()) LOG.debug("Reading contents of file " + pathStr);
             while ((read = in.read(buf)) > -1) {
 
             }
@@ -203,7 +134,6 @@ public class DFSOperationsUtils {
             serverLessModeRandomWait();
             return true;
         }
-        if (LOG.isDebugEnabled()) LOG.debug("Renaming file '" + from + "' to '" + to + "'");
         return dfs.rename(from, to);    
     }
 
@@ -212,7 +142,6 @@ public class DFSOperationsUtils {
             serverLessModeRandomWait();
             return true;
         }
-        if (LOG.isDebugEnabled()) LOG.debug("Deleting file '" + pathStr + "'");
         return dfs.delete(new Path(pathStr), true);
     }
     

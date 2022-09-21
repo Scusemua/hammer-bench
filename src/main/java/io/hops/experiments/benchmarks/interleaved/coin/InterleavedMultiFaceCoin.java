@@ -174,7 +174,7 @@ public class InterleavedMultiFaceCoin {
                 
         System.out.println(op + " count " + counts.get(op) + ",  " + DFSOperationsUtils.round(percent) + "%");
       }
-      throw new IllegalStateException("Dice is not properly created. Dice should have  " + expectedSize + " faces. Found " + dice.size());
+      throw new IllegalStateException("Dice is not properfly created. Dice should have  " + expectedSize + " faces. Found " + dice.size());
     }
 
     Collections.shuffle(dice);

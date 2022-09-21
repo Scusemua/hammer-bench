@@ -23,5 +23,5 @@ import java.io.Serializable;
  *
  * @author salman
  */
-public class KillFollower implements Serializable{
+public class KillSlave implements Serializable{
 }

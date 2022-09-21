@@ -20,7 +20,7 @@ package io.hops.experiments.benchmarks.rawthroughput;
 import io.hops.experiments.controller.commands.BenchmarkCommand;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 
-import java.io.Serializable;
+// import java.io.Serializable;
 
 /**
  *

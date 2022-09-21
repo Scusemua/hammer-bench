@@ -17,17 +17,17 @@
 package io.hops.experiments.benchmarks.rawthroughput;
 
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
+// import io.hops.experiments.controller.Slave;
 import io.hops.experiments.utils.BMOperationsUtils;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+// import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
+// import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
 import io.hops.experiments.controller.Logger;
 import io.hops.experiments.controller.commands.WarmUpCommand;
@@ -40,17 +40,6 @@ import io.hops.experiments.controller.commands.BenchmarkCommand;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.workload.generator.FilePool;
 import org.apache.hadoop.fs.FileSystem;
-
-import io.hops.leader_election.node.SortedActiveNodeList;
-import io.hops.leader_election.node.ActiveNode;
-import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNodeList;
-import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNode;
-import io.hops.metrics.OperationPerformed;
-import io.hops.metrics.TransactionEvent;
-import io.hops.metrics.TransactionAttempt;
-import io.hops.transaction.context.TransactionsStats;
-
-import io.hops.metrics.OperationPerformed;
 
 /**
  *
@@ -82,24 +71,20 @@ public class RawBenchmark extends Benchmark {
     // file/dir in the parent dir.
 
     if (bmConf.getFilesToCreateInWarmUpPhase() > 1) {
-      List workers = new ArrayList<BaseWarmUp>();
+      List<Callable<Object>> workers = new ArrayList<Callable<Object>>();
       // Stage 1
-      // threadsWarmedUp.set(0);
-      threadsWarmedUp = new CountDownLatch(bmConf.getSlaveNumThreads());
+      threadsWarmedUp.set(0);
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-        Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
+        Callable<Object> worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
         workers.add(worker);
       }
       executor.invokeAll(workers); // blocking call
       workers.clear();
 
-      LOG.debug("Finished stage #1 (creating parent dirs). Moving onto stage #2 (creating files/dirs) now.");
-
       // Stage 2
-      // threadsWarmedUp.set(0);
-      threadsWarmedUp = new CountDownLatch(bmConf.getSlaveNumThreads());
+      threadsWarmedUp.set(0);
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-        Callable worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1, bmConf,
+        Callable<Object> worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1, bmConf,
                 "Warming up. Stage2: Creating files/dirs. ");
         workers.add(worker);
       }
@@ -114,20 +99,19 @@ public class RawBenchmark extends Benchmark {
   @Override
   protected BenchmarkCommand.Response processCommandInternal(BenchmarkCommand.Request command)
           throws IOException, InterruptedException {
-    LOG.debug("Processing RAW benchmark command now...");
     RawBenchmarkCommand.Request request = (RawBenchmarkCommand.Request) command;
     RawBenchmarkCommand.Response response;
-    LOG.debug("Starting the " + request.getPhase() + " duration " + request.getDurationInMS());
+    System.out.println("Starting the " + request.getPhase() + " duration " + request.getDurationInMS());
     response = startTestPhase(request.getPhase(), request.getDurationInMS(), bmConf.getBaseDir());
     return response;
   }
 
   private RawBenchmarkCommand.Response startTestPhase(BenchmarkOperations opType, long duration, String baseDir) throws InterruptedException, UnknownHostException, IOException {
-    LOG.debug("Starting test phase '" + opType.name() + "' with duration=" + duration + ", baseDir='" + baseDir + "'");
+    System.out.println("Starting test phase '" + opType.name() + "' with duration=" + duration + ", baseDir='" + baseDir + "'");
     List<Callable<Object>> workers = new LinkedList<Callable<Object>>();
-    LOG.debug("Creating " + bmConf.getSlaveNumThreads() + " worker thread(s) now...");
+    System.out.println("Creating " + bmConf.getSlaveNumThreads() + " worker thread(s) now...");
     for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-      Generic worker = new Generic(baseDir, opType);
+      Callable<Object> worker = new Generic(baseDir, opType);
       workers.add(worker);
     }
     setMeasurementVariables(duration);
@@ -138,42 +122,14 @@ public class RawBenchmark extends Benchmark {
     long phaseFinishTime = System.currentTimeMillis();
     long actualExecutionTime = (phaseFinishTime - phaseStartTime);
 
-    LOG.debug("Phase " + opType.name() + " finished in " + actualExecutionTime + " milliseconds.");
+    System.out.println("Phase " + opType.name() + " finished in " + actualExecutionTime + " milliseconds.");
 
     double speed = ((double) successfulOps.get() / (double) actualExecutionTime); // p / ms
     speed = speed * 1000;
 
     RawBenchmarkCommand.Response response =
-            new RawBenchmarkCommand.Response(
-                    opType, actualExecutionTime, successfulOps.get(), failedOps.get(), speed, getAliveNNsCount(), opsExeTimes);
-
-    List<OperationPerformed> operationPerformedInstances = new ArrayList<OperationPerformed>();
-    for (Callable<Object> callable : workers) {
-      Generic generic = (Generic)callable;
-      List<OperationPerformed> ops = generic.getOperationPerformedInstances();
-
-      if (ops != null)
-        operationPerformedInstances.addAll(ops);
-
-      generic.printOperationsPerformed(); // Print operations performed/debug info for each client/worker.
-    }
-
-    if (operationPerformedInstances.size() == 0)
-      LOG.debug("[WARNING] Could not retrieve any OperationPerformed instances.");
-    else {
-      String outputPath = "RawBenchmark-" + startTime + "-" + opType.name() + "-opsPerformed.csv";
-      LOG.debug("Writing " + operationPerformedInstances.size() + " OperationPerformed instance(s) to file '" +
-              outputPath + "' now...");
-      BufferedWriter opsPerformedWriter = new BufferedWriter(new FileWriter(outputPath));
-
-      opsPerformedWriter.write(OperationPerformed.getHeader());
-      opsPerformedWriter.newLine();
-      for (OperationPerformed op : operationPerformedInstances) {
-        op.write(opsPerformedWriter);
-      }
-      opsPerformedWriter.close();
-    }
-
+            new RawBenchmarkCommand.Response(opType,
+                    actualExecutionTime, successfulOps.get(), failedOps.get(), speed, getAliveNNsCount(), opsExeTimes);
     return response;
   }
 
@@ -182,46 +138,12 @@ public class RawBenchmark extends Benchmark {
     private BenchmarkOperations opType;
     private FileSystem dfs;
     private FilePool filePool;
-    private String baseDir;
+    // private String baseDir;
     private long lastLog = System.currentTimeMillis();
 
     public Generic(String baseDir, BenchmarkOperations opType) throws IOException {
-      this.baseDir = baseDir;
+      // this.baseDir = baseDir;
       this.opType = opType;
-    }
-
-    /**
-     * Return the list of OperationPerformed instances.
-     */
-    public List<OperationPerformed> getOperationPerformedInstances() {
-      return DFSOperationsUtils.getOperationsPerformed();
-    }
-
-    public void printOperationsPerformed() throws IOException {
-      DFSOperationsUtils.printOperationsPerformed();
-
-      HashMap<String, List<TransactionEvent>> transactionEvents = DFSOperationsUtils.getTransactionEvents();
-      if (transactionEvents == null) {
-        LOG.warn("Transaction Events were null. Cannot print them.");
-        return;
-      }
-      ArrayList<TransactionEvent> allTransactionEvents = new ArrayList<TransactionEvent>();
-
-      for (Map.Entry<String, List<TransactionEvent>> entry : transactionEvents.entrySet()) {
-        allTransactionEvents.addAll(entry.getValue());
-      }
-
-      System.out.println("====================== Transaction Events ====================================================================================");
-
-      System.out.println("\n-- SUMS ----------------------------------------------------------------------------------------------------------------------");
-      System.out.println(TransactionEvent.getMetricsHeader());
-      System.out.println(TransactionEvent.getMetricsString(TransactionEvent.getSums(allTransactionEvents)));
-
-      System.out.println("\n-- AVERAGES ------------------------------------------------------------------------------------------------------------------");
-      System.out.println(TransactionEvent.getMetricsHeader());
-      System.out.println(TransactionEvent.getMetricsString(TransactionEvent.getAverages(allTransactionEvents)));
-
-      System.out.println("\n==============================================================================================================================");
     }
 
     Map<Long, Long> stats = new HashMap<Long, Long>();
@@ -241,6 +163,7 @@ public class RawBenchmark extends Benchmark {
       }
       while (true) {
         try {
+
           String path = BMOperationsUtils.getPath(opType, filePool);
 
           if (path == null) {
@@ -255,15 +178,15 @@ public class RawBenchmark extends Benchmark {
             return null;
           }
 
-          //long fileSize = -1;
-          /*if (opType == BenchmarkOperations.CREATE_FILE) {
-            For logging file size distribution
+          // long fileSize = -1;
+          if (opType == BenchmarkOperations.CREATE_FILE) {
+            /*For logging file size distribution
             synchronized (this) {
               Long count = stats.get(fileSize);
               Long newCount = count == null ? 1 : count + 1;
               stats.put(fileSize, newCount);
-            }
-          }*/
+            }*/
+          }
 
           long time = 0;
           if (bmConf.isPercentileEnabled()) {

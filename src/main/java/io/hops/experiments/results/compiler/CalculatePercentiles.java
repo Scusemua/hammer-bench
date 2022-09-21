@@ -114,7 +114,7 @@ public class CalculatePercentiles {
         System.out.println("\n\nProcessing ...  " + opType);
         ArrayList<Long> opAllExeTimes = allOpsExecutionTimesList.get(opType);
         double[] toDouble = Doubles.toArray(opAllExeTimes);
-        List workers = new ArrayList<CalcPercentiles>();
+        List<Callable<Object>> workers = new ArrayList<Callable<Object>>();
         Map<Double,Double> percentileMap = new ConcurrentHashMap<Double,Double>();
 
         for (double percen = 10; percen <= 90.0; percen += 10) {
@@ -140,7 +140,7 @@ public class CalculatePercentiles {
     generatePercentileGraphs(allOpsPercentiles, path, workloadName);
   }
   
-   protected class CalcPercentiles implements Callable {
+   protected class CalcPercentiles implements Callable<Object> {
 
     final double[] data;
     final double point;

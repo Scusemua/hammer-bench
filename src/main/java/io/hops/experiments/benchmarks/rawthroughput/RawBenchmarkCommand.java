@@ -22,7 +22,7 @@ import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+// import java.util.HashMap;
 
 
 /**
@@ -107,12 +107,6 @@ public class RawBenchmarkCommand {
 
         public ArrayList<Long> getOpsExeTimes(){
             return opsExeTimes;
-        }
-
-        @Override
-        public String toString() {
-            return "Response(phase=" + phase.name() + ", runTime=" + runTime + ", totalSuccessfulOps=" + totalSuccessfulOps +
-                    ", totalFailedOps=" + totalFailedOps + ", opsPerSecond=" + opsPerSec + ", nnCount=" + nnCount + ")";
         }
     }
 }

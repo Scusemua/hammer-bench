@@ -170,11 +170,12 @@ public class CompileResults {
         }
       }
     } catch (EOFException e) {
+    } finally {
+      ois.close();
+      fin.close();
     }
 
     //go the begenning of the file.
-    ois.close();
-    fin.close();
     fin = new FileInputStream(file);
     ois = new ObjectInputStream(fin);
 
@@ -189,9 +190,10 @@ public class CompileResults {
         }
       }
     } catch (EOFException e) {
+    } finally {
+      ois.close();
+      fin.close();
     }
-    ois.close();
-    fin.close();
   }
 
   private  boolean validateResult(BMResult result,
