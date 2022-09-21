@@ -122,12 +122,16 @@ public class InterleavedBenchmark extends Benchmark {
           throw new IllegalStateException("Attempting to create too many threads: " + numThreads);
       }
 
+      LOG.info("Finished initial warm-up. Moving onto Stage 1 of Warm-Up: Creating Parent Dirs.");
+
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
         Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
         workers.add(worker);
       }
       executor.invokeAll(workers); // blocking call
       workers.clear();
+
+      LOG.info("Finished creating parent dirs. Moving onto Stage 2.");
 
       // Stage 2
       //threadsWarmedUp.set(0);
