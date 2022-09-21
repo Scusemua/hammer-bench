@@ -313,7 +313,6 @@ public class InterleavedBenchmark extends Benchmark {
         updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime));
       } else {
         Logger.printMsg("Could not perform operation " + opType + ". Got Null from the file pool");
-//                System.exit(-1);
       }
     }
 
