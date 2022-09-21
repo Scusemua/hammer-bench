@@ -33,7 +33,7 @@ import io.hops.experiments.benchmarks.rawthroughput.RawBMResults;
 import io.hops.experiments.benchmarks.rawthroughput.RawBenchmarkCommand;
 import io.hops.experiments.benchmarks.rawthroughput.RawBenchmarkCreateCommand;
 import io.hops.experiments.controller.commands.Handshake;
-import io.hops.experiments.controller.commands.KillFollower;
+import io.hops.experiments.controller.commands.KillSlave;
 import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.results.compiler.InterleavedBMResultsAggregator;
 import io.hops.experiments.results.compiler.RawBMResultAggregator;
@@ -54,7 +54,7 @@ public class Master {
   public static final Log LOG = LogFactory.getLog(Master.class);
 
   Set<InetAddress> misbehavingSlaves = new HashSet<InetAddress>();
-  Map<InetAddress, FollowerConnection> followerConnections = new HashMap<InetAddress, FollowerConnection>();
+  Map<InetAddress, SlaveConnection> slavesConnections = new HashMap<InetAddress, SlaveConnection>();
   List<BMResult> results = new ArrayList<BMResult>();
   BMConfiguration config;
 
@@ -83,15 +83,17 @@ public class Master {
       printMasterLogMessages("Starting remote logger...");
       startRemoteLogger(config.getSlavesList().size());
 
-      printMasterLogMessages("Connecting to followers...");
-      connectFollowers();
+      printMasterLogMessages("Connecting to slaves...");
+      connectSlaves();
 
-      printMasterLogMessages("Performing handshake with followers...");
-      handshakeWithFollowers(); // Let all the clients know show is the master
+      printMasterLogMessages("Performing handshake with slaves...");
+      handShakeWithSlaves(); // Let all the clients know show is the master
 
-      printMasterLogMessages("Warming up followers...");
-      warmUpFollowers();
+      printMasterLogMessages("Warming up slaves...");
+      warmUpSlaves();
 
+      printMasterLogMessages("Starting the commander...");
+      //start the commander
       startCommander();
 
       printMasterLogMessages("Generating the results file...");
@@ -102,8 +104,8 @@ public class Master {
     } catch (Exception e) {
       LOG.error("Exception encountered: ", e);
     } finally {
-      printMasterLogMessages("Sending KILL command to all followers.");
-      sendToAllFollowers(new KillFollower(), 0/*delay*/);
+      printMasterLogMessages("Sending KILL command to all slaves.");
+      sendToAllSlaves(new KillSlave(), 0/*delay*/);
       System.exit(0);
     }
   }
@@ -117,10 +119,8 @@ public class Master {
 
   private void startCommander() throws IOException, InterruptedException, ClassNotFoundException {
     if (config.getBenchMarkType() == BenchmarkType.RAW) {
-      printMasterLogMessages("Starting RAW commander...");
       startRawCommander();
     } else if (config.getBenchMarkType() == BenchmarkType.INTERLEAVED) {
-      printMasterLogMessages("Starting INTERLEAVED commander...");
       startInterleavedCommander();
     } else if (config.getBenchMarkType() == BenchmarkType.BR) {
       // startBlockReportingCommander();
@@ -132,14 +132,13 @@ public class Master {
   }
 
   private void startRawCommander() throws IOException, InterruptedException, ClassNotFoundException {
+
     if (config.getRawBmMkdirPhaseDuration() > 0) {
-      printMasterLogMessages("Performing MKDIR phase for " + config.getRawBmMkdirPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.MKDIRS, config.getRawBmMkdirPhaseDuration()));
     }
 
     if (config.getRawBmFilesCreationPhaseDuration() > 0) {
-      printMasterLogMessages("Performing CREATE phase for " + config.getRawBmFilesCreationPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCreateCommand.Request(
               config.getRawBmMaxFilesToCreate(),
               BenchmarkOperations.CREATE_FILE,
@@ -147,63 +146,54 @@ public class Master {
     }
 
     if (config.getRawBmAppendFilePhaseDuration() > 0) {
-      printMasterLogMessages("Performing APPEND phase for " + config.getRawBmAppendFilePhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.APPEND_FILE,
               config.getRawBmAppendFilePhaseDuration()));
     }
 
     if (config.getRawBmReadFilesPhaseDuration() > 0) {
-      printMasterLogMessages("Performing READ phase for " + config.getRawBmReadFilesPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.READ_FILE,
               config.getRawBmReadFilesPhaseDuration()));
     }
 
     if (config.getRawBmLsFilePhaseDuration() > 0) {
-      printMasterLogMessages("Performing LS FILE phase for " + config.getRawBmLsFilePhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.LS_FILE,
               config.getRawBmLsFilePhaseDuration()));
     }
 
     if (config.getRawBmLsDirPhaseDuration() > 0) {
-      printMasterLogMessages("Performing LS DIR phase for " + config.getRawBmLsDirPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.LS_DIR,
               config.getRawBmLsDirPhaseDuration()));
     }
 
     if (config.getRawBmChmodFilesPhaseDuration() > 0) {
-      printMasterLogMessages("Performing CHMOD FILES phase for " + config.getRawBmChmodFilesPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.CHMOD_FILE,
               config.getRawBmChmodFilesPhaseDuration()));
     }
 
     if (config.getRawBmChmodDirsPhaseDuration() > 0) {
-      printMasterLogMessages("Performing CHMOD DIRS phase for " + config.getRawBmChmodDirsPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.CHMOD_DIR,
               config.getRawBmChmodDirsPhaseDuration()));
     }
 
     if (config.getRawBmSetReplicationPhaseDuration() > 0) {
-      printMasterLogMessages("Performing SET REPLICATION phase for " + config.getRawBmSetReplicationPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.SET_REPLICATION,
               config.getRawBmSetReplicationPhaseDuration()));
     }
 
     if (config.getRawBmGetFileInfoPhaseDuration() > 0) {
-      printMasterLogMessages("Performing GET FILE INFO phase for " + config.getRawBmGetFileInfoPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.FILE_INFO,
               config.getRawBmGetFileInfoPhaseDuration()));
     }
 
     if (config.getRawBmGetDirInfoPhaseDuration() > 0) {
-      printMasterLogMessages("Performing GET DIR INFO phase for " + config.getRawBmGetDirInfoPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.DIR_INFO,
               config.getRawBmGetDirInfoPhaseDuration()));
@@ -211,7 +201,6 @@ public class Master {
 
 
     if (config.getRawFileChangeUserPhaseDuration() > 0) {
-      printMasterLogMessages("Performing FILE CHANGE USER phase for " + config.getRawFileChangeUserPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.CHOWN_FILE,
               config.getRawFileChangeUserPhaseDuration()));
@@ -219,7 +208,6 @@ public class Master {
 
 
     if (config.getRawDirChangeUserPhaseDuration() > 0) {
-      printMasterLogMessages("Performing DIR CHANGE USER phase for " + config.getRawDirChangeUserPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.CHOWN_DIR,
               config.getRawDirChangeUserPhaseDuration()));
@@ -227,14 +215,12 @@ public class Master {
 
 
     if (config.getRawBmRenameFilesPhaseDuration() > 0) {
-      printMasterLogMessages("Performing RENAME FILES phase for " + config.getRawBmRenameFilesPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.RENAME_FILE,
               config.getRawBmRenameFilesPhaseDuration()));
     }
 
     if (config.getRawBmDeleteFilesPhaseDuration() > 0) {
-      printMasterLogMessages("Performing DELETE FILES phase for " + config.getRawBmDeleteFilesPhaseDuration() + " ms.");
       startRawBenchmarkPhase(new RawBenchmarkCommand.Request(
               BenchmarkOperations.DELETE_FILE,
               config.getRawBmDeleteFilesPhaseDuration()));
@@ -284,7 +270,7 @@ public class Master {
     prompt();
     InterleavedBenchmarkCommand.Request request =
             new InterleavedBenchmarkCommand.Request(config);
-    sendToAllFollowers(request, 0/*delay*/);
+    sendToAllSlaves(request, 0/*delay*/);
 
     Thread.sleep(config.getInterleavedBmDuration());
     Collection<Object> responses = receiveFromAllSlaves(120 * 1000 /*sec wait*/);
@@ -292,23 +278,24 @@ public class Master {
     printMasterResultMessages(result);
   }
 
-  private void handshakeWithFollowers() throws IOException, ClassNotFoundException {
+  private void handShakeWithSlaves() throws IOException, ClassNotFoundException {
     //send request
-    printMasterLogMessages("Starting handshake protocol");
+    printMasterLogMessages("Starting Hand Shake Protocol");
     prompt();
     sendHandshakeToAllSlaves(new Handshake.Request(config));
     Collection<Object> allResponses = receiveFromAllSlaves(120 * 1000 /*sec wait*/);
 
     for (Object response : allResponses) {
       if (!(response instanceof Handshake.Response)) {
-        throw new IllegalStateException("Follower responded with something other than handshake response");
+        throw new IllegalStateException("Disobedient slave. Sent me something other than hand shake response");
       }
     }
-    printMasterLogMessages("Handshake with all followers completed");
+    printMasterLogMessages("Hand Shanke With All Slave Completed");
   }
 
-  private void warmUpFollowers()
+  private void warmUpSlaves()
           throws IOException, ClassNotFoundException, SQLException {
+    printMasterLogMessages("Warming Up ... ");
     prompt();
     WarmUpCommand.Request warmUpCommand = null;
     if (config.getBenchMarkType() == BenchmarkType.INTERLEAVED
@@ -320,20 +307,20 @@ public class Master {
       // warmUpCommand = new BlockReportingWarmUp.Request(config);
       throw new UnsupportedOperationException("Block Reporting benchmarking is not supported for serverless HopsFS.");
     } else {
-      throw new UnsupportedOperationException("Wrong Benchmark type for warm-up: " + config.getBenchMarkType());
+      throw new UnsupportedOperationException("Wrong Benchmark type for"
+              + " warm up " + config.getBenchMarkType());
     }
 
-    printMasterLogMessages("Issuing warm-up request to followers: " + warmUpCommand);
-    sendToAllFollowers(warmUpCommand, config.getSlaveWarmUpDelay()/*delay*/);
+    sendToAllSlaves(warmUpCommand, config.getSlaveWarmUpDelay()/*delay*/);
 
     Collection<Object> allResponses = receiveFromAllSlaves(config.getWarmUpPhaseWaitTime());
 
     for (Object response : allResponses) {
       if (!(response instanceof WarmUpCommand.Response)) {
-        throw new IllegalStateException("Follower responded with something other than handshake response");
+        throw new IllegalStateException("Disobedient slave. Sent me something other than hand shake response");
       }
     }
-    printMasterLogMessages("All followers warmed Up");
+    printMasterLogMessages("All Slaves Warmed Up");
   }
 
   public void startRawBenchmarkPhase(RawBenchmarkCommand.Request request) throws IOException, InterruptedException, ClassNotFoundException {
@@ -343,7 +330,7 @@ public class Master {
             + request.getDurationInMS() / (double) (1000 * 60) + " mins");
     prompt();
 
-    sendToAllFollowers(request,0/*delay*/);
+    sendToAllSlaves(request,0/*delay*/);
 
     Collection<Object> responses =
             receiveFromAllSlaves((int) (request.getDurationInMS() + 120 * 1000)/*sec wait*/);
@@ -352,21 +339,21 @@ public class Master {
     printMasterResultMessages(result);
   }
 
-  private void connectFollowers() throws IOException {
+  private void connectSlaves() throws IOException {
     if (config != null) {
-      List<InetAddress> followers = config.getSlavesList();
-      for (InetAddress follower : followers) {
-        printMasterLogMessages("Connecting to follower " + follower);
+      List<InetAddress> slaves = config.getSlavesList();
+      for (InetAddress slave : slaves) {
+        printMasterLogMessages("Connecting to slave " + slave);
         try {
-          FollowerConnection slaveConn = new FollowerConnection(follower, config.getSlaveListeningPort());
-          followerConnections.put(follower, slaveConn);
+          SlaveConnection slaveConn = new SlaveConnection(slave, config.getSlaveListeningPort());
+          slavesConnections.put(slave, slaveConn);
         } catch (Exception e) {
-          misbehavingSlaves.add(follower);
-          printMasterLogMessages("*** ERROR  unable to connect " + follower);
+          misbehavingSlaves.add(slave);
+          printMasterLogMessages("*** ERROR  unable to connect " + slave);
         }
       }
       if (misbehavingSlaves.size() > config.getMaxSlavesFailureThreshold()) {
-        printMasterLogMessages("*** Too many followers failed. Abort test. Failed Slaves Count "+misbehavingSlaves.size()+" Threshold: "+ config.getMaxSlavesFailureThreshold());
+        printMasterLogMessages("*** Too many slaves failed. Abort test. Failed Slaves Count "+misbehavingSlaves.size()+" Threshold: "+ config.getMaxSlavesFailureThreshold());
         System.exit(-1);
       }
     }
@@ -374,21 +361,21 @@ public class Master {
 
   private void sendHandshakeToAllSlaves(Handshake.Request handshake) throws
           IOException {
-    if (!followerConnections.isEmpty()) {
+    if (!slavesConnections.isEmpty()) {
       int slaveId = 0;
-      for (InetAddress follower : followerConnections.keySet()) {
-        FollowerConnection conn = followerConnections.get(follower);
+      for (InetAddress slave : slavesConnections.keySet()) {
+        SlaveConnection conn = slavesConnections.get(slave);
         handshake.setSlaveId(slaveId++);
-        conn.sendToFollower(handshake);
+        conn.sendToSlave(handshake);
       }
     }
   }
 
-  private void sendToAllFollowers(Object obj, int delay) throws IOException {
-    if (!followerConnections.isEmpty()) {
-      for (InetAddress follower : followerConnections.keySet()) {
-        FollowerConnection conn = followerConnections.get(follower);
-        conn.sendToFollower(obj);
+  private void sendToAllSlaves(Object obj, int delay) throws IOException {
+    if (!slavesConnections.isEmpty()) {
+      for (InetAddress slave : slavesConnections.keySet()) {
+        SlaveConnection conn = slavesConnections.get(slave);
+        conn.sendToSlave(obj);
         try{
           Thread.sleep(delay);
         }catch(InterruptedException e){}
@@ -398,12 +385,12 @@ public class Master {
 
   private Collection<Object> receiveFromAllSlaves(int timeout) throws ClassNotFoundException, UnknownHostException, IOException {
     Map<InetAddress, Object> responses = new HashMap<InetAddress, Object>();
-    if (!followerConnections.isEmpty()) {
-      for (InetAddress follower : followerConnections.keySet()) {
-        FollowerConnection conn = followerConnections.get(follower);
+    if (!slavesConnections.isEmpty()) {
+      for (InetAddress slave : slavesConnections.keySet()) {
+        SlaveConnection conn = slavesConnections.get(slave);
         Object obj = conn.recvFromSlave(timeout);
         if (obj != null) {
-          responses.put(follower, obj);
+          responses.put(slave, obj);
         }
       }
     }
@@ -508,22 +495,22 @@ public class Master {
     System.out.println("\n\n\n");
   }
 
-  public class FollowerConnection {
+  public class SlaveConnection {
 
     private final Socket socket;
 
-    FollowerConnection(InetAddress followerInetAddress, int followerPort) throws IOException {
-      socket = new Socket(followerInetAddress, followerPort);
+    SlaveConnection(InetAddress slaveInetAddress, int slavePort) throws IOException {
+      socket = new Socket(slaveInetAddress, slavePort);
     }
 
-    public void sendToFollower(Object obj) {
+    public void sendToSlave(Object obj) {
 
       if (isSlaveHealthy(socket.getInetAddress())) {
         try {
           printMasterLogMessages("SEND " + obj.getClass().getCanonicalName() + " to " + socket.getInetAddress());
           socket.setSendBufferSize(ConfigKeys.BUFFER_SIZE);
-          ObjectOutputStream sendToFollower = new ObjectOutputStream(socket.getOutputStream());
-          sendToFollower.writeObject(obj);
+          ObjectOutputStream sendToSlave = new ObjectOutputStream(socket.getOutputStream());
+          sendToSlave.writeObject(obj);
         } catch (Exception e) {
           handleMisBehavingSlave(socket.getInetAddress());
         }
@@ -552,17 +539,17 @@ public class Master {
       }
     }
 
-    private void handleMisBehavingSlave(InetAddress follower) {
-      misbehavingSlaves.add(follower);
-      printMasterLogMessages("*** Slaved Failed. " + follower);
+    private void handleMisBehavingSlave(InetAddress slave) {
+      misbehavingSlaves.add(slave);
+      printMasterLogMessages("*** Slaved Failed. " + slave);
       if (misbehavingSlaves.size() > config.getMaxSlavesFailureThreshold()) {
-        printMasterLogMessages("*** HARD ERROR. Too many followers failed. ABORT Test.");
+        printMasterLogMessages("*** HARD ERROR. Too many slaves failed. ABORT Test.");
         System.exit(-1);
       }
     }
 
-    private boolean isSlaveHealthy(InetAddress follower) {
-      if (!misbehavingSlaves.contains(follower)) {
+    private boolean isSlaveHealthy(InetAddress slave) {
+      if (!misbehavingSlaves.contains(slave)) {
         return true;
       } else {
         return false;

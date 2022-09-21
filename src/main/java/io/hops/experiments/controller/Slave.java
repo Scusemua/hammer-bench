@@ -28,7 +28,7 @@ import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.benchmarks.common.config.SlaveArgsReader;
 import io.hops.experiments.controller.commands.BenchmarkCommand;
 import io.hops.experiments.controller.commands.Handshake;
-import io.hops.experiments.controller.commands.KillFollower;
+import io.hops.experiments.controller.commands.KillSlave;
 import io.hops.experiments.benchmarks.common.config.ConfigKeys;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -131,9 +131,8 @@ public class Slave {
         connectionWithMaster.setReceiveBufferSize(ConfigKeys.BUFFER_SIZE);
         ObjectInputStream recvFromMaster =  new ObjectInputStream(connectionWithMaster.getInputStream());
         Object obj = recvFromMaster.readObject();
-        if (obj instanceof KillFollower) {
+        if (obj instanceof KillSlave) {
             System.out.println("Received kill command from master. Exiting now...");
-
             System.exit(0);
         }
         return obj;

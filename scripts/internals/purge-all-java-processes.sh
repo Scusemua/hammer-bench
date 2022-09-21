@@ -16,8 +16,8 @@ if [ -z $2 ]; then
 fi
 
 #All Unique Hosts
-# All_Hosts_To_Purge=("10.241.64.12" "10.241.64.14")
-All_Hosts_To_Purge=("35.194.69.127")
+All_Hosts_To_Purge=("10.241.64.12" "10.241.64.14")
+
 
 for i in ${All_Hosts_To_Purge[@]}
 do
