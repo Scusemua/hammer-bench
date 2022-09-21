@@ -48,9 +48,10 @@ with open(ip_file_path, 'r') as ip_file:
     hosts = [x.strip() for x in ip_file.readlines()]
     hosts_no_local = [host for host in hosts if host != "10.150.0.10"]
     print("Hosts: %s" % str(hosts))
+    print("Hosts (no local): %s" % str(hosts_no_local))
 
 client = ParallelSSHClient(hosts)
-client_sync = ParallelSSHClient(hosts)
+client_sync = ParallelSSHClient(hosts_no_local)
 
 output = None
 if args.sync:
