@@ -133,7 +133,7 @@ public abstract class Benchmark {
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
-          LOG.debug("Creating file '" + filePath + "' now...");
+          LOG.info("Creating file '" + filePath + "' now...");
           if (!dryrun) {
             DFSOperationsUtils
                     .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
