@@ -157,7 +157,7 @@ public abstract class Benchmark {
 //        Thread.sleep(100);
 //      }
 
-      LOG.debug("Warmed up!");
+      LOG.debug("Warmed up!\n\n\n");
       return null;
     }
 

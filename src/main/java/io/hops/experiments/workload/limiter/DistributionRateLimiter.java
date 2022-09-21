@@ -21,10 +21,15 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.hops.experiments.benchmarks.common.Benchmark;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.controller.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class DistributionRateLimiter implements WorkerRateLimiter {
+  public static final Log LOG = LogFactory.getLog(DistributionRateLimiter.class);
+
   public static int RPS_BASE = 1000; // 1 s
   public static int RPS_INTERVAL = 10; // 10 ms
 
@@ -125,6 +130,7 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
           // Log every 1 second
           long c = completed.get();
           Logger.printMsg("Completed: " +  (c - lastCompleted) + " Released: " + unfulfilled);
+          LOG.debug("Completed: " +  (c - lastCompleted) + " Released: " + unfulfilled);
           lastCompleted = c;
         }
 
