@@ -47,7 +47,7 @@ public class MoveThenDelete {
       org.apache.hadoop.conf.Configuration conf = createHdfsConf();
 
       // do shit here
-      FileSystem dfs = DFSOperationsUtils.getDFSClient(conf);
+      FileSystem dfs = DFSOperationsUtils.getDFSClient(false);
       
 
       Path from = new Path(hdfsFolder);

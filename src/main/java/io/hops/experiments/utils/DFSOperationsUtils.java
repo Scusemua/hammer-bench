@@ -156,7 +156,7 @@ public class DFSOperationsUtils {
     /**
      * Create an HDFS client.
      */
-    public static DistributedFileSystem initDfsClient() {
+    public static DistributedFileSystem initDfsClient(boolean warmingUp) {
         LOG.debug("Creating HDFS client now...");
         Configuration hdfsConfiguration = getConfiguration(hdfsConfigFilePath);
         LOG.info("Created configuration.");
@@ -183,12 +183,16 @@ public class DFSOperationsUtils {
         // as HopsFS has a default log level. If we're creating a non-primary HDFS instance, then we just assign it
         // whatever our primary instance has been set to (as it can change dynamically).
         hdfs.setServerlessFunctionLogLevel("INFO");
-        hdfs.setConsistencyProtocolEnabled(true);
+
+        if (warmingUp)
+            hdfs.setConsistencyProtocolEnabled(false);
+        else
+            hdfs.setConsistencyProtocolEnabled(true);
 
         return hdfs;
     }
 
-    public static DistributedFileSystem getDFSClient(Configuration conf) throws IOException {
+    public static DistributedFileSystem getDFSClient(boolean warmingUp) throws IOException {
 //        if(SERVER_LESS_MODE){
 //            serverLessModeRandomWait();
 //            return null;
@@ -196,7 +200,7 @@ public class DFSOperationsUtils {
         DistributedFileSystem client = dfsClients.get();
         if (client == null) {
             LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
-            client = initDfsClient();
+            client = initDfsClient(warmingUp);
             LOG.debug(Thread.currentThread().getName()  +
                     " created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
             dfsClients.set(client);

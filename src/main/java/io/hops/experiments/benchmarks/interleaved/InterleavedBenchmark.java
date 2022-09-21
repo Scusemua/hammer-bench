@@ -205,7 +205,7 @@ public class InterleavedBenchmark extends Benchmark {
     @Override
     public Object call() throws Exception {
       if (!dryrun) {
-        dfs = DFSOperationsUtils.getDFSClient(conf);
+        dfs = DFSOperationsUtils.getDFSClient(false);
       }
       filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
               bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),

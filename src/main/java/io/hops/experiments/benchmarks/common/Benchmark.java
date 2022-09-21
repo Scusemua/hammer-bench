@@ -17,14 +17,11 @@
 package io.hops.experiments.benchmarks.common;
 
 //import io.hops.experiments.benchmarks.blockreporting.BlockReportingBenchmark;
-import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.benchmarks.interleaved.InterleavedBenchmark;
 import io.hops.experiments.benchmarks.rawthroughput.RawBenchmark;
 import io.hops.experiments.controller.Logger;
-import io.hops.experiments.controller.Slave;
 import io.hops.experiments.controller.commands.BenchmarkCommand;
-import io.hops.experiments.controller.commands.Handshake;
 import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.utils.DFSOperationsUtils;
 import io.hops.experiments.workload.generator.FilePool;
@@ -37,7 +34,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hadoop.fs.FileSystem;
 
@@ -124,7 +120,7 @@ public abstract class Benchmark {
 
     public Object callImpl() throws Exception {
       if (!dryrun) {
-        dfs = DFSOperationsUtils.getDFSClient(conf);
+        dfs = DFSOperationsUtils.getDFSClient(true);
       }
       filePool = DFSOperationsUtils.getFilePool(conf,
               bmConf.getBaseDir(), bmConf.getDirPerDir(),
@@ -137,7 +133,7 @@ public abstract class Benchmark {
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
-          System.out.println("Creating file '" + filePath + "' now...");
+          LOG.debug("Creating file '" + filePath + "' now...");
           if (!dryrun) {
             DFSOperationsUtils
                     .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
@@ -176,7 +172,7 @@ public abstract class Benchmark {
   };
 
   protected int getAliveNNsCount() throws IOException {
-    FileSystem fs = DFSOperationsUtils.getDFSClient(conf);
+    FileSystem fs = DFSOperationsUtils.getDFSClient(false);
     int actualNNCount = 0;
     try {
       actualNNCount = DFSOperationsUtils.getActiveNameNodesCount(bmConf.getBenchMarkFileSystemName(), fs);
