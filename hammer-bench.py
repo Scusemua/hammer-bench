@@ -65,7 +65,7 @@ if args.sync:
 if args.start:
     print("Starting the slaves.")
     os.system("sed -i -e 's|^\\(list.of.slaves=\\).*|\\1{}|' ~/hammer-bench/master.properties".format(",".join(hosts)))
-    cmd = "cd {} && make-bench".format(sync_dest)
+    cmd = "cd {} && make bench".format(sync_dest)
     print("Executing command: %s" % cmd)
     output = client.run_command(cmd, stop_on_errors=False)
 if args.stop:
