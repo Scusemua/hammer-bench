@@ -134,7 +134,7 @@ public class InterleavedBenchmark extends Benchmark {
 
     duration = config.getInterleavedBmDuration();
     System.out.println("Starting " + command.getBenchMarkType() + " for duration " + duration + "\n\n\n");
-    LOG.info("Starting " + command.getBenchMarkType() + " for duration " + duration+ "\n\n\n);
+    LOG.info("Starting " + command.getBenchMarkType() + " for duration " + duration + "\n\n\n");
     List workers = new ArrayList<Worker>();
     // Add limiter as a worker if supported
     WorkerRateLimiter workerLimiter = null;
