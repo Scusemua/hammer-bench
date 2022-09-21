@@ -62,17 +62,17 @@ public class Slave {
 
     public void start(String configFilePath) throws Exception {
         args = new SlaveArgsReader(configFilePath);
-        LOG.debug("Connecting now...");
+        LOG.info("Connecting now...");
         connect();
-        LOG.debug("Performing handshake with master now...");
+        LOG.info("Performing handshake with master now...");
         handShakeWithMaster();
-        LOG.debug("Starting listener now...");
+        LOG.info("Starting listener now...");
         startListener();
     }
 
     private void handShakeWithMaster() throws IOException, ClassNotFoundException {
         
-        LOG.debug("Waiting for handshake message ");
+        LOG.info("Waiting for handshake message ");
         Object obj = receiveRequestFromMaster();
 
         int slaveId = 0;
@@ -108,7 +108,7 @@ public class Slave {
             Object obj = receiveRequestFromMaster();
             if (obj instanceof BenchmarkCommand.Request) {
                 BenchmarkCommand.Request command = (BenchmarkCommand.Request) obj;
-                LOG.debug("Received command from master: " + command);
+                LOG.info("Received command from master: " + command);
                 if (!command.getBenchMarkType().equals(bmConf.getBenchMarkType())) {
                     throw new IllegalStateException("BenchMarkType Mismatch. Expecting " + bmConf.getBenchMarkType() + " Got: " + command.getBenchMarkType());
                 }
@@ -119,20 +119,20 @@ public class Slave {
     }
 
     private void connect() throws SocketException, UnknownHostException, IOException {
-        LOG.debug("Waiting for connection from master ... ");
+        LOG.info("Waiting for connection from master ... ");
         slaveServerSocket = new ServerSocket(args.getSlaveListeningPort());
         connectionWithMaster = slaveServerSocket.accept();
         masterIP =  connectionWithMaster.getInetAddress();
-        LOG.debug("Connected to master");
+        LOG.info("Connected to master");
     }
 
     private Object receiveRequestFromMaster() throws IOException, ClassNotFoundException {
-        LOG.debug("Received request from Master...");
+        LOG.info("Received request from Master...");
         connectionWithMaster.setReceiveBufferSize(ConfigKeys.BUFFER_SIZE);
         ObjectInputStream recvFromMaster =  new ObjectInputStream(connectionWithMaster.getInputStream());
         Object obj = recvFromMaster.readObject();
         if (obj instanceof KillFollower) {
-            LOG.debug("Received kill command from master. Exiting now...");
+            LOG.info("Received kill command from master. Exiting now...");
 
             System.exit(0);
         }
@@ -140,11 +140,11 @@ public class Slave {
     }
 
     private void sendResponseToMaster(Object obj) throws IOException {
-        LOG.debug("Sending response to master ... ");
+        LOG.info("Sending response to master ... ");
         long startTime = System.currentTimeMillis();
         connectionWithMaster.setSendBufferSize(ConfigKeys.BUFFER_SIZE);
         ObjectOutputStream sendToMaster = new ObjectOutputStream(connectionWithMaster.getOutputStream());
         sendToMaster.writeObject(obj);
-        LOG.debug("Sent response to master. Time: "+(System.currentTimeMillis() - startTime)+" ms");
+        LOG.info("Sent response to master. Time: "+(System.currentTimeMillis() - startTime)+" ms");
     }
 }
