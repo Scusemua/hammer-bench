@@ -207,6 +207,9 @@ public class DFSOperationsUtils {
         }
         else {
             LOG.debug("Reusing Existing Client " + client);
+
+            // Enable consistency protocol when not warming up.
+            client.setConsistencyProtocolEnabled(!warmingUp);
         }
         return client;
     }

@@ -114,7 +114,7 @@ public class InterleavedBenchmark extends Benchmark {
         workers.add(worker);
       }
       executor.invokeAll(workers); // blocking call
-      Logger.printMsg("Finished. Warmup Phase. Created ("+bmConf.getSlaveNumThreads()+"*"+bmConf.getFilesToCreateInWarmUpPhase()+") = "+
+      LOG.debug("Finished. Warmup Phase. Created ("+bmConf.getSlaveNumThreads()+"*"+bmConf.getFilesToCreateInWarmUpPhase()+") = "+
               (bmConf.getSlaveNumThreads()*bmConf.getFilesToCreateInWarmUpPhase())+" files. ");
       workers.clear();
     }
@@ -156,7 +156,7 @@ public class InterleavedBenchmark extends Benchmark {
     if (config.testFailover()) {
       boolean canIKillNamenodes = InetAddress.getLocalHost().getHostName().compareTo(config.getNamenodeKillerHost()) == 0;
       if (canIKillNamenodes) {
-        Logger.printMsg("Responsible for killing/restarting namenodes");
+        LOG.debug("Responsible for killing/restarting namenodes");
       }
       failOverTester = startFailoverTestDeamon(
               config.getNameNodeRestartCommands(),
@@ -236,6 +236,8 @@ public class InterleavedBenchmark extends Benchmark {
 
           BenchmarkOperations op = opCoin.flip();
 
+          LOG.debug("Randomly generated " + op.name() + " operation!");
+
           // Wait for the limiter to allow the operation
           if (!limiter.checkRate()) {
             return null;
@@ -285,7 +287,7 @@ public class InterleavedBenchmark extends Benchmark {
 //              message += DFSOperationsUtils.format(op.toString().length() + 14, msg);
 //            }
 //          }
-          Logger.printMsg(message);
+          LOG.debug(message);
         }
       }
     }
@@ -298,9 +300,10 @@ public class InterleavedBenchmark extends Benchmark {
         long opStartTime = System.nanoTime();
         try {
           if (dryrun) {
-            System.out.println("Performing " + opType + " on " + path);
+            LOG.debug("Performing " + opType.name() + " on " + path);
             TimeUnit.MILLISECONDS.sleep(10);
           } else {
+            LOG.debug("Performing " + opType.name() + " on '" + path + "' now...");
             BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
                                         config.getAppendFileSize());
           }    
@@ -308,11 +311,11 @@ public class InterleavedBenchmark extends Benchmark {
           opExeTime = System.nanoTime() - opStartTime;
           retVal = true;
         } catch (Exception e) {
-          Logger.error(e);
+          LOG.error("Encountered exception:", e);
         }
         updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime));
       } else {
-        Logger.printMsg("Could not perform operation " + opType + ". Got Null from the file pool");
+        LOG.error("Could not perform operation " + opType + ". Got Null from the file pool");
       }
     }
 
@@ -396,7 +399,7 @@ public class InterleavedBenchmark extends Benchmark {
         }
 
         log.add(tick + " " + speed);
-        Logger.printMsg("Time: " + tick + " sec. Speed: " + speed);
+        LOG.debug("Time: " + tick + " sec. Speed: " + speed);
 
 
         if (canIKillNNs) {
@@ -408,7 +411,7 @@ public class InterleavedBenchmark extends Benchmark {
                 new Thread(new FailOverCommandExecutor(nnCommands)).start();
                 lastFailOver = System.currentTimeMillis();
                 log.add("#NameNode Restart Initiated");
-                Logger.printMsg("#NameNode Restart Initiated");
+                LOG.debug("#NameNode Restart Initiated");
               }
             }
           }
@@ -451,7 +454,7 @@ public class InterleavedBenchmark extends Benchmark {
 
   private void runCommand(String command) {
     try {
-      Logger.printMsg("Going to execute command " + command);
+      LOG.debug("Going to execute command " + command);
       Process p = Runtime.getRuntime().exec(command);
       printErrors(p.getErrorStream());
       printErrors(p.getInputStream());
@@ -462,10 +465,10 @@ public class InterleavedBenchmark extends Benchmark {
       }
     } catch (IOException e) {
       e.printStackTrace();
-      Logger.printMsg("Exception During Restarting the NameNode Command " + command + "   Ex: " + e.toString());
+      LOG.error("Exception During Restarting the NameNode Command " + command + ":", e);
     } catch (InterruptedException e) {
       Logger.error(e);
-      Logger.printMsg("Exception During Restarting the NameNode Command " + command + "   Ex: " + e.toString());
+      LOG.error("Exception During Restarting the NameNode Command " + command + ":", e);
     }
   }
 
@@ -473,7 +476,7 @@ public class InterleavedBenchmark extends Benchmark {
     String line;
     BufferedReader input = new BufferedReader(new InputStreamReader(errorStream));
     while ((line = input.readLine()) != null) {
-      Logger.printMsg(line);
+      LOG.debug(line);
     }
     input.close();
   }
