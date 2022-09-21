@@ -126,9 +126,9 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
           unfulfilledUnit = unfulfilled / numInterval;
           unfulfilledRemainder = unfulfilled % numInterval;
 
-          LOG.debug("unfulfilled: " + unfulfilled);
-          LOG.debug("unfulfilledUnit: " + unfulfilledUnit);
-          LOG.debug("unfulfilledRemainder: " + unfulfilledRemainder);
+          //LOG.debug("unfulfilled: " + unfulfilled);
+          //LOG.debug("unfulfilledUnit: " + unfulfilledUnit);
+          //LOG.debug("unfulfilledRemainder: " + unfulfilledRemainder);
 
           // Log every 1 second
           long c = completed.get();

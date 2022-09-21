@@ -16,6 +16,7 @@ build: mvn-client-install
 install-slave: build
 	cp -f target/hop-experiments-1.0-SNAPSHOT-jar-with-dependencies.jar slave.target/
 	cp -f slave.properties slave.target/
+	cp -f target/hop-experiments-1.0-SNAPSHOT-jar-with-dependencies.jar ~/hammer-bench-slave/hop-experiments-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 bench:
 	java -cp target/hop-experiments-1.0-SNAPSHOT-jar-with-dependencies.jar io.hops.experiments.controller.Master

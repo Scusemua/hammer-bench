@@ -37,6 +37,8 @@ import io.hops.experiments.workload.limiter.RateLimiter;
 import io.hops.experiments.workload.limiter.RateNoLimiter;
 import io.hops.experiments.workload.limiter.WorkerRateLimiter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -56,7 +58,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author salman
  */
 public class InterleavedBenchmark extends Benchmark {
-
+  public static final Log LOG = LogFactory.getLog(InterleavedBenchmark.class);
   private long duration;
   private long startTime = 0;
   AtomicLong operationsCompleted = new AtomicLong(0);
@@ -82,7 +84,7 @@ public class InterleavedBenchmark extends Benchmark {
     }
 
     if (bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HDFS || bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HopsFS) {
-      if (bmConf.getHadoopHomeDir() != "") {
+      if (!Objects.equals(bmConf.getHadoopHomeDir(), "")) {
         System.setProperty("hadoop.home.dir", bmConf.getHadoopHomeDir());
       }
     }
@@ -200,7 +202,6 @@ public class InterleavedBenchmark extends Benchmark {
   }
 
   public class Worker implements Callable {
-
     private FileSystem dfs;
     private FilePool filePool;
     private InterleavedMultiFaceCoin opCoin;
@@ -305,7 +306,7 @@ public class InterleavedBenchmark extends Benchmark {
       }
     }
 
-    private void performOperation(BenchmarkOperations opType) throws IOException {
+    private void performOperation(BenchmarkOperations opType) {
       String path = BMOperationsUtils.getPath(opType, filePool);
       if (path != null) {
         boolean retVal = false;
