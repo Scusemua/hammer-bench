@@ -174,10 +174,10 @@ public class InterleavedBenchmark extends Benchmark {
     Logger.resetTimer();
 
     executor.invokeAll(workers); // blocking call
-    if (config.testFailover()) {
-      failOverTester.stop();
-      failOverLog = failOverTester.getFailoverLog();
-    }
+//    if (config.testFailover()) {
+//      failOverTester.stop();
+//      failOverLog = failOverTester.getFailoverLog();
+//    }
 
     long totalTime = System.currentTimeMillis() - startTime;
 

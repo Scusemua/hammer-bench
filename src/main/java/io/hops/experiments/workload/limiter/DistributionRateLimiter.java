@@ -48,9 +48,6 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
 
   /**
    * DistributionRateLimiter constructor
-   * @param generator DistributionGenerator
-   * @param startTime in ms
-   * @param duration in ms
    */
   public DistributionRateLimiter(BMConfiguration bmConf, DistributionGenerator distGenerator) {
     try {
