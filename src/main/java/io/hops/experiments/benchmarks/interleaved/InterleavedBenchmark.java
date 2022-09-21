@@ -138,17 +138,19 @@ public class InterleavedBenchmark extends Benchmark {
     duration = config.getInterleavedBmDuration();
     System.out.println("Starting " + command.getBenchMarkType() + " for duration " + duration + "\n\n\n");
     LOG.info("Starting " + command.getBenchMarkType() + " for duration " + duration + "\n\n\n");
-    List workers = new ArrayList<Worker>();
+    List<Callable<Object>> workers = new ArrayList<>();
     // Add limiter as a worker if supported
     WorkerRateLimiter workerLimiter = null;
     if (limiter instanceof WorkerRateLimiter) {
       workerLimiter = (WorkerRateLimiter) limiter;
       workers.add(workerLimiter);
     }
+    LOG.debug("Creating workers...");
     for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-      Callable worker = new Worker(config);
+      Callable<Object> worker = new Worker(config);
       workers.add(worker);
     }
+    LOG.debug("Created " + bmConf.getSlaveNumThreads() + " workers...");
     startTime = System.currentTimeMillis();
     if (workerLimiter != null) {
       workerLimiter.setStart(startTime);
@@ -173,11 +175,13 @@ public class InterleavedBenchmark extends Benchmark {
 
     Logger.resetTimer();
 
+    LOG.debug("Invoking workers...");
     executor.invokeAll(workers); // blocking call
 //    if (config.testFailover()) {
 //      failOverTester.stop();
 //      failOverLog = failOverTester.getFailoverLog();
 //    }
+    LOG.debug("Invoked workers...");
 
     long totalTime = System.currentTimeMillis() - startTime;
 
@@ -203,16 +207,19 @@ public class InterleavedBenchmark extends Benchmark {
     private BMConfiguration config = null;
     private long lastMsg = System.currentTimeMillis();
 
-    public Worker(BMConfiguration config) throws IOException {
+    public Worker(BMConfiguration config) {
       this.config = config;
       this.lastMsg = System.currentTimeMillis();
     }
 
     @Override
     public Object call() throws Exception {
+      LOG.debug("Worker has been called!");
+
       if (!dryrun) {
         dfs = DFSOperationsUtils.getDFSClient(false);
       }
+
       filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
               bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
               bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),

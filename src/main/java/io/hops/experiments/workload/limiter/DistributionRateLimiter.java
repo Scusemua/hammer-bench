@@ -128,7 +128,7 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
 
           LOG.debug("unfulfilled: " + unfulfilled);
           LOG.debug("unfulfilledUnit: " + unfulfilledUnit);
-          LOG.debug("unfulfilledRemainder: " + unfulfilledUnit);
+          LOG.debug("unfulfilledRemainder: " + unfulfilledRemainder);
 
           // Log every 1 second
           long c = completed.get();

@@ -193,10 +193,6 @@ public class DFSOperationsUtils {
     }
 
     public static DistributedFileSystem getDFSClient(boolean warmingUp) throws IOException {
-//        if(SERVER_LESS_MODE){
-//            serverLessModeRandomWait();
-//            return null;
-//        }
         DistributedFileSystem client = dfsClients.get();
         if (client == null) {
             LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
