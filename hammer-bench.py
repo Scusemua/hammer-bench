@@ -43,21 +43,24 @@ user = args.user
 hdfs_site_path = args.hdfs_site
 
 hosts = []
+hosts_no_local = []
 with open(ip_file_path, 'r') as ip_file:
     hosts = [x.strip() for x in ip_file.readlines()]
+    hosts_no_local = [host for host in hosts if host != "10.150.0.10"]
     print("Hosts: %s" % str(hosts))
 
 client = ParallelSSHClient(hosts)
+client_sync = ParallelSSHClient(hosts)
 
 output = None
 if args.sync:
     print("Synchronize execution files form {} to {}".format(sync_path, sync_dest))
-    client.run_command("mkdir -p {}".format(sync_dest), stop_on_errors=False)
-    greenlet = client.copy_file(sync_path, sync_dest, recurse=True)
+    client_sync.run_command("mkdir -p {}".format(sync_dest), stop_on_errors=False)
+    greenlet = client_sync.copy_file(sync_path, sync_dest, recurse=True)
     gevent.joinall(greenlet, raise_error=True)
 
     print("Next, copying hdfs-site.xml configuration file...")
-    greenlet = client.copy_file(hdfs_site_path, hdfs_site_path, recurse=True)
+    greenlet = client_sync.copy_file(hdfs_site_path, hdfs_site_path, recurse=True)
     gevent.joinall(greenlet, raise_error=True)
 
     output = list()
