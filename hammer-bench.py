@@ -56,7 +56,7 @@ if args.sync:
 if args.start:
     print("Starting the slaves.")
     os.system("sed -i -e 's|^\\(list.of.slaves=\\).*|\\1{}|' ~/hammer-bench/master.properties".format(",".join(hosts)))
-    output = client.run_command("cd {} && start-slave".format(sync_dest), stop_on_errors=False)
+    output = client.run_command("cd {} && make-bench".format(sync_dest), stop_on_errors=False)
 if args.stop:
     print("Stopping the slaves.")
     output = client.run_command("kill -9 `ps aux | grep java | grep io.hops.experiments.controller.Slave | awk '{ print $2 }'`")
