@@ -367,18 +367,21 @@ public class InterleavedBenchmark extends Benchmark {
       stat.incrementAndGet();
 
       if (success) {
-        operationsCompleted.incrementAndGet();
+        long opsCompleted = operationsCompleted.incrementAndGet();
         avgLatency.addValue(stats.OpDuration);
         if (bmConf.isPercentileEnabled()) {
           synchronized (opsStats) {
             ArrayList<BMOpStats> times = opsStats.get(opType);
             if (times == null) {
-              times = new ArrayList<BMOpStats>();
+              times = new ArrayList<>();
               opsStats.put(opType, times);
             }
             times.add(stats);
           }
         }
+
+        if (opsCompleted % 1000 == 0)
+          LOG.info("Completed " + opsCompleted + " operations.");
       } else {
         operationsFailed.incrementAndGet();
       }
