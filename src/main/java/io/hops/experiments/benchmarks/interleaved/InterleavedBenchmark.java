@@ -92,6 +92,7 @@ public class InterleavedBenchmark extends Benchmark {
     // In the first phase all the parent dirs are created
     // and then in the second stage we create the further
     // file/dir in the parent dir.
+    LOG.debug("Performing warm-up now!\n\n\n");
 
     if (bmConf.getFilesToCreateInWarmUpPhase() > 1) {
       List workers = new ArrayList<BaseWarmUp>();
@@ -132,7 +133,8 @@ public class InterleavedBenchmark extends Benchmark {
     BMConfiguration config = ((InterleavedBenchmarkCommand.Request) command).getConfig();
 
     duration = config.getInterleavedBmDuration();
-    System.out.println("Starting " + command.getBenchMarkType() + " for duration " + duration);
+    System.out.println("Starting " + command.getBenchMarkType() + " for duration " + duration + "\n\n\n");
+    LOG.info("Starting " + command.getBenchMarkType() + " for duration " + duration+ "\n\n\n);
     List workers = new ArrayList<Worker>();
     // Add limiter as a worker if supported
     WorkerRateLimiter workerLimiter = null;
@@ -177,6 +179,7 @@ public class InterleavedBenchmark extends Benchmark {
     long totalTime = System.currentTimeMillis() - startTime;
 
     System.out.println("Finished " + command.getBenchMarkType() + " in " + totalTime);
+    LOG.debug("Finished " + command.getBenchMarkType() + " in " + totalTime);
 
     double speed = (operationsCompleted.get() / (double) totalTime) * 1000;
 
