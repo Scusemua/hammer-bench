@@ -25,6 +25,12 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import io.hops.metrics.OperationPerformed;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 
 import io.hops.metrics.TransactionEvent;
@@ -33,14 +39,15 @@ import io.hops.transaction.context.TransactionsStats;
 import io.hops.metrics.OperationPerformed;
 import io.hops.leader_election.node.SortedActiveNodeList;
 import io.hops.leader_election.node.ActiveNode;
-import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNodeList;
-import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNode;
+import org.apache.hadoop.hdfs.serverless.consistency.ActiveServerlessNameNodeList;
+import org.apache.hadoop.hdfs.serverless.consistency.ActiveServerlessNameNode;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
 
@@ -57,11 +64,17 @@ public class DFSOperationsUtils {
     private static final boolean SERVER_LESS_MODE=false; //only for testing. If enabled then the clients will not
     private static Random rand = new Random(System.currentTimeMillis());
                                                         // contact NNs
-    private static ThreadLocal<FileSystem> dfsClients = new ThreadLocal<FileSystem>();
+    private static ThreadLocal<DistributedFileSystem> dfsClients = new ThreadLocal<>();
     private static ThreadLocal<FilePool> filePools = new ThreadLocal<FilePool>();
 
     private static AtomicInteger filePoolCount = new AtomicInteger(0);
     private static AtomicInteger dfsClientsCount = new AtomicInteger(0);
+
+    /**
+     * Fully-qualified path of hdfs-site.xml configuration file.
+     */
+    public static String hdfsConfigFilePath = "/home/ubuntu/repos/hops/hadoop-dist/target/hadoop-3.2.0.3-SNAPSHOT/etc/hadoop/hdfs-site.xml";
+    public static final String NAME_NODE_ENDPOINT = "hdfs://10.150.0.10:9000/";
 
     /**
      * Return the OperationPerformed instances.
@@ -83,7 +96,7 @@ public class DFSOperationsUtils {
         }
     }
 
-    public static HashMap<String, List<TransactionEvent>> getTransactionEvents() {
+    public static ConcurrentHashMap<String, List<TransactionEvent>> getTransactionEvents() {
         FileSystem client = dfsClients.get();
         if (client == null) {
             LOG.warn("FileSystem client is null. Cannot get transaction events.");
@@ -116,22 +129,84 @@ public class DFSOperationsUtils {
         }
     }
 
-    public static FileSystem getDFSClient(Configuration conf) throws IOException {
-        if(SERVER_LESS_MODE){
-            serverLessModeRandomWait();
-            return null;
+    /**
+     * Create and return an HDFS Configuration object with the hdfs-site.xml file added as a resource.
+     *
+     * @param path Fully-qualified path to the configuration file.
+     */
+    public static Configuration getConfiguration(String path) {
+        Configuration configuration = new Configuration();
+        try {
+            File configFile = new File(path);
+            URL configFileURL = configFile.toURI().toURL();
+            LOG.debug("Adding resource to file: " + configFileURL);
+            configuration.addResource(configFileURL);
+            LOG.debug("Successfully added resource to file.");
+        } catch (MalformedURLException ex) {
+            LOG.error("Invalid path specified for Configuration: '" + path + "':", ex);
+            LOG.debug("Invalid path specified for Configuration: '" + path + "':", ex);
+        } catch (Exception ex) {
+            LOG.error("Unexpected error while getting Configuration from file '" + path + "':", ex);
+            LOG.debug("Unexpected error while getting Configuration from file '" + path + "':", ex);
         }
-        FileSystem client = dfsClients.get();
+        return configuration;
+    }
+
+
+    /**
+     * Create an HDFS client.
+     */
+    public static DistributedFileSystem initDfsClient() {
+        LOG.debug("Creating HDFS client now...");
+        Configuration hdfsConfiguration = getConfiguration(hdfsConfigFilePath);
+        LOG.info("Created configuration.");
+        DistributedFileSystem hdfs = new DistributedFileSystem();
+        LOG.info("Created DistributedFileSystem object.");
+
+        try {
+            hdfs.initialize(new URI(NAME_NODE_ENDPOINT), hdfsConfiguration);
+            LOG.info("Called initialize() successfully.");
+        } catch (URISyntaxException | IOException ex) {
+            LOG.error("");
+            LOG.error("");
+            LOG.error("ERROR: Encountered exception while initializing DistributedFileSystem object.");
+            ex.printStackTrace();
+            System.exit(1);
+        }
+
+        // For the HDFS instance we're creating, toggle the consistency protocol + benchmark mode
+        // based on whether the client has toggled those options within the benchmarking application.
+        // hdfs.setConsistencyProtocolEnabled(consistencyEnabled);
+        // hdfs.setBenchmarkModeEnabled(Commands.BENCHMARKING_MODE);
+
+        // The primary HDFS instance should use whatever the default log level is for the HDFS instance we create,
+        // as HopsFS has a default log level. If we're creating a non-primary HDFS instance, then we just assign it
+        // whatever our primary instance has been set to (as it can change dynamically).
+        hdfs.setServerlessFunctionLogLevel("DEBUG");
+        hdfs.setConsistencyProtocolEnabled(true);
+
+        return hdfs;
+    }
+
+    public static DistributedFileSystem getDFSClient(Configuration conf) throws IOException {
+//        if(SERVER_LESS_MODE){
+//            serverLessModeRandomWait();
+//            return null;
+//        }
+        DistributedFileSystem client = dfsClients.get();
         if (client == null) {
-            client = (FileSystem) FileSystem.newInstance(conf);
-            dfsClients.set(client);
+            LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
+            client = initDfsClient();
             LOG.debug(Thread.currentThread().getName()  +
-                " Creating new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
+                    " created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
+            dfsClients.set(client);
         }
-        else
-            LOG.debug("Reusing Existing Client "+client);
+        else {
+            LOG.debug("Reusing Existing Client " + client);
+        }
         return client;
     }
+
 
     public static FilePool getFilePool(Configuration conf, String baseDir,
             int dirsPerDir, int filesPerDir, boolean fixedDepthTree, int treeDepth, String fileSizeDistribution,

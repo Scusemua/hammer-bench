@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,8 +44,8 @@ import org.apache.hadoop.fs.FileSystem;
 
 import io.hops.leader_election.node.SortedActiveNodeList;
 import io.hops.leader_election.node.ActiveNode;
-import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNodeList;
-import org.apache.hadoop.hdfs.serverless.operation.ActiveServerlessNameNode;
+import org.apache.hadoop.hdfs.serverless.consistency.ActiveServerlessNameNodeList;
+import org.apache.hadoop.hdfs.serverless.consistency.ActiveServerlessNameNode;
 import io.hops.metrics.OperationPerformed;
 import io.hops.metrics.TransactionEvent;
 import io.hops.metrics.TransactionAttempt;
@@ -200,7 +201,7 @@ public class RawBenchmark extends Benchmark {
     public void printOperationsPerformed() throws IOException {
       DFSOperationsUtils.printOperationsPerformed();
 
-      HashMap<String, List<TransactionEvent>> transactionEvents = DFSOperationsUtils.getTransactionEvents();
+      ConcurrentHashMap<String, List<TransactionEvent>> transactionEvents = DFSOperationsUtils.getTransactionEvents();
       if (transactionEvents == null) {
         LOG.warn("Transaction Events were null. Cannot print them.");
         return;
