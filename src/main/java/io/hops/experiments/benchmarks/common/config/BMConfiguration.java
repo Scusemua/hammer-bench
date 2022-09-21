@@ -18,6 +18,7 @@ package io.hops.experiments.benchmarks.common.config;
 
 //import io.hops.experiments.benchmarks.blockreporting.TinyDatanodesHelper;
 import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
+import io.hops.experiments.benchmarks.common.BenchmarkDistribution;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
 import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.interleaved.coin.InterleavedMultiFaceCoin;
@@ -166,6 +167,10 @@ public class BMConfiguration implements Serializable {
     return BenchMarkFileSystemName.fromString(getString(ConfigKeys.BENCHMARK_FILE_SYSTEM_NAME_KEY, ConfigKeys.BENCHMARK_FILE_SYSTEM_NAME_DEFAULT));
   }
 
+  public String getHadoopHomeDir() {
+    return getString(ConfigKeys.HADOOP_HOME_DIR_KEY, ConfigKeys.HADOOP_HOME_DIR_DEFAULT);
+  }
+
   public int getSlaveListeningPort() {
     return getInt(ConfigKeys.SLAVE_LISTENING_PORT_KEY, ConfigKeys.SLAVE_LISTENING_PORT_DEFAULT);
   }
@@ -179,6 +184,14 @@ public class BMConfiguration implements Serializable {
     return BenchmarkType.valueOf(val);
   }
 
+  public long getBenchMarkRandomSeed() {
+    return getLong(ConfigKeys.BENCHMARK_RANDOM_SEED_KEY, ConfigKeys.BENCHMARK_RANDOM_SEED_DEFAULT);
+  }
+
+  public boolean getBenchmarkDryrun() {
+    return getBoolean(ConfigKeys.BENCHMARK_DRYRUN_KEY, ConfigKeys.BENCHMARK_DRYRUN_DEFAULT);
+  }
+
   public int getNamenodeCount() {
     return getInt(ConfigKeys.NO_OF_NAMENODES_KEY, ConfigKeys.NO_OF_NAMENODES_DEFAULT);
   }
@@ -189,6 +202,23 @@ public class BMConfiguration implements Serializable {
 
   public long getRawBmFilesCreationPhaseDuration() {
     return getLong(ConfigKeys.RAW_CREATE_FILES_PHASE_DURATION_KEY, ConfigKeys.RAW_CREATE_FILES_PHASE_DURATION_DEFAULT);
+  }
+
+  public BenchmarkDistribution getInterleavedBMIaTDistribution() {
+    String val = getString(ConfigKeys.INTERLEAVED_BM_IAT_DISTRIBUTION_KEY, ConfigKeys.INTERLEAVED_BM_IAT_DISTRIBUTION_DEFAULT);
+    return BenchmarkDistribution.valueOf(val);
+  }
+
+  public double getInterleavedBMIaTPoissonLambda() {
+    return getDouble(ConfigKeys.INTERLEAVED_BM_IAT_POISSON_LAMBDA_KEY, ConfigKeys.INTERLEAVED_BM_IAT_POISSON_LAMBDA_DEFAULT);
+  }
+
+  public double getInterleavedBMIaTParetoAlpha() {
+    return getDouble(ConfigKeys.INTERLEAVED_BM_IAT_PARETO_ALPHA_KEY, ConfigKeys.INTERLEAVED_BM_IAT_PARETO_ALPHA_DEFAULT);
+  }
+
+  public double getInterleavedBMIaTParetoLocation() {
+    return getDouble(ConfigKeys.INTERLEAVED_BM_IAT_PARETO_LOCATION_KEY, ConfigKeys.INTERLEAVED_BM_IAT_PARETO_LOCATION_DEFAULT);
   }
 
   public BigDecimal getInterleavedBmCreateFilesPercentage() {
@@ -667,6 +697,11 @@ public class BMConfiguration implements Serializable {
   private boolean getBoolean(String key, boolean defaultVal) {
     String val = props.getProperty(key, Boolean.toString(defaultVal));
     return Boolean.parseBoolean(val);
+  }
+
+  private double getDouble(String key, double defaultVal) {
+    String val = props.getProperty(key, Double.toString(defaultVal));
+    return Double.parseDouble(val);
   }
 
   private String getString(String key, String defaultVal) {

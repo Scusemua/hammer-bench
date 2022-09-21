@@ -167,6 +167,9 @@ public class ConfigKeys {
 
     public static final String BENCHMARK_FILE_SYSTEM_NAME_KEY = "benchmark.filesystem.name";
     public static final String BENCHMARK_FILE_SYSTEM_NAME_DEFAULT = "HDFS";
+
+    public static final String HADOOP_HOME_DIR_KEY = "hadoop.home.dir";
+    public static final String HADOOP_HOME_DIR_DEFAULT = ""; // using the system environment variable
   
     public static final int BUFFER_SIZE = 4*1024*1024; 
     
@@ -183,12 +186,30 @@ public class ConfigKeys {
     
     public static String BENCHMARK_TYPE_KEY = "benchmark.type";
     public static String BENCHMARK_TYPE_DEFAULT = "RAW";// "Type. RAW | INTERLEAVED | BM ."
+
+    public static String BENCHMARK_RANDOM_SEED_KEY = "benchmark.random.seed";
+    public static long BENCHMARK_RANDOM_SEED_DEFAULT = 0;
+
+    public static String BENCHMARK_DRYRUN_KEY = "benchmark.dryrun";
+    public static boolean BENCHMARK_DRYRUN_DEFAULT = false;
     
     public static String GENERATE_PERCENTILES_KEY = "generate.percentiles";
     public static boolean   GENERATE_PERCENTILES_DEFAULT = false;
     
     public static String INTERLEAVED_BM_DURATION_KEY = "interleaved.bm.duration";
     public static long   INTERLEAVED_BM_DURATION_DEFAULT = 60*1000;
+
+    public static String INTERLEAVED_BM_IAT_DISTRIBUTION_KEY = "interleaved.bm.iat.distribution";
+    public static String INTERLEAVED_BM_IAT_DISTRIBUTION_DEFAULT = "UNIFORM";
+
+    public static String INTERLEAVED_BM_IAT_POISSON_LAMBDA_KEY = "interleaved.bm.iat.poisson.lambda";
+    public static double INTERLEAVED_BM_IAT_POISSON_LAMBDA_DEFAULT = 10.0; // Expected concurrency
+
+    public static String INTERLEAVED_BM_IAT_PARETO_ALPHA_KEY = "interleaved.bm.iat.pareto.alpha";
+    public static double INTERLEAVED_BM_IAT_PARETO_ALPHA_DEFAULT = 2; // Scale parameter
+
+    public static String INTERLEAVED_BM_IAT_PARETO_LOCATION_KEY = "interleaved.bm.iat.pareto.location";
+    public static double INTERLEAVED_BM_IAT_PARETO_LOCATION_DEFAULT = 10.0; // Expected concurrency
     
     public static String RAW_CREATE_PHASE_MAX_FILES_TO_CRAETE_KEY = "raw.create.phase.max.files.to.create";
     public static long RAW_CREATE_PHASE_MAX_FILES_TO_CRAETE_DEFAULT = Long.MAX_VALUE;

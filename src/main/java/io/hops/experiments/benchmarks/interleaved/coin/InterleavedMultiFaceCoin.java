@@ -82,11 +82,11 @@ public class InterleavedMultiFaceCoin {
 
   private void createCoin() {
 
-    System.out.println("Percentages create: " + create + " append: " + append + " read: " + read + " mkdir: "
-            + mkdirs + " rename: " + rename + " delete: " + delete + " lsFile: "
-            + lsFile + " lsDir: " + lsDir + " chmod files: " + chmodFiles + " chmod dirs: " + chmodDirs
-            + " setReplication: " + setReplication + " fileInfo: " + fileInfo + " dirInfo: " + dirInfo
-            + " fileChown: "+fileChown+" dirChown: "+dirChown);
+    // System.out.println("Percentages create: " + create + " append: " + append + " read: " + read + " mkdir: "
+    //         + mkdirs + " rename: " + rename + " delete: " + delete + " lsFile: "
+    //         + lsFile + " lsDir: " + lsDir + " chmod files: " + chmodFiles + " chmod dirs: " + chmodDirs
+    //         + " setReplication: " + setReplication + " fileInfo: " + fileInfo + " dirInfo: " + dirInfo
+    //         + " fileChown: "+fileChown+" dirChown: "+dirChown);
 
     BigDecimal total = create.add(append).add(read).add(rename).add(delete).add(lsFile).add(lsDir)
             .add(chmodFiles).add(chmodDirs).add(mkdirs).add(setReplication).add(fileInfo).

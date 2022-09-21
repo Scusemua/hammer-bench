@@ -17,7 +17,6 @@
  */
 package io.hops.experiments.benchmarks.common;
 
-import io.hops.experiments.benchmarks.common.BenchmarkType;
 import java.io.Serializable;
 
 /**

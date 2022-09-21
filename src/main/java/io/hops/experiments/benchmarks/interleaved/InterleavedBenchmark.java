@@ -16,11 +16,13 @@
  */
 package io.hops.experiments.benchmarks.interleaved;
 
+import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.utils.BMOperationsUtils;
-import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
 import io.hops.experiments.benchmarks.common.Benchmark;
+import io.hops.experiments.benchmarks.common.BenchmarkDistribution;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
+import io.hops.experiments.benchmarks.common.BMOpStats;
 import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
 import io.hops.experiments.benchmarks.interleaved.coin.InterleavedMultiFaceCoin;
 import io.hops.experiments.controller.Logger;
@@ -28,6 +30,13 @@ import io.hops.experiments.controller.commands.BenchmarkCommand;
 import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.utils.DFSOperationsUtils;
 import io.hops.experiments.workload.generator.FilePool;
+import io.hops.experiments.workload.limiter.DistributionRateLimiter;
+import io.hops.experiments.workload.limiter.ParetoGenerator;
+import io.hops.experiments.workload.limiter.PoissonGenerator;
+import io.hops.experiments.workload.limiter.RateLimiter;
+import io.hops.experiments.workload.limiter.RateNoLimiter;
+import io.hops.experiments.workload.limiter.WorkerRateLimiter;
+
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -40,6 +49,7 @@ import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -52,11 +62,27 @@ public class InterleavedBenchmark extends Benchmark {
   AtomicLong operationsCompleted = new AtomicLong(0);
   AtomicLong operationsFailed = new AtomicLong(0);
   Map<BenchmarkOperations, AtomicLong> operationsStats = new HashMap<BenchmarkOperations, AtomicLong>();
-  HashMap<BenchmarkOperations, ArrayList<Long>> opsExeTimes = new HashMap<BenchmarkOperations, ArrayList<Long>>();
+  HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats = new HashMap<BenchmarkOperations, ArrayList<BMOpStats>>();
   SynchronizedDescriptiveStatistics avgLatency = new SynchronizedDescriptiveStatistics();
+  protected final RateLimiter limiter;
+  protected boolean debug = false;
 
   public InterleavedBenchmark(Configuration conf, BMConfiguration bmConf) {
     super(conf, bmConf);
+    BenchmarkDistribution distribution = bmConf.getInterleavedBMIaTDistribution();
+    if (distribution == BenchmarkDistribution.POISSON) {
+      limiter = new DistributionRateLimiter(bmConf, new PoissonGenerator(bmConf));
+    } else if (distribution == BenchmarkDistribution.PARETO) {
+      limiter = new DistributionRateLimiter(bmConf, new ParetoGenerator(bmConf));
+    } else {
+      limiter = new RateNoLimiter();
+    }
+
+    if (bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HDFS || bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HopsFS) {
+      if (bmConf.getHadoopHomeDir() != "") {
+        System.setProperty("hadoop.home.dir", bmConf.getHadoopHomeDir());
+      }
+    }
   }
 
   @Override
@@ -108,11 +134,22 @@ public class InterleavedBenchmark extends Benchmark {
     duration = config.getInterleavedBmDuration();
     System.out.println("Starting " + command.getBenchMarkType() + " for duration " + duration);
     List workers = new ArrayList<Worker>();
+    // Add limiter as a worker if supported
+    WorkerRateLimiter workerLimiter = null;
+    if (limiter instanceof WorkerRateLimiter) {
+      workerLimiter = (WorkerRateLimiter) limiter;
+      workers.add(workerLimiter);
+    }
     for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
       Callable worker = new Worker(config);
       workers.add(worker);
     }
     startTime = System.currentTimeMillis();
+    if (workerLimiter != null) {
+      workerLimiter.setStart(startTime);
+      workerLimiter.setDuration(duration);
+      workerLimiter.setStat("completed", operationsCompleted);
+    }
 
     FailOverMonitor failOverTester = null;
     List<String> failOverLog = null;
@@ -139,13 +176,16 @@ public class InterleavedBenchmark extends Benchmark {
 
     long totalTime = System.currentTimeMillis() - startTime;
 
-
     System.out.println("Finished " + command.getBenchMarkType() + " in " + totalTime);
 
     double speed = (operationsCompleted.get() / (double) totalTime) * 1000;
 
+    int aliveNNsCount = 0;
+    if (!dryrun) {
+      aliveNNsCount = getAliveNNsCount();
+    }
     InterleavedBenchmarkCommand.Response response =
-            new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsExeTimes, avgLatency.getMean(), failOverLog, getAliveNNsCount());
+            new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsStats, avgLatency.getMean(), failOverLog, aliveNNsCount);
     return response;
   }
 
@@ -164,11 +204,14 @@ public class InterleavedBenchmark extends Benchmark {
 
     @Override
     public Object call() throws Exception {
-      dfs = DFSOperationsUtils.getDFSClient(conf);
+      if (!dryrun) {
+        dfs = DFSOperationsUtils.getDFSClient(conf);
+      }
       filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
               bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
               bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
               bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
+      
       opCoin = new InterleavedMultiFaceCoin(config.getInterleavedBmCreateFilesPercentage(),
               config.getInterleavedBmAppendFilePercentage(),
               config.getInterleavedBmReadFilesPercentage(),
@@ -192,6 +235,11 @@ public class InterleavedBenchmark extends Benchmark {
           }
 
           BenchmarkOperations op = opCoin.flip();
+
+          // Wait for the limiter to allow the operation
+          if (!limiter.checkRate()) {
+            return null;
+          }
 
           performOperation(op);
 
@@ -247,25 +295,29 @@ public class InterleavedBenchmark extends Benchmark {
       if (path != null) {
         boolean retVal = false;
         long opExeTime = 0;
+        long opStartTime = System.nanoTime();
         try {
-          long opStartTime = 0L;
-          opStartTime = System.nanoTime();
+          if (dryrun) {
+            System.out.println("Performing " + opType + " on " + path);
+            TimeUnit.MILLISECONDS.sleep(10);
+          } else {
+            BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
+                                        config.getAppendFileSize());
+          }    
 
-          BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
-                  config.getAppendFileSize());
           opExeTime = System.nanoTime() - opStartTime;
           retVal = true;
         } catch (Exception e) {
           Logger.error(e);
         }
-        updateStats(opType, retVal, opExeTime);
+        updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime));
       } else {
         Logger.printMsg("Could not perform operation " + opType + ". Got Null from the file pool");
 //                System.exit(-1);
       }
     }
 
-    private void updateStats(BenchmarkOperations opType, boolean success, long opExeTime) {
+    private void updateStats(BenchmarkOperations opType, boolean success, BMOpStats stats) {
       AtomicLong stat = operationsStats.get(opType);
       if (stat == null) { // this should be synchronized to get accurate stats. However, this will slow down and these stats are just for log messages. Some inconsistencies are OK
         stat = new AtomicLong(0);
@@ -275,15 +327,15 @@ public class InterleavedBenchmark extends Benchmark {
 
       if (success) {
         operationsCompleted.incrementAndGet();
-        avgLatency.addValue(opExeTime);
+        avgLatency.addValue(stats.OpDuration);
         if (bmConf.isPercentileEnabled()) {
-          synchronized (opsExeTimes) {
-            ArrayList<Long> times = opsExeTimes.get(opType);
+          synchronized (opsStats) {
+            ArrayList<BMOpStats> times = opsStats.get(opType);
             if (times == null) {
-              times = new ArrayList<Long>();
-              opsExeTimes.put(opType, times);
+              times = new ArrayList<BMOpStats>();
+              opsStats.put(opType, times);
             }
-            times.add(opExeTime);
+            times.add(stats);
           }
         }
       } else {

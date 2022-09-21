@@ -84,12 +84,15 @@ public class Slave {
                 Logger.setLoggerIp(masterIP);
                 Logger.setLoggerPort(bmConf.getRemoteLoggingPort());
             }
-            dfsClientConf = new Configuration();
-            for(Object key : bmConf.getFsConfig().keySet()){
-              String keyStr = (String)key;
-              String val = bmConf.getFsConfig().getProperty(keyStr);
-              //Logger.printMsg("Client Settings "+keyStr+" --> "+val);
-              dfsClientConf.set(keyStr, val);
+            Configuration dfsClientConf = null; 
+            if (!bmConf.getBenchmarkDryrun()) {
+                dfsClientConf = new Configuration();
+                for(Object key : bmConf.getFsConfig().keySet()){
+                String keyStr = (String)key;
+                String val = bmConf.getFsConfig().getProperty(keyStr);
+                //Logger.printMsg("Client Settings "+keyStr+" --> "+val);
+                dfsClientConf.set(keyStr, val);
+                }
             }
             
             benchmark = Benchmark.getBenchmark(dfsClientConf, bmConf, slaveId);

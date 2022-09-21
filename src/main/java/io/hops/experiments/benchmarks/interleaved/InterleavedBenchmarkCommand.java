@@ -16,6 +16,7 @@
  */
 package io.hops.experiments.benchmarks.interleaved;
 
+import io.hops.experiments.benchmarks.common.BMOpStats;
 import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.controller.commands.BenchmarkCommand;
@@ -60,25 +61,25 @@ public class InterleavedBenchmarkCommand {
         private final long totalFailedOps;
         private final double opsPerSec;
         private final double avgOpLatency;
-        private final HashMap<BenchmarkOperations, ArrayList<Long>> opsExeTimes;
+        private final HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats;
         private final List<String> failOverLog;
         private final int nnCount;
 
         public Response(long runTime, long totalSuccessfulOps, long totalFailedOps, double opsPerSec,
-                        HashMap<BenchmarkOperations, ArrayList<Long>> opsExeTimes, double avgOpLatency, List<String> failOverLog,
+                        HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats, double avgOpLatency, List<String> failOverLog,
                         int nnCount) {
             this.runTime = runTime;
             this.totalSuccessfulOps = totalSuccessfulOps;
             this.totalFailedOps = totalFailedOps;
             this.opsPerSec = opsPerSec;
-            this.opsExeTimes = opsExeTimes;
+            this.opsStats = opsStats;
             this.failOverLog = failOverLog;
             this.avgOpLatency = avgOpLatency;
             this.nnCount = nnCount;
         }
 
-        public HashMap<BenchmarkOperations, ArrayList<Long>> getOpsExeTimes() {
-            return opsExeTimes;
+        public HashMap<BenchmarkOperations, ArrayList<BMOpStats>> getOpsStats() {
+            return opsStats;
         }
 
 

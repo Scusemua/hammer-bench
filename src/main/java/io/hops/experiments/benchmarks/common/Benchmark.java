@@ -53,6 +53,7 @@ public abstract class Benchmark {
   protected CountDownLatch threadsWarmedUp;
   protected final BMConfiguration bmConf;
   protected final long startTime;
+  protected boolean dryrun = false;
 
   public Benchmark(Configuration conf, BMConfiguration bmConf) {
     this.conf = conf;
@@ -107,11 +108,24 @@ public abstract class Benchmark {
       this.filesToCreate = filesToCreate;
       this.stage = stage;
       this.bmConf = bmConf;
+      dryrun = bmConf.getBenchmarkDryrun();
     }
 
     @Override
     public Object call() throws Exception {
-      dfs = DFSOperationsUtils.getDFSClient(conf);
+      try {
+        return callImpl();
+      }
+      catch (Exception e) {
+        Logger.printMsg("Exception in warmup: " + e);
+        throw e;
+      }
+    }
+
+    public Object callImpl() throws Exception {
+      if (!dryrun) {
+        dfs = DFSOperationsUtils.getDFSClient(conf);
+      }
       filePool = DFSOperationsUtils.getFilePool(conf,
               bmConf.getBaseDir(), bmConf.getDirPerDir(),
               bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
@@ -123,11 +137,15 @@ public abstract class Benchmark {
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
-          LOG.debug("Creating file " + filePath);
-          DFSOperationsUtils.createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
-          filePool.fileCreationSucceeded(filePath);
-          LOG.debug("Reading file " + filePath);
-          DFSOperationsUtils.readFile(dfs, filePath);
+          System.out.println("Creating file '" + filePath + "' now...");
+          if (!dryrun) {
+            DFSOperationsUtils
+                    .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
+            filePool.fileCreationSucceeded(filePath);
+            DFSOperationsUtils.readFile(dfs, filePath);
+          } else {
+            filePool.fileCreationSucceeded(filePath);
+          }
           filesCreatedInWarmupPhase.incrementAndGet();
           log();
         } catch (Exception e) {
