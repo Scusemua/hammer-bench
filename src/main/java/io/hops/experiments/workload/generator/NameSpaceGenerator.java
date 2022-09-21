@@ -19,7 +19,7 @@ package io.hops.experiments.workload.generator;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
+// import java.util.Random;
 
 /**
  *
@@ -34,7 +34,7 @@ public class NameSpaceGenerator {
     private  DirNamesGenerator dirGenerator;
     private String DIR_PREFIX = "hops_dir";
     private String FILE_PREFIX = "hops_file";
-    private static Random rand = new Random(System.currentTimeMillis());
+    // private static Random rand = new Random(System.currentTimeMillis());
 
     public NameSpaceGenerator(String baseDir, int filesPerDir, int dirPerDir) {
         this.allDirs = new LinkedList<String>();

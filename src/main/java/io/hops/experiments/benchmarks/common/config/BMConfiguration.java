@@ -20,10 +20,10 @@ package io.hops.experiments.benchmarks.common.config;
 import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
 import io.hops.experiments.benchmarks.common.BenchmarkDistribution;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
-import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
+// import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.interleaved.coin.InterleavedMultiFaceCoin;
 import io.hops.experiments.utils.DFSOperationsUtils;
-import org.apache.hadoop.hdfs.DFSClient;
+// import org.apache.hadoop.hdfs.DFSClient;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -41,7 +41,7 @@ import java.util.*;
 public class BMConfiguration implements Serializable {
 
   private List<InetAddress> listOfSlaves = null;
-  private List<String> nameNodeList = null;
+  // private List<String> nameNodeList = null;
   private Properties props = null;
 
   private BMConfiguration() {
@@ -87,7 +87,7 @@ public class BMConfiguration implements Serializable {
     }
 
     //check the file size distribution coin
-    FileSizeMultiFaceCoin fcoin = new FileSizeMultiFaceCoin(this.getFileSizeDistribution());
+    // FileSizeMultiFaceCoin fcoin = new FileSizeMultiFaceCoin(this.getFileSizeDistribution());
 
     if (getBenchMarkType() == BenchmarkType.INTERLEAVED) {
       //create a coin to check the percentages
@@ -657,10 +657,12 @@ public class BMConfiguration implements Serializable {
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_HTTP_RETRY_MAX, Integer.toString(getInt(ConfigKeys.SERVERLESS_HTTP_RETRY_MAX, ConfigKeys.SERVERLESS_HTTP_RETRY_MAX_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_HTTP_TIMEOUT, Integer.toString(getInt(ConfigKeys.SERVERLESS_HTTP_TIMEOUT, ConfigKeys.SERVERLESS_HTTP_TIMEOUT_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.NDB_DEBUG, Boolean.toString(getBoolean(ConfigKeys.NDB_DEBUG, ConfigKeys.NDB_DEBUG_DEFAULT)));
-      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_DEPLOYMENTS_BASELINE, Integer.toString(getInt(ConfigKeys.SERVERLESS_DEPLOYMENTS_BASELINE, ConfigKeys.SERVERLESS_DEPLOYMENTS_BASELINE_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS, Integer.toString(getInt(ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS, ConfigKeys.SERVERLESS_MAX_DEPLOYMENTS_DEFAULT)));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_ENDPOINT, getString(ConfigKeys.SERVERLESS_ENDPOINT, ConfigKeys.SERVERLESS_ENDPOINT_DEFAULT));
       dfsClientConf.setProperty(ConfigKeys.SERVERLESS_PLATFORM, getString(ConfigKeys.SERVERLESS_PLATFORM, ConfigKeys.SERVERLESS_PLATFORM_DEFAULT));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_DEFAULT_LOG_LEVEL, getString(ConfigKeys.SERVERLESS_DEFAULT_LOG_LEVEL, ConfigKeys.SERVERLESS_DEFAULT_LOG_LEVEL_DEFAULT));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_USE_UDP, Boolean.toString(getBoolean(ConfigKeys.SERVERLESS_USE_UDP, ConfigKeys.SERVERLESS_USE_UDP_DEFAULT)));
+      dfsClientConf.setProperty(ConfigKeys.SERVERLESS_ZOOKEEPER_HOSTNAMES, getString(ConfigKeys.SERVERLESS_ZOOKEEPER_HOSTNAMES, ConfigKeys.SERVERLESS_ZOOKEEPER_HOSTNAMES_DEFAULT));
 
     } else if (getBenchMarkFileSystemName() == BenchMarkFileSystemName.CephFS) {
       System.out.println("Creating config for CephFS");

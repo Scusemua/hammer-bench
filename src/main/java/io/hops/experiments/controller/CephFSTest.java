@@ -5,7 +5,7 @@
 package io.hops.experiments.controller;
 
 import java.io.IOException;
-import java.util.Properties;
+// import java.util.Properties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;

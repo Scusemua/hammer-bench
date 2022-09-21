@@ -21,7 +21,6 @@ import io.hops.experiments.benchmarks.common.config.ConfigKeys;
 import io.hops.experiments.workload.random.NumberRandom;
 import io.hops.experiments.workload.random.SimpleLongRandom;
 import io.hops.experiments.workload.random.ZipfianRandom;
-import io.hops.experiments.workload.random.ScrambledZipfianRandom;
 import io.hops.experiments.controller.Logger;
 import org.apache.commons.lang.StringUtils;
 

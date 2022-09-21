@@ -56,7 +56,7 @@ if args.sync:
 
 if args.start:
     print("Starting the slaves.")
-    os.system("sed -i -e 's|^\\(benchmark.dryrun=\\).*|\\1{}|' ~/hammer-bench/master.properties".format(args.dryrun))
+    os.system("sed -i -e 's|^\\(benchmark.dryrun=\\).*|\\1{}|' ~/hammer-bench/master.properties".format("true" if args.dryrun else "false"))
     os.system("sed -i -e 's|^\\(list.of.slaves=\\).*|\\1{}|' ~/hammer-bench/master.properties".format(",".join(hosts)))
     os.system("sed -i -e 's|^\\(fs.defaultFS=\\).*|\\1{}|' ~/hammer-bench/master.properties".format(fs_default))
     output = client.run_command("cd {} && make bench".format(sync_dest), stop_on_errors=False)

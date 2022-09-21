@@ -33,6 +33,7 @@ public class ConfigKeys {
      * The default endpoint/URI for invoking a serverless function (i.e., namenode).
      */
     public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://34.86.224.47:444/api/v1/web/whisk.system/default/namenode";
+    // public static final String SERVERLESS_ENDPOINT_DEFAULT = "https://openwhisk.serverless-mds-cluster-243065a7719552ad2f4388dc81e46642-0000.us-east.containers.appdomain.cloud:443/api/v1/web/whisk.system/default/namenode";
 
     /**
      * Configuration property for defining the serverless platform in use.
@@ -43,18 +44,6 @@ public class ConfigKeys {
      * The default serverless platform of Serverless HopsFS.
      */
     public static final String SERVERLESS_PLATFORM_DEFAULT = "openwhisk";
-
-    /**
-     * Configuration property for the baseline number of unique serverless functions deployed for use in this
-     * particular Serverless HopsFS cluster. This is different from the max number of deployments, which is the hard
-     * limit for the number of unique serverless functions at disposal.
-     */
-    public static final String SERVERLESS_DEPLOYMENTS_BASELINE = "serverless.deployments.baseline";
-
-    /**
-     * The default number of serverless functions associated with this particular Serverless HopsFS cluster.
-     */
-    public static final int SERVERLESS_DEPLOYMENTS_BASELINE_DEFAULT = 20;
 
     /**
      * If true, then we'll pass an argument to the NNs indicating that they should print their
@@ -74,13 +63,19 @@ public class ConfigKeys {
      * Serverless HopsFS cluster.
      */
     public static final String SERVERLESS_MAX_DEPLOYMENTS = "serverless.deployments.max";
-    public static final int SERVERLESS_MAX_DEPLOYMENTS_DEFAULT = 20;
+    public static final int SERVERLESS_MAX_DEPLOYMENTS_DEFAULT = 4;
 
     public static final String SERVERLESS_METADATA_CACHE_REDIS_ENDPOINT = "serverless.redis.endpoint";
     public static final String SERVERLESS_METADATA_CACHE_REDIS_ENDPOINT_DEFAULT = "127.0.0.1";
 
+    public static final String SERVERLESS_DEFAULT_LOG_LEVEL = "serverless.default.loglevel";
+    public static final String SERVERLESS_DEFAULT_LOG_LEVEL_DEFAULT = "DEBUG";
+
     public static final String SERVERLESS_METADATA_CACHE_REDIS_PORT = "serverless.redis.port";
     public static final int SERVERLESS_METADATA_CACHE_REDIS_PORT_DEFAULT = 6379;
+
+    public static final String SERVERLESS_USE_UDP = "serverless.udp.enabled";
+    public static final boolean SERVERLESS_USE_UDP_DEFAULT = false;
 
     /**
      * Serverless HopsFS clients expose a TCP server that NameNodes establish connections with.
@@ -95,6 +90,12 @@ public class ConfigKeys {
 
     public static final String SERVERLESS_HTTP_RETRY_MAX = "serverless.http.maxretries";
     public static final int SERVERLESS_HTTP_RETRY_MAX_DEFAULT = 3;
+
+    /**
+     * Comma-delimited list of hostnames of ZooKeeper servers.
+     */
+    public static final String SERVERLESS_ZOOKEEPER_HOSTNAMES = "serverless.zookeepers.hosts";
+    public static final String SERVERLESS_ZOOKEEPER_HOSTNAMES_DEFAULT = "10.241.64.15:2181,10.150.0.19:2181,10.241.64.14:2181";
 
     /**
      * Time, in seconds, for an HTTP request to a NameNode to timeout. Timed-out
@@ -130,16 +131,6 @@ public class ConfigKeys {
      */
     public static final String SERVERLESS_RESULT_CACHE_INTERVAL_MILLISECONDS =  "serverless.task.cacheinterval";
     public static final int SERVERLESS_RESULT_CACHE_INTERVAL_MILLISECONDS_DEFAULT = 180000; // 180 seconds, or 3 minutes.
-
-    /**
-     * Comma-delimited list of hostnames of ZooKeeper servers.
-     */
-    public static final String SERVERLESS_ZOOKEEPER_HOSTNAMES = "serverless.zookeepers.hosts";
-    public static final String[] SERVERLESS_ZOOKEEPER_HOSTNAMES_DEFAULT = {
-            "10.150.0.46:2181",
-            "10.150.0.79:2181",
-            "10.150.0.81:2181"
-    };
 
     /**
      * How long for a connection attempt to the ZooKeeper ensemble to timeout (in milliseconds).

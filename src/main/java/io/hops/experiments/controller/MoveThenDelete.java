@@ -28,12 +28,12 @@ import org.apache.hadoop.fs.Path;
  */
 public class MoveThenDelete {
 
-  private org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
+  // private org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
   private BMConfiguration args;
 
   public static void main(String[] argv) throws Exception {
     
-    String configFilePath = "master.properties";
+    // String configFilePath = "master.properties";
     if (argv.length != 1) {
       System.out.println("Enter the folder name to rename  and then delete ");
       return;

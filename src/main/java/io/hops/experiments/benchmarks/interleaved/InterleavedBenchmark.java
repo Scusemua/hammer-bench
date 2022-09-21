@@ -49,6 +49,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -94,20 +95,22 @@ public class InterleavedBenchmark extends Benchmark {
     // file/dir in the parent dir.
 
     if (bmConf.getFilesToCreateInWarmUpPhase() > 1) {
-      List workers = new ArrayList<BaseWarmUp>();
+      List<Callable<Object>> workers = new ArrayList<Callable<Object>>();
       // Stage 1
-      threadsWarmedUp.set(0);
+      //threadsWarmedUp.set(0);
+      threadsWarmedUp = new CountDownLatch(bmConf.getSlaveNumThreads());
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-        Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
+        Callable<Object> worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
         workers.add(worker);
       }
       executor.invokeAll(workers); // blocking call
       workers.clear();
 
       // Stage 2
-      threadsWarmedUp.set(0);
+      //threadsWarmedUp.set(0);
+      threadsWarmedUp = new CountDownLatch(bmConf.getSlaveNumThreads());
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-        Callable worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1,
+        Callable<Object> worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1,
                 bmConf, "Warming up. Stage2: Creating files/dirs. ");
         workers.add(worker);
       }
@@ -150,7 +153,7 @@ public class InterleavedBenchmark extends Benchmark {
 
     duration = config.getInterleavedBmDuration();
     System.out.println("Starting " + command.getBenchMarkType() + " for duration " + duration);
-    List workers = new ArrayList<Worker>();
+    List<Callable<Object>> workers = new ArrayList<Callable<Object>>();
     // Add limiter as a worker if supported
     WorkerRateLimiter workerLimiter = null;
     if (limiter instanceof WorkerRateLimiter) {
@@ -158,7 +161,7 @@ public class InterleavedBenchmark extends Benchmark {
       workers.add(workerLimiter);
     }
     for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-      Callable worker = new Worker(config);
+      Callable<Object> worker = new Worker(config);
       workers.add(worker);
     }
     startTime = System.currentTimeMillis();
@@ -206,7 +209,7 @@ public class InterleavedBenchmark extends Benchmark {
     return response;
   }
 
-  public class Worker implements Callable {
+  public class Worker implements Callable<Object> {
 
     private FileSystem dfs;
     private FilePool filePool;

@@ -72,7 +72,7 @@ public class FileSizeMultiFaceCoin {
       for (Long size : dice) {
         Integer opCount = counts.get(size);
         if (opCount == null) {
-          opCount = new Integer(0);
+          opCount = 0;
         }
         opCount++;
         counts.put(size, opCount);
@@ -120,7 +120,7 @@ public class FileSizeMultiFaceCoin {
       Long size = getFileSize();
       Integer opCount = counts.get(size);
       if (opCount == null) {
-        opCount = new Integer(0);
+        opCount = 0;
       }
       opCount++;
       counts.put(size, opCount);
