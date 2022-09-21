@@ -85,7 +85,7 @@ public class BMConfiguration implements Serializable {
     }
 
     //check the file size distribution coin
-    FileSizeMultiFaceCoin fcoin = new FileSizeMultiFaceCoin(this.getFileSizeDistribution());
+    new FileSizeMultiFaceCoin(this.getFileSizeDistribution());
 
     if (getBenchMarkType() == BenchmarkType.INTERLEAVED) {
       //create a coin to check the percentages
