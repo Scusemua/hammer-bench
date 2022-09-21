@@ -121,6 +121,8 @@ public class InterleavedBenchmark extends Benchmark {
         else
           numThreads += 8;
 
+        Thread.sleep(500);
+
         if (numThreads > 128)
           throw new IllegalStateException("Attempting to create too many threads: " + numThreads);
       }
@@ -135,6 +137,7 @@ public class InterleavedBenchmark extends Benchmark {
       workers.clear();
 
       LOG.info("Finished creating parent dirs. Moving onto Stage 2.");
+      Thread.sleep(500);
 
       // Stage 2
       //threadsWarmedUp.set(0);
@@ -380,7 +383,7 @@ public class InterleavedBenchmark extends Benchmark {
           }
         }
 
-        if (opsCompleted % 1000 == 0)
+        if (opsCompleted % 5000 == 0)
           LOG.info("Completed " + opsCompleted + " operations.");
       } else {
         operationsFailed.incrementAndGet();
