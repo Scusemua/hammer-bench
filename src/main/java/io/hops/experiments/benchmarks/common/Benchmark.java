@@ -169,7 +169,7 @@ public abstract class Benchmark {
         LOG.debug(stage+" " + DFSOperationsUtils.round(percent) + "%");
       }
     }
-  };
+  }
 
   protected int getAliveNNsCount() throws IOException {
     FileSystem fs = DFSOperationsUtils.getDFSClient(false);
