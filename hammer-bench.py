@@ -13,6 +13,15 @@ sys.path.append('/home/ben/.local/lib/python3.6/site-packages')
 
 from pssh.clients import ParallelSSHClient
 
+# 1) Run make install-slave  in ~/hammer-bench folder.
+# 2) Run python3 hammer-bench.py --sync  to update codes on slaves.
+# 3) Run python3 hammer-bench.py --start  to launch slaves.
+# 4) Run make bench  in ~/hammer-bench to start benching.
+#    After benching, you can
+# 5) Run python3 hammer-bench.py --stop  to stop slaves.
+#
+# Steps 2 and 3 can execute in one command.
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", type = str, default = "./client_internal_ips.txt", help = "File containing clients' IPs.")
 parser.add_argument("--sync-path", type = str, default = "~/hammer-bench/slave.target", help = "Folder to sync from the master.")
@@ -56,7 +65,9 @@ if args.sync:
 if args.start:
     print("Starting the slaves.")
     os.system("sed -i -e 's|^\\(list.of.slaves=\\).*|\\1{}|' ~/hammer-bench/master.properties".format(",".join(hosts)))
-    output = client.run_command("cd {} && make-bench".format(sync_dest), stop_on_errors=False)
+    cmd = "cd {} && make-bench".format(sync_dest)
+    print("Executing command: %s" % cmd)
+    output = client.run_command(cmd, stop_on_errors=False)
 if args.stop:
     print("Stopping the slaves.")
     output = client.run_command("kill -9 `ps aux | grep java | grep io.hops.experiments.controller.Slave | awk '{ print $2 }'`")
