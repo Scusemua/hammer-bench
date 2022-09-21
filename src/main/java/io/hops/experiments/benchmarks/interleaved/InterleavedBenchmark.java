@@ -71,10 +71,13 @@ public class InterleavedBenchmark extends Benchmark {
     super(conf, bmConf);
     BenchmarkDistribution distribution = bmConf.getInterleavedBMIaTDistribution();
     if (distribution == BenchmarkDistribution.POISSON) {
+      LOG.debug("Using a Poisson-based rate limiter.");
       limiter = new DistributionRateLimiter(bmConf, new PoissonGenerator(bmConf));
     } else if (distribution == BenchmarkDistribution.PARETO) {
+      LOG.debug("Using a Pareto-based rate limiter.");
       limiter = new DistributionRateLimiter(bmConf, new ParetoGenerator(bmConf));
     } else {
+      LOG.debug("Not using any rate limiter.");
       limiter = new RateNoLimiter();
     }
 
@@ -153,20 +156,20 @@ public class InterleavedBenchmark extends Benchmark {
       workerLimiter.setStat("completed", operationsCompleted);
     }
 
-    FailOverMonitor failOverTester = null;
-    List<String> failOverLog = null;
-    if (config.testFailover()) {
-      boolean canIKillNamenodes = InetAddress.getLocalHost().getHostName().compareTo(config.getNamenodeKillerHost()) == 0;
-      if (canIKillNamenodes) {
-        LOG.debug("Responsible for killing/restarting namenodes");
-      }
-      failOverTester = startFailoverTestDeamon(
-              config.getNameNodeRestartCommands(),
-              config.getFailOverTestDuration(),
-              config.getFailOverTestStartTime(),
-              config.getNameNodeRestartTimePeriod(),
-              canIKillNamenodes);
-    }
+//    FailOverMonitor failOverTester = null;
+//    List<String> failOverLog = null;
+//    if (config.testFailover()) {
+//      boolean canIKillNamenodes = InetAddress.getLocalHost().getHostName().compareTo(config.getNamenodeKillerHost()) == 0;
+//      if (canIKillNamenodes) {
+//        LOG.debug("Responsible for killing/restarting namenodes");
+//      }
+//      failOverTester = startFailoverTestDeamon(
+//              config.getNameNodeRestartCommands(),
+//              config.getFailOverTestDuration(),
+//              config.getFailOverTestStartTime(),
+//              config.getNameNodeRestartTimePeriod(),
+//              canIKillNamenodes);
+//    }
 
     Logger.resetTimer();
 

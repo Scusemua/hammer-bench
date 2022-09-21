@@ -21,7 +21,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.hops.experiments.benchmarks.common.Benchmark;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.controller.Logger;
 import org.apache.commons.logging.Log;
@@ -43,7 +42,7 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
 
   protected int unfulfilled = 0;
   protected int unfulfilledUnit = 0;
-  protected int unfulfilledRemainer = 0;
+  protected int unfulfilledRemainder = 0;
   protected AtomicLong completed;
   protected long lastCompleted;
 
@@ -112,6 +111,9 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
       long now = System.currentTimeMillis();
       if ((now - startTime) > duration) {
         closed = true;
+
+        if (LOG.isDebugEnabled())
+          LOG.debug("Experiment has completed. Releasing all " + semaphore.getQueueLength() + " waiting threads now.");
         // Release all waiting threads
         while(semaphore.hasQueuedThreads()) {
           semaphore.release();
@@ -125,21 +127,27 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
           unfulfilled = getRPS() / lenSlave;
           int numInterval = RPS_BASE / RPS_INTERVAL;
           unfulfilledUnit = unfulfilled / numInterval;
-          unfulfilledRemainer = unfulfilled % numInterval;
+          unfulfilledRemainder = unfulfilled % numInterval;
+
+          LOG.debug("unfulfilled: " + unfulfilled);
+          LOG.debug("unfulfilledUnit: " + unfulfilledUnit);
+          LOG.debug("unfulfilledRemainder: " + unfulfilledUnit);
 
           // Log every 1 second
           long c = completed.get();
-          Logger.printMsg("Completed: " +  (c - lastCompleted) + " Released: " + unfulfilled);
-          LOG.debug("Completed: " +  (c - lastCompleted) + " Released: " + unfulfilled);
+          if (LOG.isDebugEnabled()) {
+            Logger.printMsg("Completed: " + (c - lastCompleted) + " Released: " + unfulfilled);
+            LOG.debug("Completed: " + (c - lastCompleted) + " Released: " + unfulfilled);
+          }
           lastCompleted = c;
         }
 
         // Grant quota
         semaphore.release(unfulfilledUnit);
         unfulfilled -= unfulfilledUnit;
-        if (unfulfilledRemainer > 0) {
+        if (unfulfilledRemainder > 0) {
           semaphore.release();
-          unfulfilledRemainer--;
+          unfulfilledRemainder--;
           unfulfilled--;
         }
         
