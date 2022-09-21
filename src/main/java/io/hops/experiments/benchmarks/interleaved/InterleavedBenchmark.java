@@ -116,7 +116,10 @@ public class InterleavedBenchmark extends Benchmark {
         executor.invokeAll(workers); // blocking call
         workers.clear();
 
-        numThreads += 8;
+        if (numThreads == 1)
+          numThreads = 8;
+        else
+          numThreads += 8;
 
         if (numThreads > 128)
           throw new IllegalStateException("Attempting to create too many threads: " + numThreads);

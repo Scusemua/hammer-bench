@@ -183,11 +183,7 @@ public class DFSOperationsUtils {
         // as HopsFS has a default log level. If we're creating a non-primary HDFS instance, then we just assign it
         // whatever our primary instance has been set to (as it can change dynamically).
         hdfs.setServerlessFunctionLogLevel("INFO");
-
-        if (warmingUp)
-            hdfs.setConsistencyProtocolEnabled(false);
-        else
-            hdfs.setConsistencyProtocolEnabled(true);
+        hdfs.setConsistencyProtocolEnabled(!warmingUp);
 
         return hdfs;
     }
