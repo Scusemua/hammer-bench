@@ -38,7 +38,7 @@ if interval <= 0 or interval > 2:
     logger.error("Interval must be within the interval (0, 2).")
 
 res = []
-while (current_milli_time() - start < duration):
+while (current_milli_time() - start < duration_ms):
   result = subprocess.run(["kubectl", "get", "pods"], stdout=subprocess.PIPE)
   lines = result.stdout.decode().split("\n")
   current_num_nns = 0
