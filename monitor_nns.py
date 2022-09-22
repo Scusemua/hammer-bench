@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--interval", type = float, default = 0.5, help = "Interval to check for active NNs (in seconds).")
-parser.add_argument("-d", "--duration", type = float, default = 60, help "Duration (in seconds) to monitor for NNs.")
+parser.add_argument("-d", "--duration", type = float, default = 60, help = "Duration (in seconds) to monitor for NNs.")
 args = parser.parse_args()
 
 interval = args.interval
