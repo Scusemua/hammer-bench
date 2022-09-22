@@ -8,16 +8,12 @@ import argparse
 import logging
 
 logging.basicConfig(
-     level=logging.INFO,
+     level=logging.DEBUG,
      format= '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
      datefmt='%H:%M:%S'
  )
 
 console = logging.StreamHandler()
-console.setLevel(logging.DEBUG)
-# set a format which is simpler for console use
-console.setFormatter(formatter)
-# add the handler to the root logger
 logging.getLogger('').addHandler(console)
 
 logger = logging.getLogger(__name__)
