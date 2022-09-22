@@ -119,7 +119,7 @@ public class InterleavedBenchmark extends Benchmark {
         if (numThreads == 1)
           numThreads = 8;
         else
-          numThreads += 8;
+          numThreads *= 2;
 
         Thread.sleep(500);
 
