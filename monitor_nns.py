@@ -13,9 +13,6 @@ logging.basicConfig(
      datefmt='%H:%M:%S'
  )
 
-console = logging.StreamHandler()
-logging.getLogger('').addHandler(console)
-
 logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
