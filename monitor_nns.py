@@ -4,8 +4,34 @@ import subprocess
 import time 
 from datetime import datetime
 import pandas as pd 
+import argparse
+import logging
+
+logging.basicConfig(
+     level=logging.INFO,
+     format= '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
+     datefmt='%H:%M:%S'
+ )
+
+console = logging.StreamHandler()
+console.setLevel(logging.DEBUG)
+# set a format which is simpler for console use
+console.setFormatter(formatter)
+# add the handler to the root logger
+logging.getLogger('').addHandler(console)
+
+logger = logging.getLogger(__name__)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", "--interval", type = float, default = 0.5, help = "Interval to check for active NNs (in seconds).")
+args = parser.parse_args()
+
+interval = args.interval
 
 start_time = datetime.now()
+
+if interval <= 0 or interval > 2:
+    logger.error("Interval must be within the interval (0, 2).")
 
 res = []
 for i in range(0, 5):
@@ -20,11 +46,11 @@ for i in range(0, 5):
     current_num_nns += 1
   
   now = datetime.now()
-  print("%s: %d NNs" % (now.strftime("%d/%m/%Y %H:%M:%S"), current_num_nns))
+  logger.info("%s: %d NNs" % (now.strftime("%d/%m/%Y %H:%M:%S"), current_num_nns))
   
   res.append((time.time(), current_num_nns))
   
-  time.sleep(0.5)
+  time.sleep(interval)
 
 df = pd.DataFrame(res, columns = ["time", "nns"])
 
