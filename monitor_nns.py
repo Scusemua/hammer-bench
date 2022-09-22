@@ -50,4 +50,4 @@ for i in range(0, 5):
 
 df = pd.DataFrame(res, columns = ["time", "nns"])
 
-df.to_csv("%s_nns.csv" % start_time.strftime("%d-%m-%Y_%H-%M-%S"))
+df.to_csv("./nn_monitor_data/%s_nns.csv" % start_time.strftime("%d-%m-%Y_%H-%M-%S"))
