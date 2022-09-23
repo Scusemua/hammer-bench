@@ -208,6 +208,12 @@ public class ConfigKeys {
     public static String INTERLEAVED_BM_DURATION_KEY = "interleaved.bm.duration";
     public static long   INTERLEAVED_BM_DURATION_DEFAULT = 60*1000;
 
+    public static String INTERLEAVED_BM_IAT_UNIT_KEY = "interleaved.bm.iat.unit";
+    public static int INTERLEAVED_BM_IAT_UNIT_DEFAULT = 1;
+
+    public static String INTERLEAVED_BM_IAT_SKIPUNIT_KEY = "interleaved.bm.iat.skipunit";
+    public static int INTERLEAVED_BM_IAT_SKIPUNIT_DEFAULT = 0;
+
     public static String INTERLEAVED_BM_IAT_DISTRIBUTION_KEY = "interleaved.bm.iat.distribution";
     public static String INTERLEAVED_BM_IAT_DISTRIBUTION_DEFAULT = "UNIFORM";
 
