@@ -138,6 +138,8 @@ public class BMConfiguration implements Serializable {
         throw new IllegalArgumentException(ConfigKeys.FAIL_OVER_TEST_DURATION_KEY+" + "+ConfigKeys.FAIL_OVER_TEST_START_TIME_KEY
                 +" should be greater than "+ConfigKeys.INTERLEAVED_BM_DURATION_KEY);
       }
+      if (getNameNodeMonitorInterval() <= 0)
+        throw new IllegalArgumentException(ConfigKeys.NN_MONITOR_INTERVAL + " must be strictly greater than 0.");
     }
 
     if (getBRNumInvalidBuckets() > getNumBuckets()){
@@ -434,6 +436,13 @@ public class BMConfiguration implements Serializable {
 
   public long getInterleavedBmDuration() {
     return getLong(ConfigKeys.INTERLEAVED_BM_DURATION_KEY, ConfigKeys.INTERLEAVED_BM_DURATION_DEFAULT);
+  }
+
+  /**
+   * Return the interval at which the number of NameNodes should be polled.
+   */
+  public double getNameNodeMonitorInterval() {
+    return getDouble(ConfigKeys.NN_MONITOR_INTERVAL, ConfigKeys.NN_MONITOR_INTERVAL_DEFAULT);
   }
 
   public int getWarmUpPhaseWaitTime() {

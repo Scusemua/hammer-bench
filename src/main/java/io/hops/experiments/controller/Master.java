@@ -282,11 +282,20 @@ public class Master {
   private void startInterleavedCommander() throws IOException, ClassNotFoundException, InterruptedException {
     printMasterLogMessages("Starting Interleaved Benchmark ...");
     prompt();
+
+    long interleavedBenchmarkDuration = config.getInterleavedBmDuration();
+    double interval = config.getNameNodeMonitorInterval();
+
+    // Start Python script to monitor the NNs.
+    String command = "python3.7 ~/home/ben/repos/hammer-bench/monitor_nns.py -d " + interleavedBenchmarkDuration +
+            " -i " + interval;
+    Process pythonMonitoringProcess = Runtime.getRuntime().exec(command);
+
     InterleavedBenchmarkCommand.Request request =
             new InterleavedBenchmarkCommand.Request(config);
     sendToAllFollowers(request, 0/*delay*/);
 
-    Thread.sleep(config.getInterleavedBmDuration());
+    Thread.sleep(interleavedBenchmarkDuration);
     Collection<Object> responses = receiveFromAllSlaves(120 * 1000 /*sec wait*/);
     InterleavedBMResults result = InterleavedBMResultsAggregator.processInterleavedResults(responses, config);
     printMasterResultMessages(result);
