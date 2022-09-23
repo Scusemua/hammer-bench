@@ -50,7 +50,7 @@ while (current_milli_time() - start < duration_ms):
   logger.info("%s: %d NNs" % (now.strftime("%d/%m/%Y %H:%M:%S"), current_num_nns))
   
   res.append((current_milli_time(), current_num_nns))
-  
+
   time.sleep(interval)
 
 df = pd.DataFrame(res, columns = ["time", "nns"])

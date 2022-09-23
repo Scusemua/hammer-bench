@@ -108,11 +108,5 @@ public class RawBenchmarkCommand {
         public ArrayList<Long> getOpsExeTimes(){
             return opsExeTimes;
         }
-
-        @Override
-        public String toString() {
-            return "Response(phase=" + phase.name() + ", runTime=" + runTime + ", totalSuccessfulOps=" + totalSuccessfulOps +
-                    ", totalFailedOps=" + totalFailedOps + ", opsPerSecond=" + opsPerSec + ", nnCount=" + nnCount + ")";
-        }
     }
 }

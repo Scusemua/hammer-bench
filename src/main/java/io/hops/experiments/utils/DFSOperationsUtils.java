@@ -206,7 +206,6 @@ public class DFSOperationsUtils {
         return client;
     }
 
-
     public static FilePool getFilePool(Configuration conf, String baseDir,
             int dirsPerDir, int filesPerDir, boolean fixedDepthTree, int treeDepth, String fileSizeDistribution,
                                        boolean readFilesFromDisk, String diskFilesPath) {

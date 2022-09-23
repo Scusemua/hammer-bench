@@ -50,7 +50,6 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -102,8 +101,7 @@ public class InterleavedBenchmark extends Benchmark {
     if (bmConf.getFilesToCreateInWarmUpPhase() > 1) {
       List workers = new ArrayList<BaseWarmUp>();
       // Stage 1
-      //threadsWarmedUp.set(0);
-      threadsWarmedUp = new CountDownLatch(bmConf.getSlaveNumThreads());
+      threadsWarmedUp.set(0);
 
       int numThreads = 1;
       while (numThreads <= bmConf.getSlaveNumThreads()) {
@@ -140,8 +138,7 @@ public class InterleavedBenchmark extends Benchmark {
       Thread.sleep(500);
 
       // Stage 2
-      //threadsWarmedUp.set(0);
-      threadsWarmedUp = new CountDownLatch(bmConf.getSlaveNumThreads());
+      threadsWarmedUp.set(0);
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
         Callable worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1,
                 bmConf, "Warming up. Stage2: Creating files/dirs. ");
@@ -278,7 +275,8 @@ public class InterleavedBenchmark extends Benchmark {
 
           BenchmarkOperations op = opCoin.flip();
 
-          LOG.debug("Randomly generated " + op.name() + " operation!");
+          if (LOG.isDebugEnabled())
+            LOG.debug("Randomly generated " + op.name() + " operation!");
 
           // Wait for the limiter to allow the operation
           if (!limiter.checkRate()) {
@@ -329,7 +327,7 @@ public class InterleavedBenchmark extends Benchmark {
 //              message += DFSOperationsUtils.format(op.toString().length() + 14, msg);
 //            }
 //          }
-          LOG.debug(message);
+          Logger.printMsg(message);
         }
       }
     }
@@ -353,11 +351,12 @@ public class InterleavedBenchmark extends Benchmark {
           opExeTime = System.nanoTime() - opStartTime;
           retVal = true;
         } catch (Exception e) {
-          LOG.error("Encountered exception:", e);
+          Logger.error(e);
         }
         updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime));
       } else {
-        LOG.error("Could not perform operation " + opType + ". Got Null from the file pool");
+        Logger.printMsg("Could not perform operation " + opType + ". Got Null from the file pool");
+//                System.exit(-1);
       }
     }
 
@@ -521,7 +520,7 @@ public class InterleavedBenchmark extends Benchmark {
     String line;
     BufferedReader input = new BufferedReader(new InputStreamReader(errorStream));
     while ((line = input.readLine()) != null) {
-      LOG.debug(line);
+      Logger.printMsg(line);
     }
     input.close();
   }

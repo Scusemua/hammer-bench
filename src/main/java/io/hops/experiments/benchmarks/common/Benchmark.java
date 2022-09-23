@@ -31,9 +31,9 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hadoop.fs.FileSystem;
 
@@ -41,22 +41,14 @@ public abstract class Benchmark {
   public static final Log LOG = LogFactory.getLog(Benchmark.class);
   protected final Configuration conf;
   protected final ExecutorService executor;
-  //protected AtomicInteger threadsWarmedUp = new AtomicInteger(0);
-  /**
-   * Used to block warm-up threads while the other threads are still warming up.
-   * Once all the threads are warmed up, they will all get through the countdown latch.
-   */
-  protected CountDownLatch threadsWarmedUp;
+  protected AtomicInteger threadsWarmedUp = new AtomicInteger(0);
   protected final BMConfiguration bmConf;
-  protected final long startTime;
   protected boolean dryrun = false;
 
   public Benchmark(Configuration conf, BMConfiguration bmConf) {
     this.conf = conf;
     this.bmConf = bmConf;
     this.executor = Executors.newFixedThreadPool(bmConf.getSlaveNumThreads());
-    this.startTime = System.currentTimeMillis();
-    this.threadsWarmedUp = new CountDownLatch(bmConf.getSlaveNumThreads());
   }
 
   protected abstract WarmUpCommand.Response warmUp(WarmUpCommand.Request warmUp)
@@ -149,13 +141,12 @@ public abstract class Benchmark {
         }
       }
       log();
-      //threadsWarmedUp.incrementAndGet();
-      threadsWarmedUp.countDown();
-//      while(threadsWarmedUp.get() != bmConf.getSlaveNumThreads()){
-//        // this is to ensure that all the threads in
-//        // the executor service are started during the warmup phase
-//        Thread.sleep(100);
-//      }
+      threadsWarmedUp.incrementAndGet();
+      while(threadsWarmedUp.get() != bmConf.getSlaveNumThreads()){ // this is to ensure that all the threads in
+        // the
+        // executor service are started during the warmup phase
+        Thread.sleep(100);
+      }
 
       LOG.debug("Warmed up!\n\n\n");
       return null;
@@ -169,7 +160,7 @@ public abstract class Benchmark {
         LOG.debug(stage+" " + DFSOperationsUtils.round(percent) + "%");
       }
     }
-  }
+  };
 
   protected int getAliveNNsCount() throws IOException {
     FileSystem fs = DFSOperationsUtils.getDFSClient(false);
