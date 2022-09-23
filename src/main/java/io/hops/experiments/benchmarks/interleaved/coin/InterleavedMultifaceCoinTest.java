@@ -59,7 +59,7 @@ public class InterleavedMultifaceCoinTest {
             
             Integer count = map.get(op);
             if(count == null){
-                count = new Integer(0);
+                count = 0;
                 map.put(op,count);
             }
             count = count + 1;

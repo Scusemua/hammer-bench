@@ -28,7 +28,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Random;
+// import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hadoop.conf.Configuration;
@@ -42,7 +42,7 @@ import io.hops.experiments.workload.generator.FixeDepthFileTreeGenerator;
 public class DFSOperationsUtils {
     public static final Log LOG = LogFactory.getLog(DFSOperationsUtils.class);
     private static final boolean SERVER_LESS_MODE=false; //only for testing. If enabled then the clients will not
-    private static Random rand = new Random(System.currentTimeMillis());
+    // private static Random rand = new Random(System.currentTimeMillis());
                                                         // contact NNs
     private static ThreadLocal<FileSystem> dfsClients = new ThreadLocal<FileSystem>();
     private static ThreadLocal<FilePool> filePools = new ThreadLocal<FilePool>();
@@ -120,8 +120,9 @@ public class DFSOperationsUtils {
         FSDataInputStream in = dfs.open(new Path(pathStr));
         int read;
         try {
-            while ((read = in.read(buf)) > -1) {
-
+            read = in.read(buf);
+            while (read > -1) {
+                read = in.read(buf);
             }
         }catch (EOFException e){
         }finally {
@@ -239,7 +240,7 @@ public class DFSOperationsUtils {
 
         //it only works for HopsFS
         if (fsName == BenchMarkFileSystemName.HopsFS) {
-            Class filesystem = dfs.getClass();
+            Class<? extends FileSystem> filesystem = dfs.getClass();
             Method method = filesystem.getMethod("getNameNodesCount");
             Object ret = method.invoke(dfs);
             return (Integer) ret;

@@ -20,10 +20,10 @@ package io.hops.experiments.benchmarks.common.config;
 import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
 import io.hops.experiments.benchmarks.common.BenchmarkDistribution;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
-import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
+// import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.interleaved.coin.InterleavedMultiFaceCoin;
 import io.hops.experiments.utils.DFSOperationsUtils;
-import org.apache.hadoop.hdfs.DFSClient;
+// import org.apache.hadoop.hdfs.DFSClient;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -41,11 +41,11 @@ import java.util.*;
 public class BMConfiguration implements Serializable {
 
   private List<InetAddress> listOfSlaves = null;
-  private List<String> nameNodeList = null;
+  // private List<String> nameNodeList = null;
   private Properties props = null;
 
-  private BMConfiguration() {
-  }
+  // private BMConfiguration() {
+  // }
 
   public static void printHelp() {
     System.out.println("You are doomed");
@@ -85,7 +85,7 @@ public class BMConfiguration implements Serializable {
     }
 
     //check the file size distribution coin
-    FileSizeMultiFaceCoin fcoin = new FileSizeMultiFaceCoin(this.getFileSizeDistribution());
+    // FileSizeMultiFaceCoin fcoin = new FileSizeMultiFaceCoin(this.getFileSizeDistribution());
 
     if (getBenchMarkType() == BenchmarkType.INTERLEAVED) {
       //create a coin to check the percentages

@@ -16,13 +16,9 @@
  */
 package io.hops.experiments.controller.commands;
 
-import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
-import io.hops.experiments.benchmarks.common.BenchmarkType;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 
 import java.io.Serializable;
-import java.util.Properties;
-
 
 /**
  *

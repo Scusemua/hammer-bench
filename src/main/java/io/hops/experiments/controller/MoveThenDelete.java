@@ -28,7 +28,7 @@ import org.apache.hadoop.fs.Path;
  */
 public class MoveThenDelete {
 
-  private org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
+  // private org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
   private BMConfiguration args;
 
   public static void main(String[] argv) throws Exception {
@@ -38,7 +38,7 @@ public class MoveThenDelete {
       System.out.println("Enter the folder name to rename  and then delete ");
       return;
     }
-    new MoveThenDelete().start("master.properties", argv[0]);
+    new MoveThenDelete().start(configFilePath, argv[0]);
   }
 
   private void start(String configFilePath, String hdfsFolder)  {

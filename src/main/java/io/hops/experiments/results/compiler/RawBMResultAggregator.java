@@ -124,7 +124,7 @@ public class RawBMResultAggregator extends Aggregator{
     //create histogram
     for (BenchmarkOperations op : cr.avgVals.keySet()) {
       List<Double> vals = cr.avgVals.get(op);
-      Double max = new Double(0);
+      Double max = 0.0;
       for(int i = 0; i < vals.size();i++){
         if(i > 0){
           if(vals.get(i) < max){

@@ -164,7 +164,7 @@ public class InterleavedMultiFaceCoin {
       for (BenchmarkOperations op : dice) {
         Integer opCount = counts.get(op);
         if (opCount == null) {
-          opCount = new Integer(0);
+          opCount = 0;
         }
         opCount++;
         counts.put(op, opCount);
@@ -192,7 +192,7 @@ public class InterleavedMultiFaceCoin {
       BenchmarkOperations op = flip();
       Integer opCount = counts.get(op);
       if (opCount == null) {
-        opCount = new Integer(0);
+        opCount = 0;
       }
       opCount++;
       counts.put(op, opCount);

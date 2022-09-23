@@ -39,7 +39,7 @@ public class TransactionStatsCumulative {
   private static final String SEPERATOR = "_";
   private static final String CLIENT = "threads";
   private static final String DEPTH = "depth";
-  private static final String MEMSTATS = "memcache-stats";
+  // private static final String MEMSTATS = "memcache-stats";
   private static final String HOPSSTATS = "hops-stats.csv";
   private static final String RESOLVING_CACHE_STATS = "hops-resolving-cache-stats.csv";
 
