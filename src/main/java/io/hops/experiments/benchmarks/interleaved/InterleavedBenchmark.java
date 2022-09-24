@@ -105,6 +105,9 @@ public class InterleavedBenchmark extends Benchmark {
 
       int numThreads = 1;
       while (numThreads <= bmConf.getSlaveNumThreads()) {
+        if (numThreads > 128)
+          throw new IllegalStateException("Attempting to create too many threads: " + numThreads);
+
         threadsWarmedUp.set(0);
         LOG.info("Creating " + numThreads + " workers now...");
         for (int i = 0; i < numThreads; i++) {
@@ -116,15 +119,10 @@ public class InterleavedBenchmark extends Benchmark {
         executor.invokeAll(workers); // blocking call
         workers.clear();
 
-        if (numThreads == 1)
-          numThreads = 8;
-        else
-          numThreads *= 2;
+        numThreads += 8;
 
-        Thread.sleep(500);
-
-        if (numThreads > 128)
-          throw new IllegalStateException("Attempting to create too many threads: " + numThreads);
+        if (numThreads <= bmConf.getSlaveNumThreads())
+          Thread.sleep(500); // Don't sleep after last iteration.
       }
       threadsWarmedUp.set(0);
 
