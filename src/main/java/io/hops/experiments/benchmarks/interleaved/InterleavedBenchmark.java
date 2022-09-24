@@ -47,7 +47,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -247,7 +246,7 @@ public class InterleavedBenchmark extends Benchmark {
         dfs = DFSOperationsUtils.getDFSClient(false);
       }
 
-      filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
+      filePool = DFSOperationsUtils.getFilePool(bmConf.getBaseDir(),
               bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
               bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
               bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
@@ -366,7 +365,6 @@ public class InterleavedBenchmark extends Benchmark {
         updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime));
       } else {
         Logger.printMsg("Could not perform operation " + opType + ". Got Null from the file pool");
-//                System.exit(-1);
       }
     }
 

@@ -136,7 +136,7 @@ public abstract class Benchmark {
       if (!dryrun) {
         dfs = DFSOperationsUtils.getDFSClient(true);
       }
-      filePool = DFSOperationsUtils.getFilePool(conf,
+      filePool = DFSOperationsUtils.getFilePool(
               bmConf.getBaseDir(), bmConf.getDirPerDir(),
               bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
               bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),

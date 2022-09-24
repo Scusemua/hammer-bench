@@ -20,14 +20,11 @@ import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 // import io.hops.experiments.controller.Slave;
 import io.hops.experiments.utils.BMOperationsUtils;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 // import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
@@ -222,7 +219,7 @@ public class RawBenchmark extends Benchmark {
     public Object call() throws Exception {
       try {
         dfs = DFSOperationsUtils.getDFSClient(false);
-        filePool = DFSOperationsUtils.getFilePool(conf, bmConf.getBaseDir(),
+        filePool = DFSOperationsUtils.getFilePool(bmConf.getBaseDir(),
                 bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
                 bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
                 bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());

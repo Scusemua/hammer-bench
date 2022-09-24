@@ -207,16 +207,18 @@ public class DFSOperationsUtils {
         return client;
     }
 
-    public static FilePool getFilePool(Configuration conf, String baseDir,
-            int dirsPerDir, int filesPerDir, boolean fixedDepthTree, int treeDepth, String fileSizeDistribution,
-                                       boolean readFilesFromDisk, String diskFilesPath) {
+    public static FilePool getFilePool(String baseDir, int dirsPerDir, int filesPerDir, boolean fixedDepthTree,
+                                       int treeDepth, String fileSizeDistribution, boolean readFilesFromDisk,
+                                       String diskFilesPath) {
         FilePool filePool = filePools.get();
         if (filePool == null) {
-            if(fixedDepthTree){
+            if(fixedDepthTree) {
                 filePool = new FixeDepthFileTreeGenerator(baseDir,treeDepth, fileSizeDistribution);
-            }if(readFilesFromDisk){
+            }
+            else if(readFilesFromDisk) {
                 filePool = new FileTreeFromDiskGenerator(baseDir,filesPerDir, dirsPerDir,0, diskFilesPath);
-            } else{
+            }
+            else {
                 filePool = new FileTreeGenerator(baseDir,filesPerDir, dirsPerDir,0, fileSizeDistribution);
             }
             
