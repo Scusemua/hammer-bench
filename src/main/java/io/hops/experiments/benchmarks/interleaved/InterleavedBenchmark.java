@@ -350,7 +350,7 @@ public class InterleavedBenchmark extends Benchmark {
         try {
           if (dryrun) {
             LOG.debug("Performing simulated " + opType.name() + " on '" + path + "' now...");
-            TimeUnit.MILLISECONDS.sleep(10);
+            TimeUnit.MILLISECONDS.sleep(2);
           } else {
             LOG.debug("Performing " + opType.name() + " on '" + path + "' now...");
             BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
