@@ -147,7 +147,7 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
           lasts--;
           int numInterval = OPS_BASE / OPS_INTERVAL;
           unfulfilledUnit = unfulfilled / numInterval;
-          unfulfilledRemainer = unfulfilled % numInterval;
+          unfulfilledRemainder = unfulfilled % numInterval;
 
           // Log every 1 second
           long c = completed.get();
@@ -158,9 +158,9 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
         // Grant quota
         semaphore.release(unfulfilledUnit);
         unfulfilled -= unfulfilledUnit;
-        if (unfulfilledRemainer > 0) {
+        if (unfulfilledRemainder > 0) {
           semaphore.release();
-          unfulfilledRemainer--;
+          unfulfilledRemainder--;
           unfulfilled--;
         }
 
