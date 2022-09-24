@@ -21,7 +21,6 @@ import io.hops.experiments.benchmarks.common.config.ConfigKeys;
 import io.hops.experiments.controller.Logger;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -80,9 +79,9 @@ public class FileTreeGenerator implements FilePool {
 
     String[] comp = PathUtils.getPathNames(threadDir);
 
-    int more = 0;
+    // int more = 0;
     if (initialTreeDepth - comp.length > 0) {
-      more = initialTreeDepth - comp.length;
+      // more = initialTreeDepth - comp.length;
       for (int i = comp.length; i < (initialTreeDepth); i++) {
         threadDir += "/added_depth_" + i;
       }

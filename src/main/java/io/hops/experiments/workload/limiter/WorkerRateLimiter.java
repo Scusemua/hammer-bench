@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Tianium
  */
-public interface WorkerRateLimiter extends RateLimiter, Callable {
+public interface WorkerRateLimiter extends RateLimiter, Callable<Object> {
   public void setStart(long startTime);
 
   public void setDuration(long duration);

@@ -16,7 +16,6 @@
  */
 package io.hops.experiments.results.compiler;
 
-import io.hops.experiments.utils.DFSOperationsUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**

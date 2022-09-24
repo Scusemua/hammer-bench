@@ -48,6 +48,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+// import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
 
@@ -62,7 +63,7 @@ import io.hops.experiments.workload.generator.FixeDepthFileTreeGenerator;
 public class DFSOperationsUtils {
     public static final Log LOG = LogFactory.getLog(DFSOperationsUtils.class);
     private static final boolean SERVER_LESS_MODE=false; //only for testing. If enabled then the clients will not
-    private static Random rand = new Random(System.currentTimeMillis());
+    // private static Random rand = new Random(System.currentTimeMillis());
                                                         // contact NNs
     private static ThreadLocal<DistributedFileSystem> dfsClients = new ThreadLocal<>();
     private static ThreadLocal<FilePool> filePools = new ThreadLocal<FilePool>();
@@ -264,9 +265,13 @@ public class DFSOperationsUtils {
             if (LOG.isDebugEnabled()) LOG.debug("Reading contents of file " + pathStr);
             while ((read = in.read(buf)) > -1) {
 
+                read = in.read(buf);
+                while (read > -1) {
+                    read = in.read(buf);
+                }
             }
-        }catch (EOFException e){
-        }finally {
+        } catch (EOFException e) {
+        } finally {
             in.close();
         }
     }
@@ -277,7 +282,7 @@ public class DFSOperationsUtils {
             return true;
         }
         if (LOG.isDebugEnabled()) LOG.debug("Renaming file '" + from + "' to '" + to + "'");
-        return dfs.rename(from, to);    
+        return dfs.rename(from, to);
     }
 
     public static boolean deleteFile(FileSystem dfs, String pathStr) throws IOException {
@@ -337,7 +342,7 @@ public class DFSOperationsUtils {
         dfs.setReplication(new Path(pathStr), (short)3);
     }
     
-    public static String round(double val){
+    public static String round(double val) {
        return String.format("%5s", String.format("%.2f", val));
     }
 
@@ -383,7 +388,7 @@ public class DFSOperationsUtils {
 
         //it only works for HopsFS
         if (fsName == BenchMarkFileSystemName.HopsFS) {
-            Class filesystem = dfs.getClass();
+            Class<? extends FileSystem> filesystem = dfs.getClass();
             Method method = filesystem.getMethod("getNameNodesCount");
             Object ret = method.invoke(dfs);
             return (Integer) ret;

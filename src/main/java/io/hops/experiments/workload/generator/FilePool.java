@@ -17,7 +17,6 @@
  */
 package io.hops.experiments.workload.generator;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**

@@ -17,7 +17,7 @@
 package io.hops.experiments.benchmarks.rawthroughput;
 
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
-import io.hops.experiments.controller.Slave;
+// import io.hops.experiments.controller.Slave;
 import io.hops.experiments.utils.BMOperationsUtils;
 
 import java.io.BufferedWriter;
@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
-import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
+// import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
+// import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.common.commands.NamespaceWarmUp;
 import io.hops.experiments.controller.Logger;
 import io.hops.experiments.controller.commands.WarmUpCommand;
@@ -78,11 +78,11 @@ public class RawBenchmark extends Benchmark {
     // file/dir in the parent dir.
 
     if (bmConf.getFilesToCreateInWarmUpPhase() > 1) {
-      List workers = new ArrayList<BaseWarmUp>();
+      List<Callable<Object>> workers = new ArrayList<Callable<Object>>();
       // Stage 1
       threadsWarmedUp.set(0);
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-        Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
+        Callable<Object> worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
         workers.add(worker);
       }
       executor.invokeAll(workers); // blocking call
@@ -91,7 +91,7 @@ public class RawBenchmark extends Benchmark {
       // Stage 2
       threadsWarmedUp.set(0);
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-        Callable worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1, bmConf,
+        Callable<Object> worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1, bmConf,
                 "Warming up. Stage2: Creating files/dirs. ");
         workers.add(worker);
       }
@@ -174,11 +174,11 @@ public class RawBenchmark extends Benchmark {
     private BenchmarkOperations opType;
     private FileSystem dfs;
     private FilePool filePool;
-    private String baseDir;
+    // private String baseDir;
     private long lastLog = System.currentTimeMillis();
 
     public Generic(String baseDir, BenchmarkOperations opType) throws IOException {
-      this.baseDir = baseDir;
+      // this.baseDir = baseDir;
       this.opType = opType;
     }
 
@@ -248,15 +248,15 @@ public class RawBenchmark extends Benchmark {
             return null;
           }
 
-          long fileSize = -1;
-          if (opType == BenchmarkOperations.CREATE_FILE) {
+          // long fileSize = -1;
+          // if (opType == BenchmarkOperations.CREATE_FILE) {
             /*For logging file size distribution
             synchronized (this) {
               Long count = stats.get(fileSize);
               Long newCount = count == null ? 1 : count + 1;
               stats.put(fileSize, newCount);
             }*/
-          }
+          // }
 
           long time = 0;
           if (bmConf.isPercentileEnabled()) {

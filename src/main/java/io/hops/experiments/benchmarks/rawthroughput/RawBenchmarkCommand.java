@@ -22,8 +22,6 @@ import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
 
 /**
  *

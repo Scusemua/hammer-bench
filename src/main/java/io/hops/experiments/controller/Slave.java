@@ -84,7 +84,6 @@ public class Slave {
                 Logger.setLoggerIp(masterIP);
                 Logger.setLoggerPort(bmConf.getRemoteLoggingPort());
             }
-            Configuration dfsClientConf = null; 
             if (!bmConf.getBenchmarkDryrun()) {
                 dfsClientConf = new Configuration();
                 for(Object key : bmConf.getFsConfig().keySet()){

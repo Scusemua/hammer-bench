@@ -99,7 +99,7 @@ public class InterleavedBenchmark extends Benchmark {
     LOG.debug("Performing warm-up now!\n\n\n");
 
     if (bmConf.getFilesToCreateInWarmUpPhase() > 1) {
-      List workers = new ArrayList<BaseWarmUp>();
+      List<Callable<Object>> workers = new ArrayList<Callable<Object>>();
       // Stage 1
       threadsWarmedUp.set(0);
 
@@ -128,7 +128,7 @@ public class InterleavedBenchmark extends Benchmark {
       LOG.info("Finished initial warm-up. Moving onto Stage 1 of Warm-Up: Creating Parent Dirs.");
 
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-        Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
+        Callable<Object> worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
         workers.add(worker);
       }
       executor.invokeAll(workers); // blocking call
@@ -140,7 +140,7 @@ public class InterleavedBenchmark extends Benchmark {
       // Stage 2
       threadsWarmedUp.set(0);
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-        Callable worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1,
+        Callable<Object> worker = new BaseWarmUp(bmConf.getFilesToCreateInWarmUpPhase() - 1,
                 bmConf, "Warming up. Stage2: Creating files/dirs. ");
         workers.add(worker);
       }
@@ -163,7 +163,6 @@ public class InterleavedBenchmark extends Benchmark {
     BMConfiguration config = ((InterleavedBenchmarkCommand.Request) command).getConfig();
 
     duration = config.getInterleavedBmDuration();
-    System.out.println("Starting " + command.getBenchMarkType() + " for duration " + duration + "\n\n\n");
     LOG.info("Starting " + command.getBenchMarkType() + " for duration " + duration + "\n\n\n");
     List<Callable<Object>> workers = new ArrayList<>();
     // Add limiter as a worker if supported
@@ -226,7 +225,8 @@ public class InterleavedBenchmark extends Benchmark {
     return response;
   }
 
-  public class Worker implements Callable {
+  public class Worker implements Callable<Object> {
+
     private FileSystem dfs;
     private FilePool filePool;
     private InterleavedMultiFaceCoin opCoin;
@@ -268,30 +268,39 @@ public class InterleavedBenchmark extends Benchmark {
               config.getInterleavedBmDirChangeOwnerPercentage()
       );
       while (true) {
-        try {
-          if ((System.currentTimeMillis() - startTime) > duration) {
-            return null;
+        // Every 5000 operations, we'll print how many we've completed.
+        // I do this instead of something like:
+        // if (opsPerformed % 5000 == 0) { <print> }
+        // so that I don't have to do the mod operation every loop.
+        for (int i = 0; i < 5000; i++) {
+          try {
+            if ((System.currentTimeMillis() - startTime) > duration) {
+              return null;
+            }
+
+            BenchmarkOperations op = opCoin.flip();
+
+            if (LOG.isDebugEnabled())
+              LOG.debug("Randomly generated " + op.name() + " operation!");
+
+            // Wait for the limiter to allow the operation
+            if (!limiter.checkRate()) {
+              return null;
+            }
+
+            performOperation(op);
+
+            if (!config.testFailover()) {
+              log();
+            }
+
+          } catch (Exception e) {
+            Logger.error(e);
           }
-
-          BenchmarkOperations op = opCoin.flip();
-
-          if (LOG.isDebugEnabled())
-            LOG.debug("Randomly generated " + op.name() + " operation!");
-
-          // Wait for the limiter to allow the operation
-          if (!limiter.checkRate()) {
-            return null;
-          }
-
-          performOperation(op);
-
-          if (!config.testFailover()) {
-            log();
-          }
-
-        } catch (Exception e) {
-          Logger.error(e);
         }
+
+        long opsCompleted = operationsCompleted.get();
+        LOG.info("Completed " + opsCompleted + " operations.");
       }
     }
 
@@ -369,7 +378,7 @@ public class InterleavedBenchmark extends Benchmark {
       stat.incrementAndGet();
 
       if (success) {
-        long opsCompleted = operationsCompleted.incrementAndGet();
+        operationsCompleted.incrementAndGet();
         avgLatency.addValue(stats.OpDuration);
         if (bmConf.isPercentileEnabled()) {
           synchronized (opsStats) {
@@ -381,9 +390,6 @@ public class InterleavedBenchmark extends Benchmark {
             times.add(stats);
           }
         }
-
-        if (opsCompleted % 5000 == 0)
-          LOG.info("Completed " + opsCompleted + " operations.");
       } else {
         operationsFailed.incrementAndGet();
       }

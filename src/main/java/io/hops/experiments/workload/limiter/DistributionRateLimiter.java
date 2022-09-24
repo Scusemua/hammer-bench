@@ -31,6 +31,8 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
 
   public static int RPS_BASE = 1000; // 1 s
   public static int RPS_INTERVAL = 10; // 10 ms
+  public static int OPS_BASE = 1000; // 1 s
+  public static int OPS_INTERVAL = 10; // 10 ms
 
   protected int lenSlave = 1;
   protected DistributionGenerator generator; 
@@ -46,6 +48,11 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
   protected AtomicLong completed;
   protected long lastCompleted;
 
+  // Unit in seconds for an generated OPS settings will last.
+  protected int opsUnit = 1;
+  // Workload will start after skiped unit.
+  protected int opsUnitSkiped = 0;
+
   /**
    * DistributionRateLimiter constructor
    */
@@ -57,10 +64,12 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
     }
     this.generator = distGenerator;
     this.duration = bmConf.getInterleavedBmDuration();
-    this.lastInterval = startTime - RPS_INTERVAL;
+    this.lastInterval = startTime - OPS_INTERVAL;
+    this.opsUnit = bmConf.getInterleavedBMIaTUnit();
+    this.opsUnitSkiped = bmConf.getInterleavedBMIaTSkipUnit();
   }
 
-  public int getRPS() {
+  public int getOPS() {
     return (int) (generator.get());
   }
 
@@ -101,9 +110,17 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
 
   @Override
   public Object call() throws Exception {
+    // Skip units
+    while (opsUnitSkiped > 0) {
+      getOPS();
+      opsUnitSkiped--;
+    }
+
     if (startTime == 0) {
       startTime = System.currentTimeMillis();
     }
+    int lasts = 0;
+    int lastOPS = 0;
     while (true) {
       long now = System.currentTimeMillis();
       if ((now - startTime) > duration) {
@@ -118,36 +135,38 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
         return null;
       }
 
-      long until = lastInterval + (long)RPS_INTERVAL - now;
+      long until = lastInterval + (long)OPS_INTERVAL - now;
       if (until <= 0) {
         if (unfulfilled <= 0) {
-          unfulfilled = getRPS() / lenSlave;
-          int numInterval = RPS_BASE / RPS_INTERVAL;
+          // Generate new OPS after opsUnit.
+          if (lasts <= 0) {
+            lasts = opsUnit;
+            lastOPS = getOPS() / lenSlave;
+          }
+          unfulfilled = lastOPS;
+          lasts--;
+          int numInterval = OPS_BASE / OPS_INTERVAL;
           unfulfilledUnit = unfulfilled / numInterval;
-          unfulfilledRemainder = unfulfilled % numInterval;
-
-          //LOG.debug("unfulfilled: " + unfulfilled);
-          //LOG.debug("unfulfilledUnit: " + unfulfilledUnit);
-          //LOG.debug("unfulfilledRemainder: " + unfulfilledRemainder);
+          unfulfilledRemainer = unfulfilled % numInterval;
 
           // Log every 1 second
           long c = completed.get();
-          Logger.printMsg("Completed: " + (c - lastCompleted) + " Released: " + unfulfilled);
+          Logger.printMsg("Completed: " +  (c - lastCompleted) + " Released: " + unfulfilled);
           lastCompleted = c;
         }
 
         // Grant quota
         semaphore.release(unfulfilledUnit);
         unfulfilled -= unfulfilledUnit;
-        if (unfulfilledRemainder > 0) {
+        if (unfulfilledRemainer > 0) {
           semaphore.release();
-          unfulfilledRemainder--;
+          unfulfilledRemainer--;
           unfulfilled--;
         }
-        
+
         // Update interval to sleep
         lastInterval = System.currentTimeMillis();
-        until = (long)RPS_INTERVAL;
+        until = (long)OPS_INTERVAL;
       }
 
       TimeUnit.MILLISECONDS.sleep(until);

@@ -17,11 +17,14 @@
 package io.hops.experiments.benchmarks.common;
 
 //import io.hops.experiments.benchmarks.blockreporting.BlockReportingBenchmark;
+// import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.benchmarks.interleaved.InterleavedBenchmark;
 import io.hops.experiments.benchmarks.rawthroughput.RawBenchmark;
 import io.hops.experiments.controller.Logger;
+// import io.hops.experiments.controller.Slave;
 import io.hops.experiments.controller.commands.BenchmarkCommand;
+// import io.hops.experiments.controller.commands.Handshake;
 import io.hops.experiments.controller.commands.WarmUpCommand;
 import io.hops.experiments.utils.DFSOperationsUtils;
 import io.hops.experiments.workload.generator.FilePool;
@@ -84,7 +87,7 @@ public abstract class Benchmark {
   }
   
   protected AtomicLong filesCreatedInWarmupPhase = new AtomicLong(0);
-  protected class BaseWarmUp implements Callable {
+  protected class BaseWarmUp implements Callable<Object> {
     private FileSystem dfs;
     private FilePool filePool;
     private final int filesToCreate;
