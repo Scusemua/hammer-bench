@@ -126,6 +126,7 @@ public class InterleavedBenchmark extends Benchmark {
         if (numThreads > 128)
           throw new IllegalStateException("Attempting to create too many threads: " + numThreads);
       }
+      threadsWarmedUp.set(0);
 
       LOG.info("Finished initial warm-up. Moving onto Stage 1 of Warm-Up: Creating Parent Dirs.");
 
