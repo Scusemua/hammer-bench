@@ -107,7 +107,7 @@ public class InterleavedBenchmark extends Benchmark {
       while (numThreads <= bmConf.getSlaveNumThreads()) {
         LOG.info("Creating " + numThreads + " workers now...");
         for (int i = 0; i < numThreads; i++) {
-          Callable worker = new BaseWarmUp(1, bmConf, "Warming up. Stage0: Warming up clients. ");
+          Callable<Object> worker = new BaseWarmUp(1, bmConf, "Warming up. Stage0: Warming up clients. ");
           workers.add(worker);
         }
 
@@ -349,7 +349,7 @@ public class InterleavedBenchmark extends Benchmark {
         long opStartTime = System.nanoTime();
         try {
           if (dryrun) {
-            LOG.debug("Performing " + opType.name() + " on " + path);
+            LOG.debug("Performing simulated " + opType.name() + " on '" + path + "' now...");
             TimeUnit.MILLISECONDS.sleep(10);
           } else {
             LOG.debug("Performing " + opType.name() + " on '" + path + "' now...");

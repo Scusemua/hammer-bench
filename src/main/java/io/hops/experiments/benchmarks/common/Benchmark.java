@@ -52,6 +52,12 @@ public abstract class Benchmark {
     this.conf = conf;
     this.bmConf = bmConf;
     this.executor = Executors.newFixedThreadPool(bmConf.getSlaveNumThreads());
+    this.dryrun = bmConf.getBenchmarkDryrun();
+
+    if (dryrun)
+      LOG.debug("This is going to be a dry-run.");
+    else
+      LOG.debug("NOT a dry-run.");
   }
 
   protected abstract WarmUpCommand.Response warmUp(WarmUpCommand.Request warmUp)
