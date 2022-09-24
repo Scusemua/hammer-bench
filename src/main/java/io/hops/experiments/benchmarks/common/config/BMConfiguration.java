@@ -40,8 +40,8 @@ import java.util.*;
  */
 public class BMConfiguration implements Serializable {
 
+  private static final long serialVersionUID = 7106695329001895303L;
   private List<InetAddress> listOfSlaves = null;
-  // private List<String> nameNodeList = null;
   private Properties props = null;
 
   private BMConfiguration() {
