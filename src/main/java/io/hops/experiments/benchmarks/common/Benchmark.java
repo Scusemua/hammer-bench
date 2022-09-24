@@ -100,11 +100,24 @@ public abstract class Benchmark {
     private final String stage;
     private final BMConfiguration bmConf;
 
-    public BaseWarmUp(int filesToCreate, BMConfiguration bmConf,
-                       String stage) throws IOException {
+    // For serverless, we do a bit of a warm-up first (since we warm-up for vanilla).
+    // This requires starting with a few workers and then increasing.
+    // So, we need to know how many peer worker threads there are right now.
+    private final int currentNumWorkerThreads;
+
+    public BaseWarmUp(int filesToCreate, BMConfiguration bmConf, String stage) {
       this.filesToCreate = filesToCreate;
       this.stage = stage;
       this.bmConf = bmConf;
+      this.currentNumWorkerThreads = bmConf.getSlaveNumThreads();
+      dryrun = bmConf.getBenchmarkDryrun();
+    }
+
+    public BaseWarmUp(int filesToCreate, BMConfiguration bmConf, String stage, int currentNumWorkerThreads) {
+      this.filesToCreate = filesToCreate;
+      this.stage = stage;
+      this.bmConf = bmConf;
+      this.currentNumWorkerThreads = currentNumWorkerThreads;
       dryrun = bmConf.getBenchmarkDryrun();
     }
 
@@ -151,9 +164,8 @@ public abstract class Benchmark {
       }
       log();
       threadsWarmedUp.incrementAndGet();
-      while(threadsWarmedUp.get() != bmConf.getSlaveNumThreads()){ // this is to ensure that all the threads in
-        // the
-        // executor service are started during the warmup phase
+      while(threadsWarmedUp.get() != currentNumWorkerThreads){ // this is to ensure that all the threads in
+        // the executor service are started during the warmup phase
         Thread.sleep(100);
       }
 
