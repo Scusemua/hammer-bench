@@ -168,8 +168,6 @@ public abstract class Benchmark {
         // the executor service are started during the warmup phase
         Thread.sleep(100);
       }
-
-      LOG.debug("Warmed up!\n\n\n");
       return null;
     }
 

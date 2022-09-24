@@ -104,8 +104,9 @@ public class InterleavedBenchmark extends Benchmark {
       threadsWarmedUp.set(0);
 
       int numThreads = 1;
-      LOG.info("Creating " + numThreads + " workers now...");
       while (numThreads <= bmConf.getSlaveNumThreads()) {
+        threadsWarmedUp.set(0);
+        LOG.info("Creating " + numThreads + " workers now...");
         for (int i = 0; i < numThreads; i++) {
           Callable<Object> worker = new BaseWarmUp(1, bmConf,
                   "Warming up. Stage0: Warming up clients. ", numThreads);
