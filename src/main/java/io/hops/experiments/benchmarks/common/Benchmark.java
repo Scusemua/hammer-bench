@@ -143,11 +143,9 @@ public abstract class Benchmark {
               bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
       String filePath = null;
 
-      LOG.debug("Attempting to create a total of " + filesToCreate + " file(s).");
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
-          LOG.info("Creating file '" + filePath + "' now...");
           if (!dryrun) {
             DFSOperationsUtils
                     .createFile(dfs, filePath, bmConf.getReplicationFactor(), filePool);
@@ -163,7 +161,8 @@ public abstract class Benchmark {
         }
       }
       log();
-      threadsWarmedUp.incrementAndGet();
+      int finished = threadsWarmedUp.incrementAndGet();
+      LOG.debug(finished + "/" + currentNumWorkerThreads + " warm-up threads have finished.");
       while(threadsWarmedUp.get() != currentNumWorkerThreads){ // this is to ensure that all the threads in
         // the executor service are started during the warmup phase
         Thread.sleep(100);
