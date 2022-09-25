@@ -140,15 +140,15 @@ public class DFSOperationsUtils {
         try {
             File configFile = new File(path);
             URL configFileURL = configFile.toURI().toURL();
-            LOG.debug("Adding resource to file: " + configFileURL);
+//            LOG.debug("Adding resource to file: " + configFileURL);
             configuration.addResource(configFileURL);
-            LOG.debug("Successfully added resource to file.");
+//            LOG.debug("Successfully added resource to file.");
         } catch (MalformedURLException ex) {
             LOG.error("Invalid path specified for Configuration: '" + path + "':", ex);
-            LOG.debug("Invalid path specified for Configuration: '" + path + "':", ex);
+//            LOG.debug("Invalid path specified for Configuration: '" + path + "':", ex);
         } catch (Exception ex) {
             LOG.error("Unexpected error while getting Configuration from file '" + path + "':", ex);
-            LOG.debug("Unexpected error while getting Configuration from file '" + path + "':", ex);
+//            LOG.debug("Unexpected error while getting Configuration from file '" + path + "':", ex);
         }
         return configuration;
     }
@@ -158,15 +158,15 @@ public class DFSOperationsUtils {
      * Create an HDFS client.
      */
     public static DistributedFileSystem initDfsClient(boolean warmingUp) {
-        LOG.debug("Creating HDFS client now...");
+//        LOG.debug("Creating HDFS client now...");
         Configuration hdfsConfiguration = getConfiguration(hdfsConfigFilePath);
-        LOG.info("Created configuration.");
+//        LOG.info("Created configuration.");
         DistributedFileSystem hdfs = new DistributedFileSystem();
-        LOG.info("Created DistributedFileSystem object.");
+//        LOG.info("Created DistributedFileSystem object.");
 
         try {
             hdfs.initialize(new URI(NAME_NODE_ENDPOINT), hdfsConfiguration);
-            LOG.info("Called initialize() successfully.");
+//            LOG.info("Called initialize() successfully.");
         } catch (URISyntaxException | IOException ex) {
             LOG.error("");
             LOG.error("");
@@ -192,14 +192,14 @@ public class DFSOperationsUtils {
     public static DistributedFileSystem getDFSClient(boolean warmingUp) throws IOException {
         DistributedFileSystem client = dfsClients.get();
         if (client == null) {
-            LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
+//            LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
             client = initDfsClient(warmingUp);
-            LOG.debug(Thread.currentThread().getName()  +
-                    " created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
+//            LOG.debug(Thread.currentThread().getName()  +
+//                    " created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
             dfsClients.set(client);
         }
         else {
-            LOG.debug("Reusing Existing Client " + client);
+//            LOG.debug("Reusing Existing Client " + client);
 
             // Enable consistency protocol when not warming up.
             client.setConsistencyProtocolEnabled(!warmingUp);
@@ -223,9 +223,9 @@ public class DFSOperationsUtils {
             }
             
             filePools.set(filePool);
-            LOG.debug("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
+//            LOG.debug("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
         }else{
-            LOG.debug("Reusing file pool obj "+filePool);
+//            LOG.debug("Reusing file pool obj "+filePool);
         }
         return filePool;
     }
