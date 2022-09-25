@@ -351,11 +351,15 @@ public class InterleavedBenchmark extends Benchmark {
         try {
           // If it's a dry-run, then we just sleep.
           if (dryrun) {
-            LOG.debug("Performing simulated " + opType.name() + " on '" + path + "' now...");
-            TimeUnit.MILLISECONDS.sleep(2);
+            if (LOG.isDebugEnabled())
+              LOG.debug("Performing simulated " + opType.name() + " on '" + path + "' now...");
+
+            TimeUnit.MILLISECONDS.sleep(1);
           } else {
             // If it's not a dry-run, then we'll actually perform the operation.
-            LOG.debug("Performing " + opType.name() + " on '" + path + "' now...");
+            if (LOG.isDebugEnabled())
+              LOG.debug("Performing " + opType.name() + " on '" + path + "' now...");
+
             BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
                                         config.getAppendFileSize());
           }
