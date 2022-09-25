@@ -5,6 +5,8 @@ import time
 import random
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import glob
+import os
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 
@@ -28,8 +30,25 @@ args = parser.parse_args()
 input_path = args.input
 duration = args.duration
 
-df = pd.read_csv(input_path)
+if input_path.endswith(".txt"):
+    df = pd.read_csv(input_path)
+else:
+    print("input_path: " + input_path)
+    print("joined: " + str(os.path.join(input_path, "*.txt")))
+    all_files = glob.glob(os.path.join(input_path, "*.txt"))
+    li = []
+    for filename in all_files:
+        print("Reading file: " + filename)
+        tmp_df = pd.read_csv(filename, index_col=None, header=0)
+        tmp_df.columns = ['timestamp', 'latency']
+        li.append(tmp_df)
+    df = pd.concat(li, axis=0, ignore_index=True)
+    df.columns = ['timestamp', 'latency']
+
+print("Sorting now...")
+start_sort = time.time()
 df = df.sort_values('timestamp')
+print("Sorted dataframe in %f seconds." % ()time.time() - start_sort))
 
 min_val = min(df['timestamp'])
 max_val = max(df['timestamp'])
@@ -60,7 +79,7 @@ for i in range(1, duration + 1):
     buckets[i] = len(res)
     total += len(res)
 
-df.to_csv("test.csv")
+# df.to_csv("test.csv")
 
 # for _, row in df.iterrows():
 #     t = row['ts']

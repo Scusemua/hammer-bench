@@ -342,20 +342,23 @@ public class InterleavedBenchmark extends Benchmark {
     }
 
     private void performOperation(BenchmarkOperations opType) {
+      // Grab a file path on which we will perform the operation.
       String path = BMOperationsUtils.getPath(opType, filePool);
       if (path != null) {
         boolean retVal = false;
         long opExeTime = 0;
         long opStartTime = System.nanoTime();
         try {
+          // If it's a dry-run, then we just sleep.
           if (dryrun) {
             LOG.debug("Performing simulated " + opType.name() + " on '" + path + "' now...");
             TimeUnit.MILLISECONDS.sleep(2);
           } else {
+            // If it's not a dry-run, then we'll actually perform the operation.
             LOG.debug("Performing " + opType.name() + " on '" + path + "' now...");
             BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
                                         config.getAppendFileSize());
-          }    
+          }
 
           opExeTime = System.nanoTime() - opStartTime;
           retVal = true;
