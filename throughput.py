@@ -30,6 +30,8 @@ args = parser.parse_args()
 input_path = args.input
 duration = args.duration
 
+# If we pass a single .txt file, then just create DataFrame from the .txt file.
+# Otherwise, merge all .txt files in the specified directory.
 if input_path.endswith(".txt"):
     df = pd.read_csv(input_path)
 else:
@@ -37,6 +39,8 @@ else:
     print("joined: " + str(os.path.join(input_path, "*.txt")))
     all_files = glob.glob(os.path.join(input_path, "*.txt"))
     li = []
+
+    # Merge the .txt files into a single DataFrame.
     for filename in all_files:
         print("Reading file: " + filename)
         tmp_df = pd.read_csv(filename, index_col=None, header=0)
@@ -45,6 +49,7 @@ else:
     df = pd.concat(li, axis=0, ignore_index=True)
     df.columns = ['timestamp', 'latency']
 
+# Sort the DataFrame by timestamp.
 print("Sorting now...")
 start_sort = time.time()
 df = df.sort_values('timestamp')
@@ -56,6 +61,9 @@ max_val = max(df['timestamp'])
 def adjust(x):
     return (x - min_val) / 1e9
 
+# Sometimes, there's a bunch of data with WAY different timestamps -- like, several THOUSAND
+# seconds different. So, I basically adjust all of that data so it fits within the interval
+# of the rest of the data.
 df['ts'] = df['timestamp'].map(adjust)
 df2 = df[((df['ts'] >= duration+5))]
 min_val2 = min(df2['ts'])
@@ -69,6 +77,8 @@ df['ts'] = df['ts'].map(adjust2)
 
 print("Total number of points: %d" % len(df))
 
+# For each second of the workload, count all the data points that occur during that second.
+# These are the points that we'll plot.
 buckets = [0 for _ in range(0, duration + 1)]
 total = 0
 for i in range(1, duration + 1):
