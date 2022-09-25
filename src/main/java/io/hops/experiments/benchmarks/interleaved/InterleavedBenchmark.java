@@ -296,7 +296,7 @@ public class InterleavedBenchmark extends Benchmark {
         try {
           if (dryrun) {
             System.out.println("Performing " + opType + " on " + path);
-            TimeUnit.MILLISECONDS.sleep(10);
+            TimeUnit.MILLISECONDS.sleep(1);
           } else {
             BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
                                         config.getAppendFileSize());
