@@ -118,7 +118,10 @@ public class InterleavedBenchmark extends Benchmark {
         executor.invokeAll(workers); // blocking call
         workers.clear();
 
-        numThreads += 8;
+        if (numThreads == 1)
+          numThreads = 8;
+        else
+          numThreads += 8;
 
         if (numThreads <= bmConf.getSlaveNumThreads())
           Thread.sleep(500); // Don't sleep after last iteration.
@@ -280,8 +283,7 @@ public class InterleavedBenchmark extends Benchmark {
 
             BenchmarkOperations op = opCoin.flip();
 
-            if (LOG.isDebugEnabled())
-              LOG.debug("Randomly generated " + op.name() + " operation!");
+            LOG.info("Randomly generated " + op.name() + " operation!");
 
             // Wait for the limiter to allow the operation
             if (!limiter.checkRate()) {

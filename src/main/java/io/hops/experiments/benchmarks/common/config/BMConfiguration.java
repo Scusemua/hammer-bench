@@ -647,7 +647,7 @@ public class BMConfiguration implements Serializable {
       /// Original HammerBench Configuration ///
       //////////////////////////////////////////
 
-      System.out.println("Creating config for HopsFS");
+//      System.out.println("Creating config for HopsFS");
       dfsClientConf.setProperty(ConfigKeys.DFS_CLIENT_REFRESH_NAMENODE_LIST_KEY,
               Long.toString(getNameNodeRefreshRate()));
       dfsClientConf.setProperty(ConfigKeys.DFS_NAMENODE_SELECTOR_POLICY_KEY,
