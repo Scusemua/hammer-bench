@@ -283,7 +283,8 @@ public class InterleavedBenchmark extends Benchmark {
 
             BenchmarkOperations op = opCoin.flip();
 
-            LOG.info("Randomly generated " + op.name() + " operation!");
+            if (LOG.isDebugEnabled())
+              LOG.debug("Randomly generated " + op.name() + " operation!");
 
             // Wait for the limiter to allow the operation
             if (!limiter.checkRate()) {
