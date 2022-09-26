@@ -303,7 +303,8 @@ public class InterleavedBenchmark extends Benchmark {
         }
 
         long opsCompleted = operationsCompleted.get();
-        LOG.info("Completed " + opsCompleted + " operations.");
+        LOG.info("Completed " + opsCompleted + " operations. Time elapsed: " +
+                ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds.");
       }
     }
 
