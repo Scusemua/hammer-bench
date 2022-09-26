@@ -29,6 +29,8 @@ parser.add_argument("--sync-dest", type = str, default = "~/hammer-bench-slave",
 parser.add_argument("--sync", action = 'store_true', help = "Synchronize the execution files.")
 parser.add_argument("--start", action = 'store_true', help = "Start the benchmark.")
 parser.add_argument("--stop", action = 'store_true', help = "Stop the benchmark.")
+parser.add_argument("--validate", action = 'store_true', help = "Validating the status of the slaves.")
+parser.add_argument("--dryrun", action = 'store_true', help = "Run as simulation.")
 parser.add_argument("-k", "--key-file", dest = "key_file", type = str, default = "~/.ssh/id_rsa", help = "Path to keyfile.")
 parser.add_argument("-u", "--user", type = str, default = "ben", help = "Username for SSH.")
 parser.add_argument("--hdfs-site", type = str, dest = "hdfs_site", default = "/home/ubuntu/repos/hops/hadoop-dist/target/hadoop-3.2.0.3-SNAPSHOT/etc/hadoop/hdfs-site.xml", help = "Location of the hdfs-site.xml file.")
@@ -68,13 +70,20 @@ if args.sync:
 
 if args.start:
     print("Starting the slaves.")
+    os.system("sed -i -e 's|^\\(benchmark.dryrun=\\).*|\\1{}|' ~/hammer-bench/master.properties".format("true" if args.dryrun else "false"))
     os.system("sed -i -e 's|^\\(list.of.slaves=\\).*|\\1{}|' ~/hammer-bench/master.properties".format(",".join(hosts)))
+    os.system("sed -i -e 's|^\\(fs.defaultFS=\\).*|\\1{}|' ~/hammer-bench/master.properties".format(fs_default))
     cmd = "cd {} && make bench".format(sync_dest)
     print("Executing command: %s" % cmd)
     output = client.run_command(cmd, stop_on_errors=False)
-if args.stop:
+elif args.stop:
     print("Stopping the slaves.")
-    output = client.run_command("kill -9 `ps aux | grep java | grep io.hops.experiments.controller.Slave | awk '{ print $2 }'`")
+    # Process list may include "bash" command itself.
+    # This script format command as "cmd pid" first, then grep by asserting the command start with "java", and finally print out the pid."
+    output = client.run_command("kill -9 `ps aux | grep io.hops.experiments.controller.Slave | awk '{ print $11\" \"$2 }' | grep '^java' | awk '{print $2}'`")
+elif args.validate:
+    print("Validating the slaves.")
+    output = client.run_command("ps aux | grep io.hops.experiments.controller.Slave | awk '{ printf \"%s %s\", $11, $2; for(i=11;i<=NF;i++){printf \" %s\", $i}; printf \"\\n\"}' | grep '^java'")
 elif output == None:
     print("[WARNING] Neither '--sync' nor '--start' was specified. Doing nothing.")
 
