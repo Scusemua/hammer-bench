@@ -204,6 +204,10 @@ public class DFSOperationsUtils {
             // Enable consistency protocol when not warming up.
             client.setConsistencyProtocolEnabled(!warmingUp);
         }
+
+        client.setServerlessFunctionLogLevel("INFO");
+        client.setBenchmarkModeEnabled(true);
+
         return client;
     }
 
