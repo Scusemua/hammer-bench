@@ -47,6 +47,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 // import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -67,6 +69,12 @@ public class DFSOperationsUtils {
                                                         // contact NNs
     private static ThreadLocal<DistributedFileSystem> dfsClients = new ThreadLocal<>();
     private static ThreadLocal<FilePool> filePools = new ThreadLocal<FilePool>();
+
+    /**
+     * Used to cache clients for reuse.
+     */
+    public static BlockingQueue<DistributedFileSystem> hdfsClientPool
+            = new ArrayBlockingQueue<>(1024);
 
     private static AtomicInteger filePoolCount = new AtomicInteger(0);
     private static AtomicInteger dfsClientsCount = new AtomicInteger(0);
@@ -186,7 +194,10 @@ public class DFSOperationsUtils {
     }
 
     public static DistributedFileSystem getDFSClient(boolean warmingUp) {
-        DistributedFileSystem client = dfsClients.get();
+        // DistributedFileSystem client = dfsClients.get();
+        DistributedFileSystem client;
+        client = hdfsClientPool.poll();
+
         if (client == null) {
             client = initDfsClient(warmingUp);
             dfsClients.set(client);
@@ -200,6 +211,10 @@ public class DFSOperationsUtils {
         client.setBenchmarkModeEnabled(true);
 
         return client;
+    }
+
+    public static void returnHdfsClient(DistributedFileSystem hdfs) {
+        hdfsClientPool.add(hdfs);
     }
 
     public static FilePool getFilePool(String baseDir, int dirsPerDir, int filesPerDir, boolean fixedDepthTree,

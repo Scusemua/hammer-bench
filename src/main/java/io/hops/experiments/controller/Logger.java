@@ -26,7 +26,10 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -183,8 +186,10 @@ public class Logger {
           for(Double speed: speedMap.values()){
             aggSpeed += speed;
           }
+
+          long timeElapsed = System.currentTimeMillis() - startTime;
           Master.blueColoredText("Current Aggregated Speed is " + aggSpeed + ". Time elapsed: " +
-                  (System.currentTimeMillis() - startTime) + " ms.");
+                  (NumberFormat.getNumberInstance(Locale.US).format(timeElapsed)) + " ms.");
           speedMap.clear();
         }
       }catch(NumberFormatException e){

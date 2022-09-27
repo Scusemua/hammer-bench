@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -237,7 +238,7 @@ public class InterleavedBenchmark extends Benchmark {
 
   public class Worker implements Callable<Object> {
 
-    private FileSystem dfs;
+    private DistributedFileSystem dfs;
     private FilePool filePool;
     private InterleavedMultiFaceCoin opCoin;
     private BMConfiguration config;
@@ -285,6 +286,7 @@ public class InterleavedBenchmark extends Benchmark {
         for (int i = 0; i < 5000; i++) {
           try {
             if ((System.currentTimeMillis() - startTime) > duration) {
+              DFSOperationsUtils.returnHdfsClient(dfs);
               return null;
             }
 
@@ -295,6 +297,7 @@ public class InterleavedBenchmark extends Benchmark {
 
             // Wait for the limiter to allow the operation
             if (!limiter.checkRate()) {
+              DFSOperationsUtils.returnHdfsClient(dfs);
               return null;
             }
 
@@ -312,10 +315,6 @@ public class InterleavedBenchmark extends Benchmark {
         long opsCompleted = operationsCompleted.get();
         LOG.info("Completed " + opsCompleted + " operations. Time elapsed: " +
                 ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds.");
-
-        if ((System.currentTimeMillis() - startTime) > duration) {
-          return null;
-        }
       }
     }
 

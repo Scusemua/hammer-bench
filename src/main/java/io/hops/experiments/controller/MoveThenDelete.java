@@ -44,7 +44,7 @@ public class MoveThenDelete {
   private void start(String configFilePath, String hdfsFolder)  {
     try {
       args = new BMConfiguration(configFilePath);
-      org.apache.hadoop.conf.Configuration conf = createHdfsConf();
+      // org.apache.hadoop.conf.Configuration conf = createHdfsConf();
 
       // do shit here
       FileSystem dfs = DFSOperationsUtils.getDFSClient(false);

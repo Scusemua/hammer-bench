@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 
 public abstract class Benchmark {
   public static final Log LOG = LogFactory.getLog(Benchmark.class);
@@ -94,7 +95,7 @@ public abstract class Benchmark {
   
   protected AtomicLong filesCreatedInWarmupPhase = new AtomicLong(0);
   protected class BaseWarmUp implements Callable<Object> {
-    private FileSystem dfs;
+    private DistributedFileSystem dfs;
     private FilePool filePool;
     private final int filesToCreate;
     private final String stage;
@@ -141,8 +142,8 @@ public abstract class Benchmark {
               bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
               bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
               bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
-      String filePath = null;
 
+      String filePath;
       for (int i = 0; i < filesToCreate; i++) {
         try {
           filePath = filePool.getFileToCreate();
@@ -167,6 +168,9 @@ public abstract class Benchmark {
         // the executor service are started during the warmup phase
         Thread.sleep(100);
       }
+
+      DFSOperationsUtils.returnHdfsClient(dfs);
+
       return null;
     }
 
@@ -181,13 +185,15 @@ public abstract class Benchmark {
   };
 
   protected int getAliveNNsCount() throws IOException {
-    FileSystem fs = DFSOperationsUtils.getDFSClient(false);
+    DistributedFileSystem fs = DFSOperationsUtils.getDFSClient(false);
     int actualNNCount = 0;
     try {
       actualNNCount = DFSOperationsUtils.getActiveNameNodesCount(bmConf.getBenchMarkFileSystemName(), fs);
     } catch (Exception e) {
       Logger.error(e);
     }
+
+    DFSOperationsUtils.returnHdfsClient(fs);
     return actualNNCount;
   }
 }
