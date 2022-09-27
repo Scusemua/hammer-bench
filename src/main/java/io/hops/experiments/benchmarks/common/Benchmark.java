@@ -52,7 +52,7 @@ public abstract class Benchmark {
   public Benchmark(Configuration conf, BMConfiguration bmConf) {
     this.conf = conf;
     this.bmConf = bmConf;
-    this.executor = Executors.newFixedThreadPool(bmConf.getSlaveNumThreads());
+    this.executor = Executors.newFixedThreadPool(bmConf.getSlaveNumThreads() + 1);
     this.dryrun = bmConf.getBenchmarkDryrun();
 
     if (dryrun)

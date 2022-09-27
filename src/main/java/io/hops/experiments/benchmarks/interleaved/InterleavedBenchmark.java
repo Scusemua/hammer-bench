@@ -242,7 +242,7 @@ public class InterleavedBenchmark extends Benchmark {
     private FilePool filePool;
     private InterleavedMultiFaceCoin opCoin;
     private BMConfiguration config;
-    private long lastMsg = System.currentTimeMillis();
+    private long lastMsg;
 
     public Worker(BMConfiguration config) {
       this.config = config;
