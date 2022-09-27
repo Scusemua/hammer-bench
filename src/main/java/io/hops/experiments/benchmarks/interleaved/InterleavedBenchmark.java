@@ -205,12 +205,7 @@ public class InterleavedBenchmark extends Benchmark {
     Logger.resetTimer();
 
     LOG.debug("Invoking workers...");
-    executor.invokeAll(workers); // blocking call
-//    if (config.testFailover()) {
-//      failOverTester.stop();
-//      failOverLog = failOverTester.getFailoverLog();
-//    }
-    LOG.debug("Invoked workers...");
+    executor.invokeAll(workers, duration, TimeUnit.MILLISECONDS);
 
     long totalTime = System.currentTimeMillis() - startTime;
 
@@ -233,7 +228,7 @@ public class InterleavedBenchmark extends Benchmark {
     private FileSystem dfs;
     private FilePool filePool;
     private InterleavedMultiFaceCoin opCoin;
-    private BMConfiguration config = null;
+    private BMConfiguration config;
     private long lastMsg = System.currentTimeMillis();
 
     public Worker(BMConfiguration config) {
@@ -242,7 +237,7 @@ public class InterleavedBenchmark extends Benchmark {
     }
 
     @Override
-    public Object call() throws Exception {
+    public Object call() {
       LOG.debug("Worker has been called!");
 
       if (!dryrun) {
@@ -305,6 +300,10 @@ public class InterleavedBenchmark extends Benchmark {
         long opsCompleted = operationsCompleted.get();
         LOG.info("Completed " + opsCompleted + " operations. Time elapsed: " +
                 ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds.");
+
+        if ((System.currentTimeMillis() - startTime) > duration) {
+          return null;
+        }
       }
     }
 

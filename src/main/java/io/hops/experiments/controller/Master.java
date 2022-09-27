@@ -59,7 +59,7 @@ public class Master {
   BMConfiguration config;
 
   public static void main(String[] argv) throws Exception {
-    System.out.println("Master has started running.");
+    LOG.debug("Master has started running.");
     String configFilePath = "master.properties";
     if (argv.length == 1) {
       if (argv[0].compareToIgnoreCase("help") == 0) {
@@ -469,19 +469,19 @@ public class Master {
   }
 
   private void redColoredText(String msg) {
-    System.out.println((char) 27 + "[31m" + msg);
-    System.out.println((char) 27 + "[0m");
+    LOG.info((char) 27 + "[31m" + msg);
+    LOG.info((char) 27 + "[0m");
   }
 
   public static void blueColoredText(String msg) {
-    System.out.println((char) 27 + "[36m" + msg);
-    System.out.println((char) 27 + "[0m");
+    LOG.info((char) 27 + "[36m" + msg);
+    LOG.info((char) 27 + "[0m");
   }
 
   private void printAllResults() throws FileNotFoundException, IOException {
-    System.out.println("\n\n\n");
-    System.out.println("************************ All Results ************************");
-    System.out.println("\n\n\n");
+    LOG.info("\n\n\n");
+    LOG.info("************************ All Results ************************");
+    LOG.info("\n\n\n");
     
     String filePath = config.getResultsDir();
     if(!filePath.endsWith("/")){
@@ -502,7 +502,7 @@ public class Master {
     } finally {
       br.close();
     }
-    System.out.println("\n\n\n");
+    LOG.info("\n\n\n");
   }
 
   public class SlaveConnection {

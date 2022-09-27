@@ -42,6 +42,8 @@ public class Logger {
   private static boolean enableRemoteLogging = false;
   private static DatagramSocket socket = null;
 
+
+
   //send one error per sec. this avoids printing too much to the output of the master
   static long lastError = 0;
   static long errorCounter = 0;
@@ -118,7 +120,7 @@ public class Logger {
   }
 
   public static class LogListener implements Runnable {
-
+    private long startTime;
     private int port;
     private boolean running = true;
     private Map<String, Double> speedMap = new HashMap<String, Double>();
@@ -131,6 +133,7 @@ public class Logger {
 
     @Override
     public void run() {
+      startTime = System.currentTimeMillis();
 
       try {
         socket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
@@ -180,7 +183,8 @@ public class Logger {
           for(Double speed: speedMap.values()){
             aggSpeed += speed;
           }
-          Master.blueColoredText("Current Aggregated Speed is "+aggSpeed);
+          Master.blueColoredText("Current Aggregated Speed is " + aggSpeed + ". Time elapsed: " +
+                  (System.currentTimeMillis() - startTime) + " ms.");
           speedMap.clear();
         }
       }catch(NumberFormatException e){

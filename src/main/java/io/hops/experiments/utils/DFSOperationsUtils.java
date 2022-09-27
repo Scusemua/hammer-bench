@@ -158,15 +158,11 @@ public class DFSOperationsUtils {
      * Create an HDFS client.
      */
     public static DistributedFileSystem initDfsClient(boolean warmingUp) {
-//        LOG.debug("Creating HDFS client now...");
         Configuration hdfsConfiguration = getConfiguration(hdfsConfigFilePath);
-//        LOG.info("Created configuration.");
         DistributedFileSystem hdfs = new DistributedFileSystem();
-//        LOG.info("Created DistributedFileSystem object.");
 
         try {
             hdfs.initialize(new URI(NAME_NODE_ENDPOINT), hdfsConfiguration);
-//            LOG.info("Called initialize() successfully.");
         } catch (URISyntaxException | IOException ex) {
             LOG.error("");
             LOG.error("");
@@ -189,18 +185,13 @@ public class DFSOperationsUtils {
         return hdfs;
     }
 
-    public static DistributedFileSystem getDFSClient(boolean warmingUp) throws IOException {
+    public static DistributedFileSystem getDFSClient(boolean warmingUp) {
         DistributedFileSystem client = dfsClients.get();
         if (client == null) {
-//            LOG.debug(Thread.currentThread().getName() + " Creating new client now...");
             client = initDfsClient(warmingUp);
-//            LOG.debug(Thread.currentThread().getName()  +
-//                    " created new client. Total: "+ dfsClientsCount.incrementAndGet()+" New Client is: "+client);
             dfsClients.set(client);
         }
         else {
-//            LOG.debug("Reusing Existing Client " + client);
-
             // Enable consistency protocol when not warming up.
             client.setConsistencyProtocolEnabled(!warmingUp);
         }
