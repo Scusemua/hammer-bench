@@ -49,6 +49,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -205,7 +206,18 @@ public class InterleavedBenchmark extends Benchmark {
     Logger.resetTimer();
 
     LOG.debug("Invoking workers...");
-    executor.invokeAll(workers, duration, TimeUnit.MILLISECONDS);
+    List<Future<Object>> futures = executor.invokeAll(workers, duration, TimeUnit.MILLISECONDS);
+
+    int numFinished = 0;
+    for (Future<Object> future : futures) {
+      if (future.isDone())
+        numFinished++;
+    }
+
+    LOG.info(numFinished + "/" + futures.size() + " worker threads completed successfully (" +
+            (futures.size() - numFinished) + " failed).");
+    Logger.printMsg(numFinished + "/" + futures.size() + " worker threads completed successfully (" +
+            (futures.size() - numFinished) + " failed).");
 
     long totalTime = System.currentTimeMillis() - startTime;
 
