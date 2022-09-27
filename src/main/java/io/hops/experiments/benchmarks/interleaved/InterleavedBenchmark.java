@@ -50,6 +50,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.Executors;
 
 /**
  * @author salman
@@ -71,8 +72,10 @@ public class InterleavedBenchmark extends Benchmark {
     BenchmarkDistribution distribution = bmConf.getInterleavedBMIaTDistribution();
     if (distribution == BenchmarkDistribution.POISSON) {
       limiter = new DistributionRateLimiter(bmConf, new PoissonGenerator(bmConf));
+      this.executor = Executors.newFixedThreadPool(bmConf.getSlaveNumThreads()+1);
     } else if (distribution == BenchmarkDistribution.PARETO) {
       limiter = new DistributionRateLimiter(bmConf, new ParetoGenerator(bmConf));
+      this.executor = Executors.newFixedThreadPool(bmConf.getSlaveNumThreads()+1);
     } else {
       limiter = new RateNoLimiter();
     }

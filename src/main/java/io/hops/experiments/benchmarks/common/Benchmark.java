@@ -43,7 +43,7 @@ import org.apache.hadoop.fs.FileSystem;
 public abstract class Benchmark {
   public static final Log LOG = LogFactory.getLog(Benchmark.class);
   protected final Configuration conf;
-  protected final ExecutorService executor;
+  protected ExecutorService executor;
   protected AtomicInteger threadsWarmedUp = new AtomicInteger(0);
   protected final BMConfiguration bmConf;
   protected boolean dryrun = false;
