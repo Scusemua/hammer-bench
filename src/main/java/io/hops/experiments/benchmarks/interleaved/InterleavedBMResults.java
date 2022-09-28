@@ -81,7 +81,8 @@ public class InterleavedBMResults extends BMResult {
     return "Speed-/sec: " + DFSOperationsUtils.round(speed)
             + ", Successful-Ops: " + DFSOperationsUtils.round(successfulOps)
             + ", Failed-Ops: " + DFSOperationsUtils.round(failedOps)
-            + ", Avg-Ops-Latency: " + DFSOperationsUtils.round(avgOpLatency)
+            + ", Avg-Ops-Latency: " + DFSOperationsUtils.round(avgOpLatency) + " ns"
+            + " (" + DFSOperationsUtils.round(avgOpLatency / 1e6) + " ms)"
             + ", Avg-Test-Duration-sec " + DFSOperationsUtils.round(duration)
             + ", No of Expected NNs : " + super.getNoOfExpectedAliveNNs()
             + ", No of Actual Alive NNs : " + super.getNoOfAcutallAliveNNs();

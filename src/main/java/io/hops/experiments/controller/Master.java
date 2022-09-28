@@ -270,6 +270,8 @@ public class Master {
     prompt();
 
     // Monitor for an additional five seconds beyond the duration of the benchmark.
+    // We probably don't need to wait at all, considering there's a long time-out
+    // when waiting to receive results from each worker.
     long interleavedBenchmarkDuration = config.getInterleavedBmDuration() + (1000 * 5);
     double interval = config.getNameNodeMonitorInterval();
 
@@ -396,7 +398,7 @@ public class Master {
     }
   }
 
-  private Collection<Object> receiveFromAllSlaves(int timeout) throws ClassNotFoundException, UnknownHostException, IOException {
+  private Collection<Object> receiveFromAllSlaves(int timeout) {
     Map<InetAddress, Object> responses = new HashMap<InetAddress, Object>();
     if (!slavesConnections.isEmpty()) {
       for (InetAddress slave : slavesConnections.keySet()) {
