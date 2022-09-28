@@ -77,7 +77,6 @@ public class DFSOperationsUtils {
             = new ArrayBlockingQueue<>(1024);
 
     private static AtomicInteger filePoolCount = new AtomicInteger(0);
-    private static AtomicInteger dfsClientsCount = new AtomicInteger(0);
 
     /**
      * Fully-qualified path of hdfs-site.xml configuration file.
@@ -233,9 +232,9 @@ public class DFSOperationsUtils {
             }
             
             filePools.set(filePool);
-//            LOG.debug("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
+            LOG.debug("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
         }else{
-//            LOG.debug("Reusing file pool obj "+filePool);
+            LOG.debug("Reusing file pool obj "+filePool);
         }
         return filePool;
     }

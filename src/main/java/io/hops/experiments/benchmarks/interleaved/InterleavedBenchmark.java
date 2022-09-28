@@ -130,7 +130,8 @@ public class InterleavedBenchmark extends Benchmark {
       }
       threadsWarmedUp.set(0);
 
-      LOG.info("Finished initial warm-up. Moving onto Stage 1 of Warm-Up: Creating Parent Dirs.");
+      LOG.info("Finished initial warm-up. Size of HDFS pool: " + DFSOperationsUtils.hdfsClientPool.size());
+      LOG.info("Moving onto Stage 1 of Warm-Up: Creating Parent Dirs.");
 
       for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
         Callable<Object> worker = new BaseWarmUp(1, bmConf, "Warming up. Stage1: Creating Parent Dirs. ");
@@ -139,7 +140,8 @@ public class InterleavedBenchmark extends Benchmark {
       executor.invokeAll(workers); // blocking call
       workers.clear();
 
-      LOG.info("Finished creating parent dirs. Moving onto Stage 2.");
+      LOG.info("Finished creating parent dirs. Size of HDFS pool: " + DFSOperationsUtils.hdfsClientPool.size());
+      LOG.info("Moving onto Stage 2: Creating files/dirs.");
       Thread.sleep(500);
 
       // Stage 2
@@ -150,7 +152,8 @@ public class InterleavedBenchmark extends Benchmark {
         workers.add(worker);
       }
       executor.invokeAll(workers); // blocking call
-      LOG.debug("Finished. Warmup Phase. Created ("+bmConf.getSlaveNumThreads()+"*"+bmConf.getFilesToCreateInWarmUpPhase()+") = "+
+      LOG.info("Finished warmup phase. Size of HDFS pool: " + DFSOperationsUtils.hdfsClientPool.size());
+      LOG.info("Created ("+bmConf.getSlaveNumThreads()+"*"+bmConf.getFilesToCreateInWarmUpPhase()+") = "+
               (bmConf.getSlaveNumThreads()*bmConf.getFilesToCreateInWarmUpPhase())+" files. ");
       workers.clear();
     }
