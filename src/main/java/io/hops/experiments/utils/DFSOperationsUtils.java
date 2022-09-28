@@ -355,7 +355,7 @@ public class DFSOperationsUtils {
     }
     
     public static String round(double val) {
-       return String.format("%5s", String.format("%,.2f", val));
+       return String.format("%5s", String.format("%,.4f", val));
     }
 
     public static String format(int spaces, String string) {
