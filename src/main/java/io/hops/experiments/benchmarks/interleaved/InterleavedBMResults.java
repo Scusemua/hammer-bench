@@ -22,6 +22,7 @@ import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
 import io.hops.experiments.utils.DFSOperationsUtils;
 
+import java.text.DecimalFormat;
 import java.util.Map;
 
 /**
@@ -79,12 +80,12 @@ public class InterleavedBMResults extends BMResult {
   @Override
   public String toString() {
     return "Speed-/sec: " + DFSOperationsUtils.round(speed)
-            + ", Successful-Ops: " + DFSOperationsUtils.round(successfulOps)
-            + ", Failed-Ops: " + DFSOperationsUtils.round(failedOps)
-            + ", Avg-Ops-Latency: " + DFSOperationsUtils.round(avgOpLatency) + " ns"
+            + "; Successful-Ops: " + DFSOperationsUtils.round(successfulOps)
+            + "; Failed-Ops: " + DFSOperationsUtils.round(failedOps)
+            + "; Avg-Ops-Latency: " + DFSOperationsUtils.round(avgOpLatency) + " ns"
             + " (" + DFSOperationsUtils.round(avgOpLatency / 1e6) + " ms)"
-            + ", Avg-Test-Duration-sec " + DFSOperationsUtils.round(duration)
-            + ", No of Expected NNs : " + super.getNoOfExpectedAliveNNs()
-            + ", No of Actual Alive NNs : " + super.getNoOfAcutallAliveNNs();
+            + "; Avg-Test-Duration-sec " + DFSOperationsUtils.round(duration)
+            + "; No of Expected NNs : " + super.getNoOfExpectedAliveNNs()
+            + "; No of Actual Alive NNs : " + super.getNoOfAcutallAliveNNs();
   }
 }
