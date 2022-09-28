@@ -269,8 +269,8 @@ public class Master {
     printMasterLogMessages("Starting Interleaved Benchmark ...");
     prompt();
 
-    // Monitor for an additional twenty seconds beyond the duration of the benchmark.
-    long interleavedBenchmarkDuration = config.getInterleavedBmDuration() + (1000 * 20);
+    // Monitor for an additional five seconds beyond the duration of the benchmark.
+    long interleavedBenchmarkDuration = config.getInterleavedBmDuration() + (1000 * 5);
     double interval = config.getNameNodeMonitorInterval();
 
     // Start Python script to monitor the NNs.
