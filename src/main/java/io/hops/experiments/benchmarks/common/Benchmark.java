@@ -47,7 +47,7 @@ public abstract class Benchmark {
   protected final ExecutorService executor;
   protected AtomicInteger threadsWarmedUp = new AtomicInteger(0);
   protected final BMConfiguration bmConf;
-  protected boolean dryrun = false;
+  protected boolean dryrun;
 
   public Benchmark(Configuration conf, BMConfiguration bmConf) {
     this.conf = conf;
@@ -64,8 +64,7 @@ public abstract class Benchmark {
   protected abstract WarmUpCommand.Response warmUp(WarmUpCommand.Request warmUp)
           throws Exception;
 
-  protected abstract BenchmarkCommand.Response processCommandInternal(BenchmarkCommand.Request command) throws Exception,
-          InterruptedException;
+  protected abstract BenchmarkCommand.Response processCommandInternal(BenchmarkCommand.Request command) throws Exception;
 
   public final BenchmarkCommand.Response processCommand(BenchmarkCommand.Request command)
           throws Exception {

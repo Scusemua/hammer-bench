@@ -207,11 +207,11 @@ public class InterleavedBenchmark extends Benchmark {
     Logger.resetTimer();
 
     LOG.debug("Invoking workers...");
-    List<Future<Object>> futures = executor.invokeAll(workers, duration, TimeUnit.MILLISECONDS);
+    List<Future<Object>> futures = executor.invokeAll(workers, (long)(duration * 1.05), TimeUnit.MILLISECONDS);
 
     int numFinished = 0;
     for (Future<Object> future : futures) {
-      if (future.isDone())
+      if (future.isDone() && !future.isCancelled())
         numFinished++;
     }
 
@@ -242,7 +242,7 @@ public class InterleavedBenchmark extends Benchmark {
     private FilePool filePool;
     private InterleavedMultiFaceCoin opCoin;
     private BMConfiguration config;
-    private long lastMsg;
+    private long lastMsg = System.currentTimeMillis();
 
     public Worker(BMConfiguration config) {
       this.config = config;

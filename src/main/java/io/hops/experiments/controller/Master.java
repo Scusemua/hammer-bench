@@ -282,8 +282,11 @@ public class Master {
             new InterleavedBenchmarkCommand.Request(config);
     sendToAllSlaves(request, 0/*delay*/);
 
+    LOG.info("Commander will now sleep for " + interleavedBenchmarkDuration + " ms.");
     Thread.sleep(interleavedBenchmarkDuration);
+    LOG.info("Commander has woken up. Attempting to receive benchmark results from all workers now.");
     Collection<Object> responses = receiveFromAllSlaves(120 * 1000 /*sec wait*/);
+    LOG.info("Received " + responses.size() + " responses from workers. Aggregating them now.");
     InterleavedBMResults result = InterleavedBMResultsAggregator.processInterleavedResults(responses, config);
     printMasterResultMessages(result);
   }
@@ -397,10 +400,17 @@ public class Master {
     Map<InetAddress, Object> responses = new HashMap<InetAddress, Object>();
     if (!slavesConnections.isEmpty()) {
       for (InetAddress slave : slavesConnections.keySet()) {
+        LOG.info("Attempting to receive result from worker at " + slave.toString() +
+                " now. Timeout: " + timeout + " ms.");
         SlaveConnection conn = slavesConnections.get(slave);
+        long start = System.currentTimeMillis();
         Object obj = conn.recvFromSlave(timeout);
         if (obj != null) {
+          LOG.info("Successfully received result from worker at " + slave + " after " +
+                  (System.currentTimeMillis() - start) + " ms.");
           responses.put(slave, obj);
+        } else {
+          LOG.error("Failed to receive result from worker at " + slave + " after " + timeout + " ms.");
         }
       }
     }
