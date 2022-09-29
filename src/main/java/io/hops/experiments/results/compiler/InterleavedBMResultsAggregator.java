@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.hops.experiments.controller.Master;
+import io.hops.experiments.utils.DFSOperationsUtils;
 import io.hops.metrics.OperationPerformed;
 import io.hops.metrics.TransactionEvent;
 import org.apache.commons.logging.Log;
@@ -168,7 +169,8 @@ public class InterleavedBMResultsAggregator extends Aggregator {
 
     int cacheHits = 0;
     int cacheMisses = 0;
-    DistributedFileSystem hdfs = new DistributedFileSystem();
+    DistributedFileSystem hdfs = DFSOperationsUtils.getDFSClient(false);
+    hdfs.clearStatistics(true, true, true);
 
     //write the response objects to files. 
     //these files are processed by CalculatePercentiles.java
@@ -221,6 +223,9 @@ public class InterleavedBMResultsAggregator extends Aggregator {
             (successfulOps.getSum() / ((duration.getMean() / 1000))), (duration.getMean() / 1000),
             (successfulOps.getSum()), (failedOps.getSum()), allOpsPercentiles, opsLatency.getMean(),
             cacheHits, cacheMisses);
+
+    DFSOperationsUtils.returnHdfsClient(hdfs);
+
     return result;
   }
 
