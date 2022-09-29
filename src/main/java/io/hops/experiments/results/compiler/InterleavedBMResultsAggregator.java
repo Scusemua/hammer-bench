@@ -172,9 +172,9 @@ public class InterleavedBMResultsAggregator extends Aggregator {
     int cacheHits = 0;
     int cacheMisses = 0;
     LOG.info("Getting HDFS client");
-    DistributedFileSystem hdfs = DFSOperationsUtils.getDFSClient(false);
+    //DistributedFileSystem hdfs = DFSOperationsUtils.getDFSClient(false);
     LOG.info("Got HDFS client. Clearing metrics.");
-    hdfs.clearStatistics(true, true, true);
+    //hdfs.clearStatistics(true, true, true);
 
     LOG.info("Cleared metrics.");
 
@@ -193,11 +193,11 @@ public class InterleavedBMResultsAggregator extends Aggregator {
         }
 
         LOG.info("Extracting ops performed");
-        hdfs.addOperationPerformeds(response.getOperationPerformedInstances());
+        //hdfs.addOperationPerformeds(response.getOperationPerformedInstances());
         LOG.info("Extracting latencies");
-        hdfs.addLatencies(response.getTcpLatencies().getValues(), response.getHttpLatencies().getValues());
+        //hdfs.addLatencies(response.getTcpLatencies().getValues(), response.getHttpLatencies().getValues());
         LOG.info("Extracting tx events");
-        hdfs.mergeTransactionEvents(response.getTxEvents(), true);
+        //hdfs.mergeTransactionEvents(response.getTxEvents(), true);
         LOG.info("Processed response " + counter + "/" + responses.size());
 
         counter += 1;
@@ -205,8 +205,8 @@ public class InterleavedBMResultsAggregator extends Aggregator {
     }
 
     LOG.info("Printing operations performed now");
-    printOperationsPerformed(hdfs, args.getResultsDir() + "_OperationsPerformed");
-    DFSOperationsUtils.returnHdfsClient(hdfs);
+    //printOperationsPerformed(hdfs, args.getResultsDir() + "_OperationsPerformed");
+    //DFSOperationsUtils.returnHdfsClient(hdfs);
 
     //write the response objects to files. 
     //these files are processed by CalculatePercentiles.java
