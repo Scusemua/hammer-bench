@@ -2,3 +2,5 @@
 *.iml
 .idea
 *.out
+HopsFS_latency.txt
+LambdaMDS_latency.txt

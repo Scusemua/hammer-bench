@@ -23,12 +23,14 @@ mpl.rc('font', **font)
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-i", "--input", default = "./ALL_DATA.txt", help = "Path to file containing ALL data.")
-parser.add_argument("-d", "--duration", default = 60, help = "Duration of the experiment in seconds.")
+parser.add_argument("-n", "--namenodes", default = None, help = "Path to associated NN monitoring CSV.")
+parser.add_argument("-d", "--duration", default = 60, type = int, help = "Duration of the experiment in seconds.")
 
 args = parser.parse_args()
 
 input_path = args.input
 duration = args.duration
+namenodes_path = args.namenodes
 
 # If we pass a single .txt file, then just create DataFrame from the .txt file.
 # Otherwise, merge all .txt files in the specified directory.
@@ -53,11 +55,12 @@ else:
 print("Sorting now...")
 start_sort = time.time()
 df = df.sort_values('timestamp')
-print("Sorted dataframe in %f seconds." % ()time.time() - start_sort))
+print("Sorted dataframe in %f seconds." % (time.time() - start_sort))
 
 min_val = min(df['timestamp'])
 max_val = max(df['timestamp'])
-#print("max_val - min_val =", max_val - min_val)
+print("max_val - min_val =", max_val - min_val)
+print("max_val - min_val =", (max_val - min_val) / 1e9)
 def adjust(x):
     return (x - min_val) / 1e9
 
@@ -85,7 +88,7 @@ for i in range(1, duration + 1):
     start = i-1
     end = i
     res = df[((df['ts'] >= start) & (df['ts'] <= end))]
-    print("%d points between %d and %d" % (len(res), start, end))
+    #print("%d points between %d and %d" % (len(res), start, end))
     buckets[i] = len(res)
     total += len(res)
 
@@ -95,14 +98,38 @@ for i in range(1, duration + 1):
 #     t = row['ts']
 #     buckets[round(t)] += 1
 
-for i, t in enumerate(buckets):
-    print("%d,%d" % (i,t))
+# for i, t in enumerate(buckets):
+#     print("%d,%d" % (i,t))
 
 #print(sum(buckets))
 #print(len(df))
 
-plt.figure(figsize=(12,8))
-plt.plot(list(range(len(buckets))), buckets)
-plt.xlabel("Time (seconds)")
-plt.ylabel("Throughput (ops/sec)")
+if namenodes_path is not None:
+    fig, axs = plt.subplots(nrows = 1, ncols = 2, figsize=(12,8))
+
+    df_nns = pd.read_csv(namenodes_path)
+    min_val = min(df_nns["time"])
+
+    def adjust_nn_timestamp(timestamp):
+        return (timestamp - min_val) / 1e3
+
+    df_nns["ts"] = df_nns["time"].map(adjust_nn_timestamp)
+
+    xs = df_nns["ts"]
+    ys = df_nns["nns"]
+
+    axs[1].plot(xs, ys)
+    axs[1].set_xlabel("Time (seconds)")
+    axs[1].set_ylabel("Number of Active NNs")
+
+    axs[0].plot(list(range(len(buckets))), buckets)
+    axs[0].set_xlabel("Time (seconds)")
+    axs[0].set_ylabel("Throughput (ops/sec)")
+else:
+    fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
+
+    axs.plot(list(range(len(buckets))), buckets)
+    axs.set_xlabel("Time (seconds)")
+    axs.set_ylabel("Throughput (ops/sec)")
+
 plt.show()
