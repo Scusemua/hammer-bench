@@ -171,10 +171,12 @@ public class InterleavedBMResultsAggregator extends Aggregator {
 
     int cacheHits = 0;
     int cacheMisses = 0;
+    LOG.info("Getting HDFS client");
     DistributedFileSystem hdfs = DFSOperationsUtils.getDFSClient(false);
+    LOG.info("Got HDFS client. Clearing metrics.");
     hdfs.clearStatistics(true, true, true);
 
-    LOG.info("Grabbed HDFS instance to use for Ops Performed.");
+    LOG.info("Cleared metrics.");
 
     int counter = 0;
     for (Object obj : responses) {
