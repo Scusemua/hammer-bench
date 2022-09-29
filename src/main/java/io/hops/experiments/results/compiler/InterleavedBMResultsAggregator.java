@@ -26,21 +26,29 @@ import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
+import io.hops.experiments.controller.Master;
+import io.hops.metrics.OperationPerformed;
+import io.hops.metrics.TransactionEvent;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 
 /**
  *
  * @author salman
  */
 public class InterleavedBMResultsAggregator extends Aggregator {
+  public static final Log LOG = LogFactory.getLog(InterleavedBMResultsAggregator.class);
 
   private Map<String /*workload name*/, Map<Integer/*NN Count*/, InterleavedAggregate/*aggregates*/>> allWorkloadsResults =
           new HashMap<String, Map<Integer, InterleavedAggregate>>();
 
   @Override
   public void processRecord(BMResult result) {
-    //System.out.println(result);
+    //LOG.info(result);
     InterleavedBMResults ilResult = (InterleavedBMResults) result;
     if(ilResult.getSpeed()<=0){
       return;
@@ -96,14 +104,14 @@ public class InterleavedBMResultsAggregator extends Aggregator {
       Map<Integer, InterleavedAggregate> hdfsWorkloadResult = hdfsAllWorkLoads.get(workload);
 
       if (hopsWorkloadResult == null) {
-        System.out.println("No data for hopsfs for workload " + workload);
+        LOG.info("No data for hopsfs for workload " + workload);
         return;
       }
 
       double hdfsVal = 0;
       if (hdfsWorkloadResult != null) {
         if (hdfsWorkloadResult.keySet().size() > 1) {
-          System.out.println("NN count for HDFS cannot be greater than 1");
+          LOG.info("NN count for HDFS cannot be greater than 1");
           return;
         }
 
@@ -126,17 +134,18 @@ public class InterleavedBMResultsAggregator extends Aggregator {
                 + CompileResults.format(agg.getMinSpeed() + "") + CompileResults.format(agg.getMaxSpeed() + "")
                 + "\n";
       }
-      System.out.println(data);
+      LOG.info(data);
       CompileResults.writeToFile(outpuFolder + "/" + workload + "-interleaved.dat", data, false);
     }
 
-    System.out.println(plot);
+    LOG.info(plot);
     CompileResults.writeToFile(outpuFolder + "/interleaved.gnuplot", plot, false);
   }
 
-  public static InterleavedBMResults processInterleavedResults(Collection<Object> responses, BMConfiguration args) throws FileNotFoundException, IOException, InterruptedException {
-    Map<BenchmarkOperations, double[][]> allOpsPercentiles = new HashMap<BenchmarkOperations, double[][]>();
-    System.out.println("Processing the results ");
+  public static InterleavedBMResults processInterleavedResults(Collection<Object> responses, BMConfiguration args)
+          throws IOException {
+    Map<BenchmarkOperations, double[][]> allOpsPercentiles = new HashMap<>();
+    LOG.info("Processing the results ");
     DescriptiveStatistics successfulOps = new DescriptiveStatistics();
     DescriptiveStatistics failedOps = new DescriptiveStatistics();
     DescriptiveStatistics speed = new DescriptiveStatistics();
@@ -156,7 +165,11 @@ public class InterleavedBMResultsAggregator extends Aggregator {
         noOfNNs.addValue(response.getNnCount());
       }
     }
-    
+
+    int cacheHits = 0;
+    int cacheMisses = 0;
+    DistributedFileSystem hdfs = new DistributedFileSystem();
+
     //write the response objects to files. 
     //these files are processed by CalculatePercentiles.java
     int responseCount = 0;
@@ -166,21 +179,29 @@ public class InterleavedBMResultsAggregator extends Aggregator {
       } else {
         String filePath = args.getResultsDir();
         InterleavedBenchmarkCommand.Response response = (InterleavedBenchmarkCommand.Response) obj;
-        filePath += "ResponseRawData"+responseCount+++ConfigKeys.RAW_RESPONSE_FILE_EXT;
-        System.out.println("Writing Rwaw results to " + filePath);
+        filePath += "ResponseRawData" + responseCount++ + ConfigKeys.RAW_RESPONSE_FILE_EXT;
+        LOG.info("Writing Rwaw results to " + filePath);
         FileOutputStream fout = new FileOutputStream(filePath);
         ObjectOutputStream oos = new ObjectOutputStream(fout);
         oos.writeObject(response);
         oos.close();
 
+        for (OperationPerformed operationPerformed : response.getOperationPerformedInstances()) {
+          cacheHits += operationPerformed.getMetadataCacheHits();
+          cacheMisses += operationPerformed.getMetadataCacheMisses();
+        }
 
-        System.out.println("Writing CSV results ");
+        hdfs.addOperationPerformeds(response.getOperationPerformedInstances());
+        hdfs.addLatencies(response.getTcpLatencies().getValues(), response.getHttpLatencies().getValues());
+        hdfs.mergeTransactionEvents(response.getTxEvents(), true);
+
+        LOG.info("Writing CSV results ");
         HashMap<BenchmarkOperations, ArrayList<BMOpStats>> stats = response.getOpsStats();
-        for(BenchmarkOperations op : stats.keySet()){
-          filePath=args.getResultsDir();
-          filePath+=op.toString()+".txt";
+        for (BenchmarkOperations op : stats.keySet()) {
+          filePath = args.getResultsDir();
+          filePath += op.toString() + ".txt";
           FileWriter out = new FileWriter(filePath, true);
-          for(BMOpStats stat : stats.get(op)){
+          for (BMOpStats stat : stats.get(op)) {
             out.write(String.valueOf(stat.OpStart));
             out.write(",");
             out.write(String.valueOf(stat.OpDuration));
@@ -190,69 +211,49 @@ public class InterleavedBMResultsAggregator extends Aggregator {
 
         }
       }
+
+      printOperationsPerformed(hdfs, args.getResultsDir() + "_OperationsPerformed");
     }
 
     InterleavedBMResults result = new InterleavedBMResults(args.getNamenodeCount(),
             (int)Math.floor(noOfNNs.getMean()),
             args.getNdbNodesCount(), args.getInterleavedBmWorkloadName(),
             (successfulOps.getSum() / ((duration.getMean() / 1000))), (duration.getMean() / 1000),
-            (successfulOps.getSum()), (failedOps.getSum()), allOpsPercentiles, opsLatency.getMean());
-
-
-//    // failover testing
-//    if(args.testFailover()){
-//      if(responses.size() != 1){
-//        throw new UnsupportedOperationException("Currently we only support failover testing for one slave machine");
-//      }
-//
-//      String prefix = args.getBenchMarkFileSystemName().toString();
-//      if(args.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HopsFS){
-//        prefix+="-"+args.getNameNodeSelectorPolicy();
-//      }
-//
-//      final String outputFolder = args.getResultsDir();
-//      InterleavedBenchmarkCommand.Response response = (InterleavedBenchmarkCommand.Response)responses.iterator().next();
-//
-//
-//      StringBuilder sb = new StringBuilder();
-//      for(String data : response.getFailOverLog()){
-//        sb.append(data).append("\n");
-//      }
-//
-//      String datFile = prefix+"-failover.dat";
-//      CompileResults.writeToFile(outputFolder+"/"+datFile, sb.toString(), false);
-//
-//
-//      StringBuilder plot = new StringBuilder("set terminal postscript eps enhanced color font \"Helvetica,18\"  #monochrome\n");
-//      plot.append( "set output '| ps2pdf - failover.pdf'\n");
-//      plot.append( "#set size 1,0.75 \n ");
-//      plot.append( "set ylabel \"ops/sec\" \n");
-//      plot.append( "set xlabel \"Time (sec)\" \n");
-//      plot.append( "set format y \"%.0s%c\"\n");
-//
-//
-//      StringBuilder sbx = new StringBuilder();
-//      String oldPt = "";
-//      for(String data : response.getFailOverLog()){
-//
-//        if(data.startsWith("#")) {
-//          StringTokenizer st = new StringTokenizer(oldPt);
-//          long time = Long.parseLong(st.nextToken());
-//          long spd = Long.parseLong(st.nextToken());
-//          sbx.append("set label 'NN-Restart' at "+time+","+spd+" rotate by 270").append("\n");
-//        }
-//        oldPt = data;
-//      }
-//      plot.append(sbx.toString());
-//
-//
-//      plot.append( "plot '"+datFile+"' with linespoints ls 1");
-//      CompileResults.writeToFile(outputFolder+"/"+prefix+"-failover.gnu", plot.toString(), false);
-//
-//    }
-
+            (successfulOps.getSum()), (failedOps.getSum()), allOpsPercentiles, opsLatency.getMean(),
+            cacheHits, cacheMisses);
     return result;
   }
 
- 
+  public static void printOperationsPerformed(DistributedFileSystem hdfs, String filePath) throws IOException {
+    hdfs.printOperationsPerformed();
+
+    ConcurrentHashMap<String, List<TransactionEvent>> transactionEvents = hdfs.getTransactionEvents();
+    ArrayList<TransactionEvent> allTransactionEvents = new ArrayList<>();
+
+    for (Map.Entry<String, List<TransactionEvent>> entry : transactionEvents.entrySet()) {
+      allTransactionEvents.addAll(entry.getValue());
+    }
+
+    System.out.println("====================== Transaction Events ====================================================================================");
+
+    System.out.println("\n-- SUMS ----------------------------------------------------------------------------------------------------------------------");
+    System.out.println(TransactionEvent.getMetricsHeader());
+    System.out.println(TransactionEvent.getMetricsString(TransactionEvent.getSums(allTransactionEvents)));
+
+    System.out.println("\n-- AVERAGES ------------------------------------------------------------------------------------------------------------------");
+    System.out.println(TransactionEvent.getMetricsHeader());
+    System.out.println(TransactionEvent.getMetricsString(TransactionEvent.getAverages(allTransactionEvents)));
+
+    System.out.println("\n==============================================================================================================================");
+
+    BufferedWriter opsPerformedWriter = new BufferedWriter(new FileWriter(filePath + ".csv"));
+    List<OperationPerformed> operationsPerformed = hdfs.getOperationsPerformed();
+
+    opsPerformedWriter.write(OperationPerformed.getHeader());
+    opsPerformedWriter.newLine();
+    for (OperationPerformed op : operationsPerformed) {
+      op.write(opsPerformedWriter);
+    }
+    opsPerformedWriter.close();
+  }
 }

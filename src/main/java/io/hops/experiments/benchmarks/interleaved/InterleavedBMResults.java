@@ -38,7 +38,13 @@ public class InterleavedBMResults extends BMResult {
   private final String workloadName;
   private final double avgOpLatency;
 
-  public InterleavedBMResults(int noOfExpectedNNs, int noOfActualAliveNNs, int noOfNDBDataNodes, String workloadName, double speed, double duration, double successfulOps, double failedOps, Map<BenchmarkOperations,double[][]> percentile,double avgOpLatency) {
+  private final int cacheHits;
+  private final int cacheMisses;
+
+  public InterleavedBMResults(int noOfExpectedNNs, int noOfActualAliveNNs, int noOfNDBDataNodes, String workloadName,
+                              double speed, double duration, double successfulOps, double failedOps,
+                              Map<BenchmarkOperations,double[][]> percentile, double avgOpLatency,
+                              int cacheHits, int cacheMisses) {
     super(noOfExpectedNNs, noOfActualAliveNNs, noOfNDBDataNodes, BenchmarkType.INTERLEAVED);
     this.speed = speed;
     this.duration = duration;
@@ -47,6 +53,8 @@ public class InterleavedBMResults extends BMResult {
     this.percentile = percentile;
     this.workloadName = workloadName;
     this.avgOpLatency = avgOpLatency;
+    this.cacheHits = cacheHits;
+    this.cacheMisses = cacheMisses;
   }
 
   public String getWorkloadName() {
@@ -77,6 +85,13 @@ public class InterleavedBMResults extends BMResult {
     return avgOpLatency;
   }
 
+  public double getCacheHitRate() {
+    if (cacheHits > 0 || cacheMisses > 0)
+      return (double)cacheHits / ((double)cacheHits + (double)cacheMisses);
+
+    return -1;
+  }
+
   @Override
   public String toString() {
     return "Speed-/sec: " + DFSOperationsUtils.round(speed)
@@ -86,6 +101,18 @@ public class InterleavedBMResults extends BMResult {
             + " (" + DFSOperationsUtils.round(avgOpLatency / 1e6) + " ms)"
             + "; Avg-Test-Duration-sec " + DFSOperationsUtils.round(duration)
             + "; No of Expected NNs : " + super.getNoOfExpectedAliveNNs()
-            + "; No of Actual Alive NNs : " + super.getNoOfAcutallAliveNNs();
+            + "; No of Actual Alive NNs : " + super.getNoOfAcutallAliveNNs()
+            + "; Cache Hits: " + cacheHits
+            + "; Cache Misses: " + cacheMisses
+            + "; Cache Hit Rate: " + getCacheHitRate();
+
+  }
+
+  public int getCacheHits() {
+    return cacheHits;
+  }
+
+  public int getCacheMisses() {
+    return cacheMisses;
   }
 }

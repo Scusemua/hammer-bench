@@ -37,6 +37,8 @@ import io.hops.experiments.workload.limiter.RateLimiter;
 import io.hops.experiments.workload.limiter.RateNoLimiter;
 import io.hops.experiments.workload.limiter.WorkerRateLimiter;
 
+import io.hops.metrics.OperationPerformed;
+import io.hops.metrics.TransactionEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
@@ -49,9 +51,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -69,6 +69,12 @@ public class InterleavedBenchmark extends Benchmark {
   protected final RateLimiter limiter;
   protected boolean debug = false;
 
+  protected BlockingQueue<List<OperationPerformed>> operationsPerformed;
+  protected BlockingQueue<HashMap<String, List<TransactionEvent>>> transactionEvents;
+  protected final SynchronizedDescriptiveStatistics latencyHttp = new SynchronizedDescriptiveStatistics();
+  protected final SynchronizedDescriptiveStatistics latencyTcp = new SynchronizedDescriptiveStatistics();
+  protected final SynchronizedDescriptiveStatistics latencyBoth = new SynchronizedDescriptiveStatistics();
+
   public InterleavedBenchmark(Configuration conf, BMConfiguration bmConf) {
     super(conf, bmConf);
     BenchmarkDistribution distribution = bmConf.getInterleavedBMIaTDistribution();
@@ -83,7 +89,11 @@ public class InterleavedBenchmark extends Benchmark {
       limiter = new RateNoLimiter();
     }
 
-    if (bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HDFS || bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HopsFS) {
+    operationsPerformed = new java.util.concurrent.ArrayBlockingQueue<>(bmConf.getSlaveNumThreads());
+    transactionEvents = transactionEvents = new ArrayBlockingQueue<>(bmConf.getSlaveNumThreads());
+
+    if (bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HDFS ||
+            bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HopsFS) {
       if (!Objects.equals(bmConf.getHadoopHomeDir(), "")) {
         System.setProperty("hadoop.home.dir", bmConf.getHadoopHomeDir());
       }
@@ -192,21 +202,6 @@ public class InterleavedBenchmark extends Benchmark {
       workerLimiter.setStat("completed", operationsCompleted);
     }
 
-//    FailOverMonitor failOverTester = null;
-//    List<String> failOverLog = null;
-//    if (config.testFailover()) {
-//      boolean canIKillNamenodes = InetAddress.getLocalHost().getHostName().compareTo(config.getNamenodeKillerHost()) == 0;
-//      if (canIKillNamenodes) {
-//        LOG.debug("Responsible for killing/restarting namenodes");
-//      }
-//      failOverTester = startFailoverTestDeamon(
-//              config.getNameNodeRestartCommands(),
-//              config.getFailOverTestDuration(),
-//              config.getFailOverTestStartTime(),
-//              config.getNameNodeRestartTimePeriod(),
-//              canIKillNamenodes);
-//    }
-
     Logger.resetTimer();
 
     LOG.debug("Invoking workers...");
@@ -234,9 +229,36 @@ public class InterleavedBenchmark extends Benchmark {
     if (!dryrun) {
       aliveNNsCount = getAliveNNsCount();
     }
-    InterleavedBenchmarkCommand.Response response =
-            new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(), speed, opsStats, avgLatency.getMean(), null, aliveNNsCount);
-    return response;
+
+    List<OperationPerformed> allOpsPerformed = new ArrayList<>();
+
+    for (List<OperationPerformed> opsPerformed : operationsPerformed) {
+      allOpsPerformed.addAll(opsPerformed);
+    }
+
+    ConcurrentHashMap<String, List<TransactionEvent>> allTxEvents = new ConcurrentHashMap<>();
+    for (HashMap<String, List<TransactionEvent>> txEvents : transactionEvents) {
+      allTxEvents.putAll(txEvents);
+    }
+
+    return new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(),
+            speed, opsStats, avgLatency.getMean(), null, aliveNNsCount, allOpsPerformed, allTxEvents,
+            latencyTcp, latencyHttp);
+  }
+
+  protected void extractMetrics(DistributedFileSystem hdfs) {
+    operationsPerformed.add(hdfs.getOperationsPerformed());
+
+    for (double latency : hdfs.getLatencyHttpStatistics().getValues()) {
+      latencyHttp.addValue(latency);
+      latencyBoth.addValue(latency);
+    }
+
+    //if (LOG.isDebugEnabled()) LOG.debug("[THREAD " + threadId + "] Collecting TCP latencies.");
+    for (double latency : hdfs.getLatencyTcpStatistics().getValues()) {
+      latencyTcp.addValue(latency);
+      latencyBoth.addValue(latency);
+    }
   }
 
   public class Worker implements Callable<Object> {
@@ -289,6 +311,7 @@ public class InterleavedBenchmark extends Benchmark {
         for (int i = 0; i < 5000; i++) {
           try {
             if ((System.currentTimeMillis() - startTime) > duration) {
+              extractMetrics(dfs);
               DFSOperationsUtils.returnHdfsClient(dfs);
               return null;
             }
@@ -300,6 +323,7 @@ public class InterleavedBenchmark extends Benchmark {
 
             // Wait for the limiter to allow the operation
             if (!limiter.checkRate()) {
+              extractMetrics(dfs);
               DFSOperationsUtils.returnHdfsClient(dfs);
               return null;
             }

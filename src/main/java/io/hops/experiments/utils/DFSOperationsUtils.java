@@ -207,12 +207,13 @@ public class DFSOperationsUtils {
         }
 
         client.setServerlessFunctionLogLevel("INFO");
-        client.setBenchmarkModeEnabled(true);
+        client.setBenchmarkModeEnabled(false); // Want to track cache hits/misses.
 
         return client;
     }
 
     public static void returnHdfsClient(DistributedFileSystem hdfs) {
+        hdfs.clearStatistics(true, true, true);
         hdfsClientPool.add(hdfs);
     }
 

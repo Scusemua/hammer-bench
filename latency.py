@@ -102,7 +102,8 @@ def plot_data(input_path, axis = None, vanilla = False):
             axis[row, col].set_ylabel("Cumulative Probability", fontsize = y_label_font_size)
             axis[row, col].tick_params(labelsize=xtick_font_size)
             axis[row, col].set_title(fs_operation_name)
-            axis[row, col].set_xlim(right = xlim_percent * latencies[-1])
+            axis[row, col].set_xlim(right = xlim_percent * latenc
+            ies[-1])
             axis[row, col].set_ylim(bottom = ylim_percent)
 
             row = (row + 1) % 3

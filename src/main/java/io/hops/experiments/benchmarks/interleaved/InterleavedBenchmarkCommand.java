@@ -21,10 +21,15 @@ import io.hops.experiments.benchmarks.common.BenchmarkOperations;
 import io.hops.experiments.benchmarks.common.config.BMConfiguration;
 import io.hops.experiments.controller.commands.BenchmarkCommand;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
+import io.hops.metrics.OperationPerformed;
+import io.hops.metrics.TransactionEvent;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -33,7 +38,8 @@ import java.util.List;
 public class InterleavedBenchmarkCommand {
 
     public static class Request implements BenchmarkCommand.Request {
-        private BMConfiguration config;
+        private static final long serialVersionUID = 4743633103233423500L;
+        private final BMConfiguration config;
 
         public Request(BMConfiguration config) {
           this.config = config;
@@ -56,6 +62,7 @@ public class InterleavedBenchmarkCommand {
 
     public static class Response implements BenchmarkCommand.Response {
 
+        private static final long serialVersionUID = -8224473724260935088L;
         private final long runTime;
         private final long totalSuccessfulOps;
         private final long totalFailedOps;
@@ -64,10 +71,16 @@ public class InterleavedBenchmarkCommand {
         private final HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats;
         private final List<String> failOverLog;
         private final int nnCount;
+        private final List<OperationPerformed> operationPerformedInstances;
+        private final ConcurrentHashMap<String, List<TransactionEvent>> txEvents;
+        private final DescriptiveStatistics tcpLatencies;
+        private final DescriptiveStatistics httpLatencies;
 
         public Response(long runTime, long totalSuccessfulOps, long totalFailedOps, double opsPerSec,
-                        HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats, double avgOpLatency, List<String> failOverLog,
-                        int nnCount) {
+                        HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats, double avgOpLatency,
+                        List<String> failOverLog, int nnCount, List<OperationPerformed> operationPerformedInstances,
+                        ConcurrentHashMap<String, List<TransactionEvent>> txEvents,
+                        DescriptiveStatistics tcpLatencies, DescriptiveStatistics httpLatencies) {
             this.runTime = runTime;
             this.totalSuccessfulOps = totalSuccessfulOps;
             this.totalFailedOps = totalFailedOps;
@@ -76,12 +89,15 @@ public class InterleavedBenchmarkCommand {
             this.failOverLog = failOverLog;
             this.avgOpLatency = avgOpLatency;
             this.nnCount = nnCount;
+            this.operationPerformedInstances = operationPerformedInstances;
+            this.txEvents = txEvents;
+            this.tcpLatencies = tcpLatencies;
+            this.httpLatencies = httpLatencies;
         }
 
         public HashMap<BenchmarkOperations, ArrayList<BMOpStats>> getOpsStats() {
             return opsStats;
         }
-
 
         public long getRunTime() {
             return runTime;
@@ -109,6 +125,22 @@ public class InterleavedBenchmarkCommand {
 
         public int getNnCount() {
             return nnCount;
+        }
+
+        public List<OperationPerformed> getOperationPerformedInstances() {
+            return operationPerformedInstances;
+        }
+
+        public ConcurrentHashMap<String, List<TransactionEvent>> getTxEvents() {
+            return txEvents;
+        }
+
+        public DescriptiveStatistics getTcpLatencies() {
+            return tcpLatencies;
+        }
+
+        public DescriptiveStatistics getHttpLatencies() {
+            return httpLatencies;
         }
     }
 }
