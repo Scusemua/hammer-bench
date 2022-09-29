@@ -174,6 +174,38 @@ public class InterleavedBMResultsAggregator extends Aggregator {
     DistributedFileSystem hdfs = DFSOperationsUtils.getDFSClient(false);
     hdfs.clearStatistics(true, true, true);
 
+    LOG.info("Grabbed HDFS instance to use for Ops Performed.");
+
+    int counter = 0;
+    for (Object obj : responses) {
+      if (!(obj instanceof InterleavedBenchmarkCommand.Response)) {
+        throw new IllegalStateException("Wrong response received from the client");
+      } else {
+        LOG.info("Processing response " + counter + "/" + responses.size());
+        InterleavedBenchmarkCommand.Response response = (InterleavedBenchmarkCommand.Response) obj;
+
+        LOG.info("Calculating cache hits/misses for response " + counter);
+        for (OperationPerformed operationPerformed : response.getOperationPerformedInstances()) {
+          cacheHits += operationPerformed.getMetadataCacheHits();
+          cacheMisses += operationPerformed.getMetadataCacheMisses();
+        }
+
+        LOG.info("Extracting ops performed");
+        hdfs.addOperationPerformeds(response.getOperationPerformedInstances());
+        LOG.info("Extracting latencies");
+        hdfs.addLatencies(response.getTcpLatencies().getValues(), response.getHttpLatencies().getValues());
+        LOG.info("Extracting tx events");
+        hdfs.mergeTransactionEvents(response.getTxEvents(), true);
+        LOG.info("Processed response " + counter + "/" + responses.size());
+
+        counter += 1;
+      }
+    }
+
+    LOG.info("Printing operations performed now");
+    printOperationsPerformed(hdfs, args.getResultsDir() + "_OperationsPerformed");
+    DFSOperationsUtils.returnHdfsClient(hdfs);
+
     //write the response objects to files. 
     //these files are processed by CalculatePercentiles.java
     int responseCount = 0;
@@ -189,15 +221,6 @@ public class InterleavedBMResultsAggregator extends Aggregator {
         ObjectOutputStream oos = new ObjectOutputStream(fout);
         oos.writeObject(response);
         oos.close();
-
-        for (OperationPerformed operationPerformed : response.getOperationPerformedInstances()) {
-          cacheHits += operationPerformed.getMetadataCacheHits();
-          cacheMisses += operationPerformed.getMetadataCacheMisses();
-        }
-
-        hdfs.addOperationPerformeds(response.getOperationPerformedInstances());
-        hdfs.addLatencies(response.getTcpLatencies().getValues(), response.getHttpLatencies().getValues());
-        hdfs.mergeTransactionEvents(response.getTxEvents(), true);
 
         LOG.info("Writing CSV results ");
         HashMap<BenchmarkOperations, ArrayList<BMOpStats>> stats = response.getOpsStats();
@@ -217,17 +240,12 @@ public class InterleavedBMResultsAggregator extends Aggregator {
       }
     }
 
-    LOG.info("Printing operations performed now");
-    printOperationsPerformed(hdfs, args.getResultsDir() + "_OperationsPerformed");
-
     InterleavedBMResults result = new InterleavedBMResults(args.getNamenodeCount(),
             (int)Math.floor(noOfNNs.getMean()),
             args.getNdbNodesCount(), args.getInterleavedBmWorkloadName(),
             (successfulOps.getSum() / ((duration.getMean() / 1000))), (duration.getMean() / 1000),
             (successfulOps.getSum()), (failedOps.getSum()), allOpsPercentiles, opsLatency.getMean(),
             cacheHits, cacheMisses);
-
-    DFSOperationsUtils.returnHdfsClient(hdfs);
 
     LOG.info("Returning result");
     return result;
