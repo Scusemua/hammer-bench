@@ -144,18 +144,19 @@ public class DFSOperationsUtils {
      */
     public static Configuration getConfiguration(String path) {
         Configuration configuration = new Configuration();
+        LOG.info("Config path: '" + path + "'");
         try {
             File configFile = new File(path);
             URL configFileURL = configFile.toURI().toURL();
-//            LOG.debug("Adding resource to file: " + configFileURL);
+            LOG.info("Adding resource to file: " + configFileURL);
             configuration.addResource(configFileURL);
-//            LOG.debug("Successfully added resource to file.");
+            LOG.info("Successfully added resource to file.");
         } catch (MalformedURLException ex) {
             LOG.error("Invalid path specified for Configuration: '" + path + "':", ex);
-//            LOG.debug("Invalid path specified for Configuration: '" + path + "':", ex);
+            LOG.info("Invalid path specified for Configuration: '" + path + "':", ex);
         } catch (Exception ex) {
             LOG.error("Unexpected error while getting Configuration from file '" + path + "':", ex);
-//            LOG.debug("Unexpected error while getting Configuration from file '" + path + "':", ex);
+            LOG.info("Unexpected error while getting Configuration from file '" + path + "':", ex);
         }
         return configuration;
     }
