@@ -103,6 +103,7 @@ public class Master {
       printAllResults();
     } catch (Exception e) {
       LOG.error("Exception encountered: ", e);
+      LOG.info("Encountered error:", e);
     } finally {
       printMasterLogMessages("Sending KILL command to all slaves.");
       sendToAllSlaves(new KillSlave(), 0/*delay*/);
