@@ -167,6 +167,8 @@ public class InterleavedBMResultsAggregator extends Aggregator {
       }
     }
 
+    LOG.info("Deserialized all responses.");
+
     int cacheHits = 0;
     int cacheMisses = 0;
     DistributedFileSystem hdfs = DFSOperationsUtils.getDFSClient(false);
@@ -182,7 +184,7 @@ public class InterleavedBMResultsAggregator extends Aggregator {
         String filePath = args.getResultsDir();
         InterleavedBenchmarkCommand.Response response = (InterleavedBenchmarkCommand.Response) obj;
         filePath += "ResponseRawData" + responseCount++ + ConfigKeys.RAW_RESPONSE_FILE_EXT;
-        LOG.info("Writing Rwaw results to " + filePath);
+        LOG.info("Writing raw results to " + filePath);
         FileOutputStream fout = new FileOutputStream(filePath);
         ObjectOutputStream oos = new ObjectOutputStream(fout);
         oos.writeObject(response);
