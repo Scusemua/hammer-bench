@@ -165,11 +165,15 @@ public class DFSOperationsUtils {
      * Create an HDFS client.
      */
     public static DistributedFileSystem initDfsClient(boolean warmingUp) {
+        LOG.info("Creating config.");
         Configuration hdfsConfiguration = getConfiguration(hdfsConfigFilePath);
+        LOG.info("Created config.");
         DistributedFileSystem hdfs = new DistributedFileSystem();
+        LOG.info("Created DistributedFileSystem instance.");
 
         try {
             hdfs.initialize(new URI(NAME_NODE_ENDPOINT), hdfsConfiguration);
+            LOG.info("Initialized DistributedFileSystem instance.");
         } catch (URISyntaxException | IOException ex) {
             LOG.error("");
             LOG.error("");
@@ -195,13 +199,16 @@ public class DFSOperationsUtils {
     public static DistributedFileSystem getDFSClient(boolean warmingUp) {
         // DistributedFileSystem client = dfsClients.get();
         DistributedFileSystem client;
+        LOG.info("Polling for HDFS client");
         client = hdfsClientPool.poll();
 
         if (client == null) {
+            LOG.info("Could not find client. Creating new HDFS client");
             client = initDfsClient(warmingUp);
             dfsClients.set(client);
         }
         else {
+            LOG.info("Found HDFS client");
             // Enable consistency protocol when not warming up.
             client.setConsistencyProtocolEnabled(!warmingUp);
         }
@@ -209,6 +216,7 @@ public class DFSOperationsUtils {
         client.setServerlessFunctionLogLevel("INFO");
         client.setBenchmarkModeEnabled(false); // Want to track cache hits/misses.
 
+        LOG.info("Returning HDFS client");
         return client;
     }
 
