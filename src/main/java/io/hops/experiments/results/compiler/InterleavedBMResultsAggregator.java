@@ -213,9 +213,10 @@ public class InterleavedBMResultsAggregator extends Aggregator {
 
         }
       }
-
-      printOperationsPerformed(hdfs, args.getResultsDir() + "_OperationsPerformed");
     }
+
+    LOG.info("Printing operations performed now");
+    printOperationsPerformed(hdfs, args.getResultsDir() + "_OperationsPerformed");
 
     InterleavedBMResults result = new InterleavedBMResults(args.getNamenodeCount(),
             (int)Math.floor(noOfNNs.getMean()),
@@ -226,6 +227,7 @@ public class InterleavedBMResultsAggregator extends Aggregator {
 
     DFSOperationsUtils.returnHdfsClient(hdfs);
 
+    LOG.info("Returning result");
     return result;
   }
 
