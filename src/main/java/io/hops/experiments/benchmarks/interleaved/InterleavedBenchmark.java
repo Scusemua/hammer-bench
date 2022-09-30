@@ -247,18 +247,18 @@ public class InterleavedBenchmark extends Benchmark {
   }
 
   protected void extractMetrics(DistributedFileSystem hdfs) {
-    operationsPerformed.add(hdfs.getOperationsPerformed());
+    // operationsPerformed.add(hdfs.getOperationsPerformed());
 
-    for (double latency : hdfs.getLatencyHttpStatistics().getValues()) {
-      latencyHttp.addValue(latency);
-      latencyBoth.addValue(latency);
-    }
-
-    //if (LOG.isDebugEnabled()) LOG.debug("[THREAD " + threadId + "] Collecting TCP latencies.");
-    for (double latency : hdfs.getLatencyTcpStatistics().getValues()) {
-      latencyTcp.addValue(latency);
-      latencyBoth.addValue(latency);
-    }
+//    for (double latency : hdfs.getLatencyHttpStatistics().getValues()) {
+//      latencyHttp.addValue(latency);
+//      latencyBoth.addValue(latency);
+//    }
+//
+//    //if (LOG.isDebugEnabled()) LOG.debug("[THREAD " + threadId + "] Collecting TCP latencies.");
+//    for (double latency : hdfs.getLatencyTcpStatistics().getValues()) {
+//      latencyTcp.addValue(latency);
+//      latencyBoth.addValue(latency);
+//    }
   }
 
   public class Worker implements Callable<Object> {
