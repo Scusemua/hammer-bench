@@ -90,7 +90,7 @@ public class InterleavedBenchmark extends Benchmark {
     }
 
     operationsPerformed = new java.util.concurrent.ArrayBlockingQueue<>(bmConf.getSlaveNumThreads());
-    transactionEvents = transactionEvents = new ArrayBlockingQueue<>(bmConf.getSlaveNumThreads());
+    transactionEvents = new ArrayBlockingQueue<>(bmConf.getSlaveNumThreads());
 
     if (bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HDFS ||
             bmConf.getBenchMarkFileSystemName() == BenchMarkFileSystemName.HopsFS) {
@@ -230,20 +230,20 @@ public class InterleavedBenchmark extends Benchmark {
       aliveNNsCount = getAliveNNsCount();
     }
 
-    List<OperationPerformed> allOpsPerformed = new ArrayList<>();
-
-    for (List<OperationPerformed> opsPerformed : operationsPerformed) {
-      allOpsPerformed.addAll(opsPerformed);
-    }
-
-    ConcurrentHashMap<String, List<TransactionEvent>> allTxEvents = new ConcurrentHashMap<>();
-    for (HashMap<String, List<TransactionEvent>> txEvents : transactionEvents) {
-      allTxEvents.putAll(txEvents);
-    }
+//    List<OperationPerformed> allOpsPerformed = new ArrayList<>();
+//
+//    for (List<OperationPerformed> opsPerformed : operationsPerformed) {
+//      allOpsPerformed.addAll(opsPerformed);
+//    }
+//
+//    ConcurrentHashMap<String, List<TransactionEvent>> allTxEvents = new ConcurrentHashMap<>();
+//    for (HashMap<String, List<TransactionEvent>> txEvents : transactionEvents) {
+//      allTxEvents.putAll(txEvents);
+//    }
 
     return new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(),
-            speed, opsStats, avgLatency.getMean(), null, aliveNNsCount, allOpsPerformed, allTxEvents,
-            latencyTcp, latencyHttp);
+            speed, opsStats, avgLatency.getMean(), null, aliveNNsCount, null, null,
+            null, null);
   }
 
   protected void extractMetrics(DistributedFileSystem hdfs) {

@@ -86,13 +86,13 @@ public class InterleavedBenchmarkCommand {
             this.totalFailedOps = totalFailedOps;
             this.opsPerSec = opsPerSec;
             this.opsStats = opsStats;
-            this.failOverLog = null;
+            this.failOverLog = failOverLog;
             this.avgOpLatency = avgOpLatency;
             this.nnCount = nnCount;
             this.operationPerformedInstances = operationPerformedInstances;
-            this.txEvents = null;
-            this.tcpLatencies = null; //tcpLatencies;
-            this.httpLatencies = null; //httpLatencies;
+            this.txEvents = txEvents;
+            this.tcpLatencies = tcpLatencies; //tcpLatencies;
+            this.httpLatencies = httpLatencies; //httpLatencies;
         }
 
         public HashMap<BenchmarkOperations, ArrayList<BMOpStats>> getOpsStats() {
