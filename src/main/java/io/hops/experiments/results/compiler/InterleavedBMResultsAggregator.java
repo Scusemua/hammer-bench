@@ -169,8 +169,8 @@ public class InterleavedBMResultsAggregator extends Aggregator {
 
     LOG.info("Deserialized all responses.");
 
-    int cacheHits = 0;
-    int cacheMisses = 0;
+    int cacheHits = -1;
+    int cacheMisses = -1;
     LOG.info("Getting HDFS client");
     //DistributedFileSystem hdfs = DFSOperationsUtils.getDFSClient(false);
     LOG.info("Got HDFS client. Clearing metrics.");
@@ -186,11 +186,11 @@ public class InterleavedBMResultsAggregator extends Aggregator {
         LOG.info("Processing response " + counter + "/" + responses.size());
         InterleavedBenchmarkCommand.Response response = (InterleavedBenchmarkCommand.Response) obj;
 
-        LOG.info("Calculating cache hits/misses for response " + counter);
-        for (OperationPerformed operationPerformed : response.getOperationPerformedInstances()) {
-          cacheHits += operationPerformed.getMetadataCacheHits();
-          cacheMisses += operationPerformed.getMetadataCacheMisses();
-        }
+//        LOG.info("Calculating cache hits/misses for response " + counter);
+//        for (OperationPerformed operationPerformed : response.getOperationPerformedInstances()) {
+//          cacheHits += operationPerformed.getMetadataCacheHits();
+//          cacheMisses += operationPerformed.getMetadataCacheMisses();
+//        }
 
         LOG.info("Extracting ops performed");
         //hdfs.addOperationPerformeds(response.getOperationPerformedInstances());

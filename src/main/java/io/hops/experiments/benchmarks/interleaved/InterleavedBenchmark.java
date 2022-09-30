@@ -230,16 +230,16 @@ public class InterleavedBenchmark extends Benchmark {
       aliveNNsCount = getAliveNNsCount();
     }
 
-//    List<OperationPerformed> allOpsPerformed = new ArrayList<>();
-//
-//    for (List<OperationPerformed> opsPerformed : operationsPerformed) {
-//      allOpsPerformed.addAll(opsPerformed);
-//    }
-//
-//    ConcurrentHashMap<String, List<TransactionEvent>> allTxEvents = new ConcurrentHashMap<>();
-//    for (HashMap<String, List<TransactionEvent>> txEvents : transactionEvents) {
-//      allTxEvents.putAll(txEvents);
-//    }
+    List<OperationPerformed> allOpsPerformed = new ArrayList<>();
+
+    for (List<OperationPerformed> opsPerformed : operationsPerformed) {
+      allOpsPerformed.addAll(opsPerformed);
+    }
+
+    ConcurrentHashMap<String, List<TransactionEvent>> allTxEvents = new ConcurrentHashMap<>();
+    for (HashMap<String, List<TransactionEvent>> txEvents : transactionEvents) {
+      allTxEvents.putAll(txEvents);
+    }
 
     return new InterleavedBenchmarkCommand.Response(totalTime, operationsCompleted.get(), operationsFailed.get(),
             speed, opsStats, avgLatency.getMean(), null, aliveNNsCount, null, null,
