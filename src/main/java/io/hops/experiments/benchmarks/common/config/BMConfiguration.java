@@ -88,7 +88,10 @@ public class BMConfiguration implements Serializable {
     }
 
     if (getInterleavedBmCreateFilesPercentage().doubleValue() <= getInterleavedBmDeleteFilesPercentage().doubleValue() && getBenchMarkType() == BenchmarkType.INTERLEAVED) {
-      throw new IllegalArgumentException("Delete operations can not be more than create operations");
+      // Check if they're both 0. If they are, then it's fine. If not, then throw exception.
+      if (!(getInterleavedBmCreateFilesPercentage().doubleValue() == getInterleavedBmDeleteFilesPercentage().doubleValue() &&
+              getInterleavedBmCreateFilesPercentage().doubleValue() == 0))
+        throw new IllegalArgumentException("Delete operations can not be more than create operations");
     }
 
     //check the file size distribution coin
