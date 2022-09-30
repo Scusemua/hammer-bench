@@ -86,7 +86,7 @@ public class InterleavedBenchmarkCommand {
             this.totalFailedOps = totalFailedOps;
             this.opsPerSec = opsPerSec;
             this.opsStats = opsStats;
-            this.failOverLog = failOverLog;
+            this.failOverLog = null;
             this.avgOpLatency = avgOpLatency;
             this.nnCount = nnCount;
             this.operationPerformedInstances = operationPerformedInstances;
