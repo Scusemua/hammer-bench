@@ -42,6 +42,8 @@ else:
     all_files = glob.glob(os.path.join(input_path, "*.txt"))
     li = []
 
+    print("Merging the following files: %s" % str(all_files))
+
     # Merge the .txt files into a single DataFrame.
     for filename in all_files:
         print("Reading file: " + filename)

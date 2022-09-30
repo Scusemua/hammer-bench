@@ -54,8 +54,11 @@ output_path = args.output
 
 vanilla_colors = ["#ffa822", "#124c6d", "#ff6150", "#1ac0c6", "#7c849c", "#6918b4", "#117e16", "#ff7c00", "#ff00c5"]
 lambda_colors = ["#cc7a00", "#0b2e42", "#b31200", "#128387", "#424757", "#410f70", "#0c5a10", "#b35600", "#cc009c"]
+ops = {}
 
 def plot_data(input_path, axis = None, vanilla = False):
+    global ops 
+    
     # If we pass a single .txt file, then just create DataFrame from the .txt file.
     # Otherwise, merge all .txt files in the specified directory.
     if input_path.endswith(".txt"):
@@ -75,9 +78,10 @@ def plot_data(input_path, axis = None, vanilla = False):
             colors = lambda_colors
             marker = "*"
             markersize = 10
-
-        row = 0
-        col = -1
+        
+        next_idx = 0
+        reuse_existing = False 
+        idx = 0
 
         # Merge the .txt files into a single DataFrame.
         for i, filename in enumerate(all_files):
@@ -92,25 +96,32 @@ def plot_data(input_path, axis = None, vanilla = False):
 
             fs_operation_name = os.path.basename(filename)[:-4] # remove the ".txt" with `[:-4]`
             current_label = "%s %s" % (framework_name, fs_operation_name)
+            
+            print("fs_operation_name: " + fs_operation_name)
+            if fs_operation_name in ops:
+              print("Found " + fs_operation_name + " in ops")
+              idx = ops[fs_operation_name]
+              reuse_existing = True 
+            else:
+              print("Did NOT find " + fs_operation_name + " in ops")
+              idx = next_idx
+              reuse_existing = False 
+              next_idx += 1
+              ops[fs_operation_name] = idx
 
             ys = list(range(0, len(latencies)))
             ys = [y / len(ys) for y in ys]
 
-            axis[row, col].plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = current_label, linewidth = 2, markersize = markersize, marker = marker, markevery = 0.1, color = colors[i])
-            axis[row, col].set_yscale('linear')
-            axis[row, col].set_xlabel("Latency (ms)", fontsize = x_label_font_size)
-            axis[row, col].set_ylabel("Cumulative Probability", fontsize = y_label_font_size)
-            axis[row, col].tick_params(labelsize=xtick_font_size)
-            axis[row, col].set_title(fs_operation_name)
-            #axis[row, col].set_xlim(left = -0.1, right = (xlim_percent * latencies[-1]) * 1.05)
-            axis[row, col].set_ylim(bottom = ylim_percent, top = 1.0125)
+            axis[idx].plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = current_label, linewidth = 2, markersize = markersize, marker = marker, markevery = 0.1, color = colors[idx])
+            axis[idx].set_yscale('linear')
+            axis[idx].set_xlabel("Latency (ms)", fontsize = x_label_font_size)
+            axis[idx].set_ylabel("Cumulative Probability", fontsize = y_label_font_size)
+            axis[idx].tick_params(labelsize=xtick_font_size)
+            axis[idx].set_title(fs_operation_name)
+            #axis[idx].set_xlim(left = -0.1, right = (xlim_percent * latencies[-1]) * 1.05)
+            axis[idx].set_ylim(bottom = ylim_percent, top = 1.0125)
 
-            row = (row + 1) % 3
-
-            if (row == 0):
-                col = (col + 1) % 3
-
-fig, axs = plt.subplots(nrows = 3, ncols = 3, figsize=(15,15))
+fig, axs = plt.subplots(nrows = 1, ncols = 9, figsize=(45,8))
 
 plot_start = time.time()
 if input_hopsfs is not None:

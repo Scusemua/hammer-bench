@@ -22,7 +22,10 @@ import io.hops.experiments.benchmarks.common.BenchmarkDistribution;
 import io.hops.experiments.benchmarks.common.BenchmarkType;
 // import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.benchmarks.interleaved.coin.InterleavedMultiFaceCoin;
+import io.hops.experiments.controller.Master;
 import io.hops.experiments.utils.DFSOperationsUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 // import org.apache.hadoop.hdfs.DFSClient;
 
 import java.io.*;
@@ -39,6 +42,7 @@ import java.util.*;
  * @author salman
  */
 public class BMConfiguration implements Serializable {
+  public static final Log LOG = LogFactory.getLog(BMConfiguration.class);
 
   private static final long serialVersionUID = 7106695329001895303L;
   private List<InetAddress> listOfSlaves = null;
@@ -51,12 +55,12 @@ public class BMConfiguration implements Serializable {
     System.out.println("You are doomed");
   }
 
-  public BMConfiguration(String file) throws FileNotFoundException, IOException, SQLException {
+  public BMConfiguration(String file) throws IOException, SQLException {
     props = loadPropFile(file);
     validateArgs();
   }
 
-  private Properties loadPropFile(String file) throws FileNotFoundException, IOException {
+  private Properties loadPropFile(String file) throws IOException {
     final String PROP_FILE = file;
     Properties props = new Properties();
     InputStream input = new FileInputStream(PROP_FILE);
@@ -69,7 +73,7 @@ public class BMConfiguration implements Serializable {
     return props;
   }
 
-  private void validateArgs() throws UnknownHostException, SQLException {
+  private void validateArgs() {
 
     // check for the
     if (getRawBmFilesCreationPhaseDuration() <= 0 && getBenchMarkType() == BenchmarkType.RAW) {
@@ -77,7 +81,10 @@ public class BMConfiguration implements Serializable {
     }
 
     if (getInterleavedBmCreateFilesPercentage().doubleValue() <= 0 && getBenchMarkType() == BenchmarkType.INTERLEAVED) {
-      throw new IllegalArgumentException("You must write some files before testing other filesystem operations");
+      if (getInterleavedBmDeleteFilesPercentage().doubleValue() <= 0 && getFilesToCreateInWarmUpPhase() > 0)
+        LOG.warn("Create file percentage is 0%, but so is delete file percentage, and we create files during warm-up, so it should be okay...");
+      else
+        throw new IllegalArgumentException("You must write some files before testing other filesystem operations");
     }
 
     if (getInterleavedBmCreateFilesPercentage().doubleValue() <= getInterleavedBmDeleteFilesPercentage().doubleValue() && getBenchMarkType() == BenchmarkType.INTERLEAVED) {
