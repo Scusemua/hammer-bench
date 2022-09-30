@@ -90,9 +90,9 @@ public class InterleavedBenchmarkCommand {
             this.avgOpLatency = avgOpLatency;
             this.nnCount = nnCount;
             this.operationPerformedInstances = operationPerformedInstances;
-            this.txEvents = txEvents;
-            this.tcpLatencies = tcpLatencies;
-            this.httpLatencies = httpLatencies;
+            this.txEvents = null;
+            this.tcpLatencies = null; //tcpLatencies;
+            this.httpLatencies = null; //httpLatencies;
         }
 
         public HashMap<BenchmarkOperations, ArrayList<BMOpStats>> getOpsStats() {
