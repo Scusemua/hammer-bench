@@ -211,11 +211,10 @@ public class DFSOperationsUtils {
         else {
             LOG.info("Found HDFS client");
             // Enable consistency protocol when not warming up.
-            // client.setConsistencyProtocolEnabled(!warmingUp);
+             client.setConsistencyProtocolEnabled(!warmingUp);
         }
 
         client.setServerlessFunctionLogLevel("INFO");
-        client.setBenchmarkModeEnabled(true); // Want to track cache hits/misses.
         client.setConsistencyProtocolEnabled(false);
 
         LOG.info("Returning HDFS client");
