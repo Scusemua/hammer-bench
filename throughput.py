@@ -25,12 +25,21 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", default = "./ALL_DATA.txt", help = "Path to file containing ALL data.")
 parser.add_argument("-n", "--namenodes", default = None, help = "Path to associated NN monitoring CSV.")
 parser.add_argument("-d", "--duration", default = 60, type = int, help = "Duration of the experiment in seconds.")
+parser.add_argument("-u", "--units", default = "ns", type = str, help = "Units of input data. Enter 'ns' for nanoseconds and 'ms' for milliseconds.")
 
 args = parser.parse_args()
 
 input_path = args.input
 duration = args.duration
 namenodes_path = args.namenodes
+units = args.units
+
+if units == 'ns':
+    adjust_divisor = 1e9
+elif units == 'ms':
+    adjust_divisor = 1e3
+else:
+    raise ValueError("Unknown/unsupported units: " + str(units))
 
 # If we pass a single .txt file, then just create DataFrame from the .txt file.
 # Otherwise, merge all .txt files in the specified directory.
@@ -62,23 +71,24 @@ print("Sorted dataframe in %f seconds." % (time.time() - start_sort))
 min_val = min(df['timestamp'])
 max_val = max(df['timestamp'])
 print("max_val - min_val =", max_val - min_val)
-print("max_val - min_val =", (max_val - min_val) / 1e9)
+print("max_val - min_val =", (max_val - min_val) / adjust_divisor)
 def adjust(x):
-    return (x - min_val) / 1e9
+    return (x - min_val) / adjust_divisor
 
 # Sometimes, there's a bunch of data with WAY different timestamps -- like, several THOUSAND
 # seconds different. So, I basically adjust all of that data so it fits within the interval
 # of the rest of the data.
 df['ts'] = df['timestamp'].map(adjust)
 df2 = df[((df['ts'] >= duration+5))]
-min_val2 = min(df2['ts'])
+if len(df2) > 0:
+    min_val2 = min(df2['ts'])
 
-def adjust2(x):
-    if x >= min_val2:
-        return x - min_val2
-    return x
+    def adjust2(x):
+        if x >= min_val2:
+            return x - min_val2
+        return x
 
-df['ts'] = df['ts'].map(adjust2)
+    df['ts'] = df['ts'].map(adjust2)
 
 print("Total number of points: %d" % len(df))
 

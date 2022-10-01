@@ -205,7 +205,7 @@ public class InterleavedBenchmark extends Benchmark {
     Logger.resetTimer();
 
     LOG.debug("Invoking workers...");
-    List<Future<Object>> futures = executor.invokeAll(workers, (long)(duration * 1.05), TimeUnit.MILLISECONDS);
+    List<Future<Object>> futures = executor.invokeAll(workers, (long)(duration * 1.025), TimeUnit.MILLISECONDS);
 
     int numFinished = 0;
     for (Future<Object> future : futures) {
