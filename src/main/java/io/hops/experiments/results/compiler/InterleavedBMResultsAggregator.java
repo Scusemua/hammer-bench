@@ -235,6 +235,8 @@ public class InterleavedBMResultsAggregator extends Aggregator {
             out.write(",");
             out.write(String.valueOf(stat.OpDuration));
             out.write(",");
+            out.write(stat.WorkerId);
+            out.write(",");
             out.write(stat.Path);
             out.write("\n");
           }

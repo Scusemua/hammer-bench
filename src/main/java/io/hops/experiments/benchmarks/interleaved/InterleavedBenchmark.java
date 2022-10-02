@@ -199,12 +199,13 @@ public class InterleavedBenchmark extends Benchmark {
     assert(readOnly >= 0);
 
     LOG.debug("Creating workers...");
+    int workerId = 0;
     for (int i = 0; i < readWrite; i++) {
-      Callable<Object> worker = new Worker(config, true);
+      Callable<Object> worker = new Worker(config, true, workerId++);
       workers.add(worker);
     }
     for (int i = 0; i < readOnly; i++) {
-      Callable<Object> worker = new Worker(config, false);
+      Callable<Object> worker = new Worker(config, false, workerId++);
       workers.add(worker);
     }
     LOG.debug("Created " + bmConf.getSlaveNumThreads() + " workers...");
@@ -282,16 +283,18 @@ public class InterleavedBenchmark extends Benchmark {
     private BMConfiguration config;
     private long lastMsg = System.currentTimeMillis();
     private final boolean canPerformWrites;
+    private final int workerId;
 
-    public Worker(BMConfiguration config, boolean canPerformWrites) {
+    public Worker(BMConfiguration config, boolean canPerformWrites, int id) {
       this.config = config;
       this.lastMsg = System.currentTimeMillis();
       this.canPerformWrites = canPerformWrites;
+      this.workerId = id;
     }
 
     @Override
     public Object call() {
-      LOG.debug("Worker has been called!");
+      LOG.debug("Worker " + workerId + " has been called!");
 
       if (!dryrun) {
         dfs = DFSOperationsUtils.getDFSClient(false);
@@ -364,7 +367,7 @@ public class InterleavedBenchmark extends Benchmark {
             BenchmarkOperations op = opCoin.flip();
 
             if (LOG.isDebugEnabled())
-              LOG.debug("Randomly generated " + op.name() + " operation!");
+              LOG.debug("Worker " + workerId + " randomly generated " + op.name() + " operation!");
 
             // Wait for the limiter to allow the operation
             if (!limiter.checkRate()) {
@@ -385,7 +388,7 @@ public class InterleavedBenchmark extends Benchmark {
         }
 
         long opsCompleted = operationsCompleted.get();
-        LOG.info("Completed " + opsCompleted + " operations. Time elapsed: " +
+        LOG.info("Worker " + workerId + " completed " + opsCompleted + " operations. Time elapsed: " +
                 ((System.currentTimeMillis() - startTime) / 1000.0) + " seconds.");
       }
     }
@@ -438,13 +441,13 @@ public class InterleavedBenchmark extends Benchmark {
           // If it's a dry-run, then we just sleep.
           if (dryrun) {
             if (LOG.isDebugEnabled())
-              LOG.debug("Performing simulated " + opType.name() + " on '" + path + "' now...");
+              LOG.debug("Worker " + workerId + " performing simulated " + opType.name() + " on '" + path + "' now...");
 
             TimeUnit.MILLISECONDS.sleep(1);
           } else {
             // If it's not a dry-run, then we'll actually perform the operation.
             if (LOG.isDebugEnabled())
-              LOG.debug("Performing " + opType.name() + " on '" + path + "' now...");
+              LOG.debug("Worker " + workerId + " performing " + opType.name() + " on '" + path + "' now...");
 
             BMOperationsUtils.performOp(dfs, opType, filePool, path, config.getReplicationFactor(),
                                         config.getAppendFileSize());
@@ -455,9 +458,9 @@ public class InterleavedBenchmark extends Benchmark {
         } catch (Exception e) {
           Logger.error(e);
         }
-        updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime, path));
+        updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime, path, workerId));
       } else {
-        Logger.printMsg("Could not perform operation " + opType + ". Got Null from the file pool");
+        Logger.printMsg("Worker " + workerId + " could not perform operation " + opType + ". Got Null from the file pool");
       }
     }
 

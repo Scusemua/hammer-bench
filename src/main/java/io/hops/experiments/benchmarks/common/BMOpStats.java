@@ -24,18 +24,20 @@ import java.io.Serializable;
  * @author Tianium
  */
 public class BMOpStats implements Serializable{
+  public final int WorkerId;
   public final long OpStart;
   public final long OpDuration;
   public final String Path;
 
-  public BMOpStats(long start, long duration, String path) {
+  public BMOpStats(long start, long duration, String path, int workerId) {
     this.OpStart = start;
     this.OpDuration = duration;
     this.Path = path;
+    this.WorkerId = workerId;
   }
 
   @Override
   public String toString() {
-    return OpStart + "," + OpDuration + ",\"" + Path + "\"";
+    return WorkerId + "," + OpStart + "," + OpDuration + ",\"" + Path + "\"";
   }
 }
