@@ -64,8 +64,8 @@ public class InterleavedBenchmark extends Benchmark {
   private long startTime = 0;
   AtomicLong operationsCompleted = new AtomicLong(0);
   AtomicLong operationsFailed = new AtomicLong(0);
-  Map<BenchmarkOperations, AtomicLong> operationsStats = new HashMap<BenchmarkOperations, AtomicLong>();
-  HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats = new HashMap<BenchmarkOperations, ArrayList<BMOpStats>>();
+  Map<BenchmarkOperations, AtomicLong> operationsStats = new HashMap<>();
+  HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats = new HashMap<>();
   SynchronizedDescriptiveStatistics avgLatency = new SynchronizedDescriptiveStatistics();
   protected final RateLimiter limiter;
   protected boolean debug = false;
@@ -455,7 +455,7 @@ public class InterleavedBenchmark extends Benchmark {
         } catch (Exception e) {
           Logger.error(e);
         }
-        updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime));
+        updateStats(opType, retVal, new BMOpStats(opStartTime, opExeTime, path));
       } else {
         Logger.printMsg("Could not perform operation " + opType + ". Got Null from the file pool");
       }

@@ -26,9 +26,16 @@ import java.io.Serializable;
 public class BMOpStats implements Serializable{
   public final long OpStart;
   public final long OpDuration;
+  public final String Path;
 
-  public BMOpStats(long start, long duration) {
+  public BMOpStats(long start, long duration, String path) {
     this.OpStart = start;
     this.OpDuration = duration;
+    this.Path = path;
+  }
+
+  @Override
+  public String toString() {
+    return OpStart + "," + OpDuration + ",\"" + Path + "\"";
   }
 }

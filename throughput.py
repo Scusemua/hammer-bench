@@ -116,6 +116,12 @@ for i in range(1, duration + 1):
 #print(sum(buckets))
 #print(len(df))
 
+# Check for a nns.csv in the input path.
+if namenodes_path is None:
+    namenodes_path = input_path + "/nns.csv"
+    if not os.path.isfile(namenodes_path):
+        namenodes_path = None
+
 if namenodes_path is not None:
     fig, axs = plt.subplots(nrows = 1, ncols = 2, figsize=(12,8))
 
