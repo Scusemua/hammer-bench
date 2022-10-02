@@ -429,6 +429,13 @@ public class BMConfiguration implements Serializable {
     return getInt(ConfigKeys.NUM_SLAVE_THREADS_KEY, ConfigKeys.NUM_SLAVE_THREADS_DEFAULT);
   }
 
+  /**
+   * What percentage of workers can perform both reads AND writes?
+   */
+  public double getWorkerPercentWrites() {
+    return getDouble(ConfigKeys.PERCENT_WORKERS_CAN_WRITE, ConfigKeys.PERCENT_WORKERS_CAN_WRITE_DEFAULT);
+  }
+
   public String getBaseDir() {
     return getString(ConfigKeys.BASE_DIR_KEY, ConfigKeys.BASE_DIR_DEFAULT);
   }

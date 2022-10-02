@@ -50,6 +50,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -189,9 +190,21 @@ public class InterleavedBenchmark extends Benchmark {
       workerLimiter = (WorkerRateLimiter) limiter;
       workers.add(workerLimiter);
     }
+
+    double percentWriters = bmConf.getWorkerPercentWrites();
+    int readWrite = (int)(bmConf.getSlaveNumThreads() * percentWriters);
+    int readOnly = bmConf.getSlaveNumThreads() - readWrite;
+
+    assert(readWrite >= 0);
+    assert(readOnly >= 0);
+
     LOG.debug("Creating workers...");
-    for (int i = 0; i < bmConf.getSlaveNumThreads(); i++) {
-      Callable<Object> worker = new Worker(config);
+    for (int i = 0; i < readWrite; i++) {
+      Callable<Object> worker = new Worker(config, true);
+      workers.add(worker);
+    }
+    for (int i = 0; i < readOnly; i++) {
+      Callable<Object> worker = new Worker(config, false);
       workers.add(worker);
     }
     LOG.debug("Created " + bmConf.getSlaveNumThreads() + " workers...");
@@ -268,10 +281,12 @@ public class InterleavedBenchmark extends Benchmark {
     private InterleavedMultiFaceCoin opCoin;
     private BMConfiguration config;
     private long lastMsg = System.currentTimeMillis();
+    private final boolean canPerformWrites;
 
-    public Worker(BMConfiguration config) {
+    public Worker(BMConfiguration config, boolean canPerformWrites) {
       this.config = config;
       this.lastMsg = System.currentTimeMillis();
+      this.canPerformWrites = canPerformWrites;
     }
 
     @Override
@@ -286,23 +301,53 @@ public class InterleavedBenchmark extends Benchmark {
               bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
               bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
               bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
-      
-      opCoin = new InterleavedMultiFaceCoin(config.getInterleavedBmCreateFilesPercentage(),
-              config.getInterleavedBmAppendFilePercentage(),
-              config.getInterleavedBmReadFilesPercentage(),
-              config.getInterleavedBmRenameFilesPercentage(),
-              config.getInterleavedBmDeleteFilesPercentage(),
-              config.getInterleavedBmLsFilePercentage(),
-              config.getInterleavedBmLsDirPercentage(),
-              config.getInterleavedBmChmodFilesPercentage(),
-              config.getInterleavedBmChmodDirsPercentage(),
-              config.getInterleavedBmMkdirPercentage(),
-              config.getInterleavedBmSetReplicationPercentage(),
-              config.getInterleavedBmGetFileInfoPercentage(),
-              config.getInterleavedBmGetDirInfoPercentage(),
-              config.getInterleavedBmFileChangeOwnerPercentage(),
-              config.getInterleavedBmDirChangeOwnerPercentage()
-      );
+
+      if (canPerformWrites) {
+        opCoin = new InterleavedMultiFaceCoin(config.getInterleavedBmCreateFilesPercentage(),
+                config.getInterleavedBmAppendFilePercentage(),
+                config.getInterleavedBmReadFilesPercentage(),
+                config.getInterleavedBmRenameFilesPercentage(),
+                config.getInterleavedBmDeleteFilesPercentage(),
+                config.getInterleavedBmLsFilePercentage(),
+                config.getInterleavedBmLsDirPercentage(),
+                config.getInterleavedBmChmodFilesPercentage(),
+                config.getInterleavedBmChmodDirsPercentage(),
+                config.getInterleavedBmMkdirPercentage(),
+                config.getInterleavedBmSetReplicationPercentage(),
+                config.getInterleavedBmGetFileInfoPercentage(),
+                config.getInterleavedBmGetDirInfoPercentage(),
+                config.getInterleavedBmFileChangeOwnerPercentage(),
+                config.getInterleavedBmDirChangeOwnerPercentage());
+      }
+      else {
+        BigDecimal writePercent = config.getInterleavedBmCreateFilesPercentage().add(
+                config.getInterleavedBmRenameFilesPercentage()).add(
+                config.getInterleavedBmAppendFilePercentage()).add(
+                config.getInterleavedBmDeleteFilesPercentage()).add(
+                config.getInterleavedBmMkdirPercentage()
+        );
+
+        BigDecimal reads = config.getInterleavedBmReadFilesPercentage();
+        BigDecimal zero = new BigDecimal("0.0");
+        BigDecimal readsAdjusted = writePercent.add(reads);
+
+        opCoin = new InterleavedMultiFaceCoin(new BigDecimal("0"),
+                zero,
+                readsAdjusted,
+                zero,
+                zero,
+                config.getInterleavedBmLsFilePercentage(),
+                config.getInterleavedBmLsDirPercentage(),
+                config.getInterleavedBmChmodFilesPercentage(),
+                config.getInterleavedBmChmodDirsPercentage(),
+                zero,
+                config.getInterleavedBmSetReplicationPercentage(),
+                config.getInterleavedBmGetFileInfoPercentage(),
+                config.getInterleavedBmGetDirInfoPercentage(),
+                config.getInterleavedBmFileChangeOwnerPercentage(),
+                config.getInterleavedBmDirChangeOwnerPercentage());
+      }
+
       while (true) {
         // Every 5000 operations, we'll print how many we've completed.
         // I do this instead of something like:

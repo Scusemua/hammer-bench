@@ -420,6 +420,9 @@ public class ConfigKeys {
 
     public static String NUM_SLAVE_THREADS_KEY = "num.slave.threads";
     public static int    NUM_SLAVE_THREADS_DEFAULT = 1;
+
+    public static String PERCENT_WORKERS_CAN_WRITE = "interleaved.percent.workers.can.write";
+    public static double PERCENT_WORKERS_CAN_WRITE_DEFAULT = 1.0;
       
     public static String BASE_DIR_KEY = "base.dir";
     public static String BASE_DIR_DEFAULT = "/test";
