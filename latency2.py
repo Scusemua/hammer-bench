@@ -91,6 +91,7 @@ def plot_data(input_path, axis = None, vanilla = False):
 
             # Sort the DataFrame by timestamp.
             df = df.sort_values('latency')
+            df['latency'] = df['latency'].map(lambda x: x / 1e6)
 
             latencies = df['latency'].values.tolist()
 
