@@ -241,7 +241,6 @@ public class InterleavedBMResultsAggregator extends Aggregator {
             out.write("\n");
           }
           out.close();
-
         }
       }
     }

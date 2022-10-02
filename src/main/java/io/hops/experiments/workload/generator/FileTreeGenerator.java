@@ -154,17 +154,6 @@ public class FileTreeGenerator implements FilePool {
     }
 
     return null;
-
-//    currIndex = allThreadFiles.size();
-//    for (int i = 0; i < allThreadFiles.size(); i++) {
-//      String file = allThreadFiles.remove(currIndex);
-//      if(getPathLength(file) < THRESHOLD){
-//        continue;
-//      }
-//      System.out.println("Delete Path "+file);
-//      return file;
-//    }
-//    return null;
   }
 
   @Override

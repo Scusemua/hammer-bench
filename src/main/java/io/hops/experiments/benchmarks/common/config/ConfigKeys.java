@@ -414,7 +414,22 @@ public class ConfigKeys {
     
     public static String  ENABLE_FIXED_DEPTH_TREE_KEY = "enable.fixed.depth.tree";
     public static boolean ENABLE_FIXED_DEPTH_TREE_DEFAULT = false;
-    
+
+    public static String   ENABLE_EXISTING_SUBTREE_KEY       = "enable.existing.subtree";
+    public static boolean  ENABLE_EXISTING_SUBTREE_DEFAULT   = false;
+
+    /**
+     * Path to file containing list of HopsFS file paths (for the existing subtree).
+     */
+    public static String    EXISTING_SUBTREE_PATH_KEY = "existing.subtree.path";
+    public static String    EXISTING_SUBTREE_PATH_DEFAULT = "./existing_subtree_paths.txt";
+
+    /**
+     * The root directory of the existing subtree.
+     */
+    public static String    EXISTING_SUBTREE_ROOT_DIR_KEY       = "existing.subtree.root.directory";
+    public static String    EXISTING_SUBTREE_ROOT_DIR_DEFAULT   = "/existing_subtree/";
+
     public static String  TREE_DEPTH_KEY = "tree.depth";
     public static int     TREE_DEPTH_DEFAULT = 3;
 

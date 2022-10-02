@@ -34,7 +34,6 @@ public class NameSpaceGenerator {
     private  DirNamesGenerator dirGenerator;
     private String DIR_PREFIX = "hops_dir";
     private String FILE_PREFIX = "hops_file";
-    // private static Random rand = new Random(System.currentTimeMillis());
 
     public NameSpaceGenerator(String baseDir, int filesPerDir, int dirPerDir) {
         this.allDirs = new LinkedList<String>();
@@ -44,8 +43,6 @@ public class NameSpaceGenerator {
         this.fileCounter = 0;
         this.dirGenerator = new DirNamesGenerator(baseDir,DIR_PER_DIR);
         this.filesPerDirCount = 0;
-//        DIR_PREFIX = rand.nextInt()+DIR_PREFIX;
-//        FILE_PREFIX = rand.nextInt()+FILE_PREFIX;
     }
 
     public String generateNewDirPath(){
@@ -55,7 +52,6 @@ public class NameSpaceGenerator {
     }
     
     public String getFileToCreate() {
-        
         if(allDirs.isEmpty()){
             generateNewDirPath();
         }

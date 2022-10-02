@@ -18,7 +18,7 @@
 package io.hops.experiments.utils;
 
 import io.hops.experiments.benchmarks.common.BenchMarkFileSystemName;
-import io.hops.experiments.workload.generator.FileTreeFromDiskGenerator;
+import io.hops.experiments.workload.generator.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -58,9 +58,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.permission.FsPermission;
-import io.hops.experiments.workload.generator.FilePool;
-import io.hops.experiments.workload.generator.FileTreeGenerator;
-import io.hops.experiments.workload.generator.FixeDepthFileTreeGenerator;
 
 public class DFSOperationsUtils {
     public static final Log LOG = LogFactory.getLog(DFSOperationsUtils.class);
@@ -224,6 +221,33 @@ public class DFSOperationsUtils {
     public static void returnHdfsClient(DistributedFileSystem hdfs) {
         hdfs.clearStatistics(true, true, true);
         hdfsClientPool.add(hdfs);
+    }
+
+    public static FilePool getFilePool(String baseDir, int dirsPerDir, int filesPerDir, boolean fixedDepthTree,
+                                       int treeDepth, String fileSizeDistribution, boolean readFilesFromDisk,
+                                       String diskFilesPath, boolean isExistingSubtree, String existingSubtreePath,
+                                       String existingSubtreeRootDir) {
+        FilePool filePool = filePools.get();
+        if (filePool == null) {
+            if (fixedDepthTree) {
+                filePool = new FixeDepthFileTreeGenerator(baseDir,treeDepth, fileSizeDistribution);
+            }
+            else if(readFilesFromDisk) {
+                filePool = new FileTreeFromDiskGenerator(baseDir,filesPerDir, dirsPerDir,0, diskFilesPath);
+            }
+            else if (isExistingSubtree) {
+                filePool = new SubtreeFileGenerator(existingSubtreePath, existingSubtreeRootDir);
+            }
+            else {
+                filePool = new FileTreeGenerator(baseDir,filesPerDir, dirsPerDir,0, fileSizeDistribution);
+            }
+
+            filePools.set(filePool);
+            LOG.info("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
+        }else{
+            LOG.info("Reusing file pool obj "+filePool);
+        }
+        return filePool;
     }
 
     public static FilePool getFilePool(String baseDir, int dirsPerDir, int filesPerDir, boolean fixedDepthTree,

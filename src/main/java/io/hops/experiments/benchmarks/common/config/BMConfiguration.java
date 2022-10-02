@@ -499,6 +499,24 @@ public class BMConfiguration implements Serializable {
     return getBoolean(ConfigKeys.ENABLE_FIXED_DEPTH_TREE_KEY, ConfigKeys.ENABLE_FIXED_DEPTH_TREE_DEFAULT);
   }
 
+  public boolean isExistingSubtree() {
+    return getBoolean(ConfigKeys.ENABLE_EXISTING_SUBTREE_KEY, ConfigKeys.ENABLE_EXISTING_SUBTREE_DEFAULT);
+  }
+
+  /**
+   * Return the path to the file containing list of HopsFS file paths (for the existing subtree).
+   */
+  public String getExistingSubtreePath() {
+    return getString(ConfigKeys.EXISTING_SUBTREE_PATH_KEY, ConfigKeys.EXISTING_SUBTREE_PATH_DEFAULT);
+  }
+
+  /**
+   * Return the root directory of the existing subtree.
+   */
+  public String getExistingSubtreeRootDirectory() {
+    return getString(ConfigKeys.EXISTING_SUBTREE_ROOT_DIR_KEY, ConfigKeys.EXISTING_SUBTREE_ROOT_DIR_DEFAULT);
+  }
+
   public int getTreeDepth() {
     return getInt(ConfigKeys.TREE_DEPTH_KEY, ConfigKeys.TREE_DEPTH_DEFAULT);
   }
