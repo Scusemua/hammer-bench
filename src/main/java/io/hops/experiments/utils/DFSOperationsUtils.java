@@ -242,9 +242,9 @@ public class DFSOperationsUtils {
             }
             
             filePools.set(filePool);
-            LOG.debug("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
+            LOG.info("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
         }else{
-            LOG.debug("Reusing file pool obj "+filePool);
+            LOG.info("Reusing file pool obj "+filePool);
         }
         return filePool;
     }

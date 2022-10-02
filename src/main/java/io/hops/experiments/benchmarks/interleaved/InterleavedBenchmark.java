@@ -72,9 +72,9 @@ public class InterleavedBenchmark extends Benchmark {
 
   protected BlockingQueue<List<OperationPerformed>> operationsPerformed;
   protected BlockingQueue<HashMap<String, List<TransactionEvent>>> transactionEvents;
-  protected final SynchronizedDescriptiveStatistics latencyHttp = new SynchronizedDescriptiveStatistics();
-  protected final SynchronizedDescriptiveStatistics latencyTcp = new SynchronizedDescriptiveStatistics();
-  protected final SynchronizedDescriptiveStatistics latencyBoth = new SynchronizedDescriptiveStatistics();
+//  protected final SynchronizedDescriptiveStatistics latencyHttp = new SynchronizedDescriptiveStatistics();
+//  protected final SynchronizedDescriptiveStatistics latencyTcp = new SynchronizedDescriptiveStatistics();
+//  protected final SynchronizedDescriptiveStatistics latencyBoth = new SynchronizedDescriptiveStatistics();
 
   public InterleavedBenchmark(Configuration conf, BMConfiguration bmConf) {
     super(conf, bmConf);

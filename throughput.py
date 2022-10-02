@@ -57,10 +57,10 @@ else:
     for filename in all_files:
         print("Reading file: " + filename)
         tmp_df = pd.read_csv(filename, index_col=None, header=0)
-        tmp_df.columns = ['timestamp', 'latency']
+        tmp_df.columns = ['timestamp', 'latency', 'path']
         li.append(tmp_df)
     df = pd.concat(li, axis=0, ignore_index=True)
-    df.columns = ['timestamp', 'latency']
+    df.columns = ['timestamp', 'latency', 'path']
 
 # Sort the DataFrame by timestamp.
 print("Sorting now...")
