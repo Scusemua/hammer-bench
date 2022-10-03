@@ -176,7 +176,7 @@ public class ExistingSubtreeFileGenerator implements FilePool {
 
         if (dirsToBeCreated.containsKey(file)) {
             String dir = dirsToBeCreated.remove(file);
-            filesInPool.add(dir);
+            directoriesInPool.add(dir);
         }
     }
 
