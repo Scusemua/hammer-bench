@@ -422,7 +422,7 @@ public class ConfigKeys {
      * Path to file containing list of HopsFS file paths (for the existing subtree).
      */
     public static String    EXISTING_SUBTREE_PATH_KEY = "existing.subtree.path";
-    public static String    EXISTING_SUBTREE_PATH_DEFAULT = "./existing_subtree_paths.txt";
+    public static String    EXISTING_SUBTREE_PATH_DEFAULT = "./existing_subtree.txt";
 
     /**
      * The root directory of the existing subtree.
