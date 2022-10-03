@@ -227,7 +227,12 @@ public class ExistingSubtreeFileGenerator implements FilePool {
 
     @Override
     public String getFileToRename() {
-        return getRandomFile();
+        if (filesInPool.isEmpty()) {
+            return null;
+        }
+
+        lastModifiedIndex = random.nextInt(filesInPool.size());
+        return filesInPool.get(lastModifiedIndex);
     }
 
     @Override
