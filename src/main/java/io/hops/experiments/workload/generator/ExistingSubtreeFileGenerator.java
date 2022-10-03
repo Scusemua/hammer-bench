@@ -6,9 +6,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * This class is NOT thread safe.
+ */
 public class ExistingSubtreeFileGenerator implements FilePool {
     public static final Log LOG = LogFactory.getLog(ExistingSubtreeFileGenerator.class);
 
@@ -57,6 +61,12 @@ public class ExistingSubtreeFileGenerator implements FilePool {
      * Index of the file we're modifying.
      */
     private int lastModifiedIndex = 0;
+
+    /**
+     * Directories that will be created when a `create file` operation succeeds.
+     * We wait until that op succeeds before adding the directories to the pool of directories.
+     */
+    protected HashMap<String, String> dirsToBeCreated = new HashMap<>();
 
     /**
      * @param pathToInitialDirectories Path to a file on-disk that contains all the initial directories
@@ -119,10 +129,15 @@ public class ExistingSubtreeFileGenerator implements FilePool {
      */
     @Override
     public String getDirToCreate() {
+        return getDirToCreate(true);
+    }
+
+    private String getDirToCreate(boolean addToPool) {
         // All of these should contain the trailing '/' symbol.
         String directory = getRandomDirectory() + "/" + DIR_NAME + "-" + RandomStringUtils.randomAlphabetic(6) +
                 "-" + numDirectoriesCreated++;
-        directoriesInPool.add(directory);
+        if (addToPool)
+            directoriesInPool.add(directory);
         return directory;
     }
 
@@ -133,13 +148,30 @@ public class ExistingSubtreeFileGenerator implements FilePool {
     @Override
     public String getFileToCreate() {
         // Create a directory if there aren't any.
-        return getRandomDirectory() + FILE_NAME + RandomStringUtils.randomAlphabetic(6) +
-                numFilesCreated++;
+        String newDir = null;
+        if (directoriesInPool.isEmpty()) {
+            newDir = getDirToCreate(false);
+        }
+
+        if (newDir != null) {
+            String newFile = newDir + "/" + FILE_NAME + RandomStringUtils.randomAlphabetic(6) + numFilesCreated++;
+            dirsToBeCreated.put(newFile, newDir);
+            return newFile;
+        }
+        else {
+            return getRandomNonExistingSubtreeDirectory() + "/" + FILE_NAME +
+                    RandomStringUtils.randomAlphabetic(6) + numFilesCreated++;
+        }
     }
 
     @Override
     public void fileCreationSucceeded(String file) {
         filesInPool.add(file);
+
+        if (dirsToBeCreated.containsKey(file)) {
+            String dir = dirsToBeCreated.remove(file);
+            filesInPool.add(dir);
+        }
     }
 
     @Override
