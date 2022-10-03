@@ -217,7 +217,6 @@ public class DFSOperationsUtils {
     public static FilePool getFilePool(String baseDir, int dirsPerDir, int filesPerDir, boolean fixedDepthTree,
                                        int treeDepth, String fileSizeDistribution, boolean readFilesFromDisk,
                                        String diskFilesPath, boolean isExistingSubtree, String existingSubtreePath) {
-        LOG.info("Getting FilePool. isExistingSubtree=" + isExistingSubtree);
         FilePool filePool = filePools.get();
         if (filePool == null) {
             if (fixedDepthTree) {
@@ -233,29 +232,6 @@ public class DFSOperationsUtils {
                 filePool = new FileTreeGenerator(baseDir,filesPerDir, dirsPerDir,0, fileSizeDistribution);
             }
 
-            filePools.set(filePool);
-            LOG.info("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
-        }else{
-            LOG.info("Reusing file pool obj "+filePool);
-        }
-        return filePool;
-    }
-
-    public static FilePool getFilePool(String baseDir, int dirsPerDir, int filesPerDir, boolean fixedDepthTree,
-                                       int treeDepth, String fileSizeDistribution, boolean readFilesFromDisk,
-                                       String diskFilesPath) {
-        FilePool filePool = filePools.get();
-        if (filePool == null) {
-            if(fixedDepthTree) {
-                filePool = new FixeDepthFileTreeGenerator(baseDir,treeDepth, fileSizeDistribution);
-            }
-            else if(readFilesFromDisk) {
-                filePool = new FileTreeFromDiskGenerator(baseDir,filesPerDir, dirsPerDir,0, diskFilesPath);
-            }
-            else {
-                filePool = new FileTreeGenerator(baseDir,filesPerDir, dirsPerDir,0, fileSizeDistribution);
-            }
-            
             filePools.set(filePool);
             LOG.info("New FilePool " +filePool+" created. Total :"+ filePoolCount.incrementAndGet());
         }else{

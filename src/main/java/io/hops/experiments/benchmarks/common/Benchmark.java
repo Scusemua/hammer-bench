@@ -140,7 +140,8 @@ public abstract class Benchmark {
               bmConf.getBaseDir(), bmConf.getDirPerDir(),
               bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
               bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
-              bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
+              bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath(),
+              bmConf.isExistingSubtree(), bmConf.getExistingSubtreePath());
 
       String filePath;
       for (int i = 0; i < filesToCreate; i++) {

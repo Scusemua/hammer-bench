@@ -222,7 +222,8 @@ public class RawBenchmark extends Benchmark {
         filePool = DFSOperationsUtils.getFilePool(bmConf.getBaseDir(),
                 bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
                 bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
-                bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath());
+                bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath(),
+                bmConf.isExistingSubtree(), bmConf.getExistingSubtreePath());
       } catch (Exception e) {
         Logger.error(e);
         e.printStackTrace();
