@@ -120,8 +120,10 @@ public class ExistingSubtreeFileGenerator implements FilePool {
     @Override
     public String getDirToCreate() {
         // All of these should contain the trailing '/' symbol.
-        return getRandomDirectory() + "/" + DIR_NAME + "-" + RandomStringUtils.randomAlphabetic(6) + "-" +
-                numDirectoriesCreated++;
+        String directory = getRandomDirectory() + "/" + DIR_NAME + "-" + RandomStringUtils.randomAlphabetic(6) +
+                "-" + numDirectoriesCreated++;
+        directoriesInPool.add(directory);
+        return directory;
     }
 
     /**
@@ -130,7 +132,11 @@ public class ExistingSubtreeFileGenerator implements FilePool {
      */
     @Override
     public String getFileToCreate() {
-        return getRandomNonExistingSubtreeDirectory() + FILE_NAME + RandomStringUtils.randomAlphabetic(6) +
+        // Create a directory if there aren't any.
+        if (directoriesInPool.isEmpty())
+            getDirToCreate();
+
+        return getRandomDirectory() + FILE_NAME + RandomStringUtils.randomAlphabetic(6) +
                 numFilesCreated++;
     }
 
