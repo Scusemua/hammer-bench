@@ -57,7 +57,7 @@ public class BMOperationsUtils {
       return path;
     }
 
-    static final String RENAMED = "RN";
+    static final String RENAMED = "R0N0";
     public static boolean performOp(FileSystem dfs, BenchmarkOperations opType,
             FilePool filePool, String path, short replicationFactor,
             long appendSize) throws IOException {
@@ -89,9 +89,9 @@ public class BMOperationsUtils {
         if (from.contains(RENAMED)) {
             int index1 = from.lastIndexOf(RENAMED);
             int index2 = from.lastIndexOf("_");
-            System.out.println("From: '" + from + "'");
-            System.out.println("index1: " + index1);
-            System.out.println("index2: " + index2);
+//            System.out.println("From: '" + from + "'");
+//            System.out.println("index1: " + index1);
+//            System.out.println("index2: " + index2);
             String counter = from.substring(index1 + RENAMED.length() + 1, index2);
             to = from.substring(0, index1 - 1);
             currentCounter = Integer.parseInt(counter);
