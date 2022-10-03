@@ -130,7 +130,8 @@ public class ExistingSubtreeFileGenerator implements FilePool {
      */
     @Override
     public String getFileToCreate() {
-        return getRandomDirectory() + FILE_NAME + RandomStringUtils.randomAlphabetic(6) + numFilesCreated++;
+        return getRandomNonExistingSubtreeDirectory() + FILE_NAME + RandomStringUtils.randomAlphabetic(6) +
+                numFilesCreated++;
     }
 
     @Override

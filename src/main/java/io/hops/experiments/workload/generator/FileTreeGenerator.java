@@ -47,8 +47,8 @@ public class FileTreeGenerator implements FilePool {
   public FileTreeGenerator(String baseDir, int filesPerDir,
           int dirPerDir, int initialTreeDepth, String fileDistribution) {
 
-    this.allThreadFiles = new ArrayList<String>(10000);
-    this.allThreadDirs = new ArrayList<String>(10000);
+    this.allThreadFiles = new ArrayList<>(10000);
+    this.allThreadDirs = new ArrayList<>(10000);
     this.rand1 = new Random(System.currentTimeMillis());
     uuid = UUID.randomUUID();
 
