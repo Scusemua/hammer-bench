@@ -1,6 +1,7 @@
 package io.hops.experiments.workload.generator;
 
 import io.hops.experiments.controller.Logger;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -110,15 +111,32 @@ public class ExistingSubtreeFileGenerator implements FilePool {
         return baseDirectories.get(idx);
     }
 
+    /**
+     * Randomly pick and return a directory from the set of directories created during this workload.
+     */
+    private String getRandomNonExistingSubtreeDirectory() {
+        int idx = random.nextInt(directoriesInPool.size());
+        return directoriesInPool.get(idx);
+    }
+
+    /**
+     * Generates a random directory name of the form:
+     * [random-existing-directory]/DirLambda-[random-6-char-string]-[num-dirs-created]
+     */
     @Override
     public String getDirToCreate() {
         // All of these should contain the trailing '/' symbol.
-        return getRandomDirectory() + DIR_NAME + numDirectoriesCreated++;
+        return getRandomDirectory() + "/" + DIR_NAME + "-" + RandomStringUtils.randomAlphabetic(6) + "-" +
+                numDirectoriesCreated++;
     }
 
+    /**
+     * Generates a random file name of the form:
+     * [random-existing-directory]/FileLambda-[random-6-char-string]-[num-files-created]
+     */
     @Override
     public String getFileToCreate() {
-        return getRandomDirectory() + FILE_NAME + numFilesCreated++;
+        return getRandomDirectory() + FILE_NAME + RandomStringUtils.randomAlphabetic(6) + numFilesCreated++;
     }
 
     @Override
@@ -143,7 +161,7 @@ public class ExistingSubtreeFileGenerator implements FilePool {
 
     @Override
     public String getDirToStat() {
-        return getRandomDirectory();
+        return getRandomNonExistingSubtreeDirectory();
     }
 
     @Override
