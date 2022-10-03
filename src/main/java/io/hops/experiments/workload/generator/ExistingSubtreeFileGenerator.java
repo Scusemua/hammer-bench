@@ -149,6 +149,9 @@ public class ExistingSubtreeFileGenerator implements FilePool {
     public String getFileToCreate() {
         // Create a directory if there aren't any.
         String newDir = null;
+        // This ensures that each thread creates at least one new directory.
+        // At first, there are no directories in the pool, so we always create one.
+        // Then, we randomly create files across the entire subtree.
         if (directoriesInPool.isEmpty()) {
             newDir = getDirToCreate(false);
         }
@@ -166,6 +169,9 @@ public class ExistingSubtreeFileGenerator implements FilePool {
 
     @Override
     public void fileCreationSucceeded(String file) {
+        if (LOG.isDebugEnabled())
+            LOG.debug("Successfully created file: '" + file + "'");
+
         filesInPool.add(file);
 
         if (dirsToBeCreated.containsKey(file)) {
