@@ -33,7 +33,8 @@ parser.add_argument("--validate", action = 'store_true', help = "Validating the 
 parser.add_argument("--dryrun", action = 'store_true', help = "Run as simulation.")
 parser.add_argument("-k", "--key-file", dest = "key_file", type = str, default = "~/.ssh/id_rsa", help = "Path to keyfile.")
 parser.add_argument("-u", "--user", type = str, default = "ben", help = "Username for SSH.")
-parser.add_argument("--hdfs-site", type = str, dest = "hdfs_site", default = "/home/ubuntu/repos/hops/hadoop-dist/target/hadoop-3.2.0.3-SNAPSHOT/etc/hadoop/hdfs-site.xml", help = "Location of the hdfs-site.xml file.")
+parser.add_argument("--hdfs-site", type = str, dest = "hdfs_site_path", default = "/home/ubuntu/repos/hops/hadoop-dist/target/hadoop-3.2.0.3-SNAPSHOT/etc/hadoop/hdfs-site.xml", help = "Location of the hdfs-site.xml file.")
+parser.add_argument("--existing_subtree", type = str, dest = "existing_subtree_path", default = "./existing_subtree.txt")
 
 args = parser.parse_args()
 
@@ -42,7 +43,8 @@ sync_dest = os.path.expanduser(args.sync_dest)
 ip_file_path = args.input
 key_file = args.key_file
 user = args.user
-hdfs_site_path = args.hdfs_site
+hdfs_site_path = args.hdfs_site_path
+existing_subtree_path = args.existing_subtree_path
 
 hosts = []
 hosts_no_local = []
@@ -64,6 +66,10 @@ if args.sync:
 
     print("Next, copying hdfs-site.xml configuration file...")
     greenlet = client_sync.copy_file(hdfs_site_path, hdfs_site_path, recurse=True)
+    gevent.joinall(greenlet, raise_error=True)
+
+    print("Next, copying existing_subtree.txt configuration file...")
+    greenlet = client_sync.copy_file(existing_subtree_path, sync_dest + "/existing_subtree.txt", recurse=True)
     gevent.joinall(greenlet, raise_error=True)
 
     output = list()
