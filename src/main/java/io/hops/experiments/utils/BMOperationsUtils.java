@@ -87,11 +87,14 @@ public class BMOperationsUtils {
         int currentCounter = 0;
         String to = from;
         if (from.contains(RENAMED)) {
-          int index1 = from.lastIndexOf(RENAMED);
-          int index2 = from.lastIndexOf("_");
-          String counter = from.substring(index1 + RENAMED.length() + 1, index2);
-          to = from.substring(0, index1 - 1);
-          currentCounter = Integer.parseInt(counter);
+            int index1 = from.lastIndexOf(RENAMED);
+            int index2 = from.lastIndexOf("_");
+            System.out.println("From: '" + from + "'");
+            System.out.println("index1: " + index1);
+            System.out.println("index2: " + index2);
+            String counter = from.substring(index1 + RENAMED.length() + 1, index2);
+            to = from.substring(0, index1 - 1);
+            currentCounter = Integer.parseInt(counter);
         }
         currentCounter++;
         to = to + "_" + RENAMED + "_" + currentCounter + "_" + "Times";
