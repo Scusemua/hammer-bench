@@ -1,20 +1,15 @@
 package io.hops.experiments.workload.generator;
 
-import io.hops.experiments.benchmarks.common.coin.FileSizeMultiFaceCoin;
 import io.hops.experiments.controller.Logger;
-import io.hops.experiments.workload.limiter.DistributionRateLimiter;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
-public class SubtreeFileGenerator implements FilePool {
-    public static final Log LOG = LogFactory.getLog(SubtreeFileGenerator.class);
+public class ExistingSubtreeFileGenerator implements FilePool {
+    public static final Log LOG = LogFactory.getLog(ExistingSubtreeFileGenerator.class);
 
     /**
      * The base name used for randomly-generated directories.
@@ -71,7 +66,7 @@ public class SubtreeFileGenerator implements FilePool {
      * @param pathToInitialDirectories Path to a file on-disk that contains all the initial directories to add to this file pool.
      * @param baseDirectory The root directory of the initial subtree.
      */
-    public SubtreeFileGenerator(String pathToInitialDirectories, String baseDirectory) {
+    public ExistingSubtreeFileGenerator(String pathToInitialDirectories, String baseDirectory) {
         this.baseDirectories = PathUtils.getFilePathsFromFile(pathToInitialDirectories);
         this.filesInPool = new ArrayList<>();
         this.directoriesInPool = new ArrayList<>();

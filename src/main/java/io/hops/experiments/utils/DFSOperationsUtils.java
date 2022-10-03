@@ -31,22 +31,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
 
 import io.hops.metrics.TransactionEvent;
-import io.hops.metrics.TransactionAttempt;
-import io.hops.transaction.context.TransactionsStats;
-import io.hops.metrics.OperationPerformed;
-import io.hops.leader_election.node.SortedActiveNodeList;
-import io.hops.leader_election.node.ActiveNode;
-import org.apache.hadoop.hdfs.serverless.consistency.ActiveServerlessNameNodeList;
-import org.apache.hadoop.hdfs.serverless.consistency.ActiveServerlessNameNode;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -236,7 +227,7 @@ public class DFSOperationsUtils {
                 filePool = new FileTreeFromDiskGenerator(baseDir,filesPerDir, dirsPerDir,0, diskFilesPath);
             }
             else if (isExistingSubtree) {
-                filePool = new SubtreeFileGenerator(existingSubtreePath, existingSubtreeRootDir);
+                filePool = new ExistingSubtreeFileGenerator(existingSubtreePath, existingSubtreeRootDir);
             }
             else {
                 filePool = new FileTreeGenerator(baseDir,filesPerDir, dirsPerDir,0, fileSizeDistribution);
