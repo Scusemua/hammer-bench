@@ -217,6 +217,7 @@ public class DFSOperationsUtils {
     public static FilePool getFilePool(String baseDir, int dirsPerDir, int filesPerDir, boolean fixedDepthTree,
                                        int treeDepth, String fileSizeDistribution, boolean readFilesFromDisk,
                                        String diskFilesPath, boolean isExistingSubtree, String existingSubtreePath) {
+        LOG.info("Getting FilePool. isExistingSubtree=" + isExistingSubtree);
         FilePool filePool = filePools.get();
         if (filePool == null) {
             if (fixedDepthTree) {

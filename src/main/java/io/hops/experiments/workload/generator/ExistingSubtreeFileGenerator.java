@@ -233,4 +233,10 @@ public class ExistingSubtreeFileGenerator implements FilePool {
     public boolean hasMoreFilesToWrite() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ExistingSubtreeFileGenerator(numBaseDirs=" + baseDirectories.size() + ", numGenDirs=" +
+                directoriesInPool.size() + ", numGenFiles=" + filesInPool.size() + ")";
+    }
 }
