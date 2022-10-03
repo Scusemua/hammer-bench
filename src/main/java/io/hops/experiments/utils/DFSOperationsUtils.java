@@ -132,13 +132,13 @@ public class DFSOperationsUtils {
      */
     public static Configuration getConfiguration(String path) {
         Configuration configuration = new Configuration();
-        LOG.info("Config path: '" + path + "'");
+        //LOG.info("Config path: '" + path + "'");
         try {
             File configFile = new File(path);
             URL configFileURL = configFile.toURI().toURL();
-            LOG.info("Adding resource to file: " + configFileURL);
+            //LOG.info("Adding resource to file: " + configFileURL);
             configuration.addResource(configFileURL);
-            LOG.info("Successfully added resource to file.");
+            //LOG.info("Successfully added resource to file.");
         } catch (MalformedURLException ex) {
             LOG.error("Invalid path specified for Configuration: '" + path + "':", ex);
             LOG.info("Invalid path specified for Configuration: '" + path + "':", ex);
@@ -154,15 +154,15 @@ public class DFSOperationsUtils {
      * Create an HDFS client.
      */
     public static DistributedFileSystem initDfsClient(boolean warmingUp) {
-        LOG.info("Creating config.");
+        //LOG.info("Creating config.");
         Configuration hdfsConfiguration = getConfiguration(hdfsConfigFilePath);
-        LOG.info("Created config.");
+        //LOG.info("Created config.");
         DistributedFileSystem hdfs = new DistributedFileSystem();
-        LOG.info("Created DistributedFileSystem instance.");
+        //LOG.info("Created DistributedFileSystem instance.");
 
         try {
             hdfs.initialize(new URI(NAME_NODE_ENDPOINT), hdfsConfiguration);
-            LOG.info("Initialized DistributedFileSystem instance.");
+            //LOG.info("Initialized DistributedFileSystem instance.");
         } catch (URISyntaxException | IOException ex) {
             LOG.error("");
             LOG.error("");
@@ -188,16 +188,16 @@ public class DFSOperationsUtils {
     public static DistributedFileSystem getDFSClient(boolean warmingUp) {
         // DistributedFileSystem client = dfsClients.get();
         DistributedFileSystem client;
-        LOG.info("Polling for HDFS client");
+        //LOG.info("Polling for HDFS client");
         client = hdfsClientPool.poll();
 
         if (client == null) {
-            LOG.info("Could not find client. Creating new HDFS client");
+            //LOG.info("Could not find client. Creating new HDFS client");
             client = initDfsClient(warmingUp);
             dfsClients.set(client);
         }
         else {
-            LOG.info("Found HDFS client");
+            //LOG.info("Found HDFS client");
             // Enable consistency protocol when not warming up.
             client.setConsistencyProtocolEnabled(!warmingUp);
         }
@@ -205,7 +205,7 @@ public class DFSOperationsUtils {
         client.setServerlessFunctionLogLevel("INFO");
         client.setBenchmarkModeEnabled(true); // Want to track cache hits/misses.
 
-        LOG.info("Returning HDFS client");
+        //LOG.info("Returning HDFS client");
         return client;
     }
 
