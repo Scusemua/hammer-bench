@@ -239,7 +239,7 @@ public class ExistingSubtreeFileGenerator implements FilePool {
     public void fileRenamed(String previousName, String newName) {
         String currentFile = filesInPool.get(lastModifiedIndex);
 
-        if (currentFile.equals(previousName))
+        if (!currentFile.equals(previousName))
             throw new IllegalStateException("Renamed file with old name '" + previousName +
                     "' not found. New name is " + newName);
 
