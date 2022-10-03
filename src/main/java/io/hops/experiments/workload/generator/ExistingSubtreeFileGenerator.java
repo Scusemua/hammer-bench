@@ -159,7 +159,7 @@ public class ExistingSubtreeFileGenerator implements FilePool {
             return newFile;
         }
         else {
-            return getRandomNonExistingSubtreeDirectory() + "/" + FILE_NAME +
+            return getRandomDirectory() + "/" + FILE_NAME +
                     RandomStringUtils.randomAlphabetic(6) + numFilesCreated++;
         }
     }
