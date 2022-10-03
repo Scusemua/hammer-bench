@@ -16,8 +16,10 @@ build: mvn-client-install
 install-slave: build
 	cp -f target/hop-experiments-1.0-SNAPSHOT-jar-with-dependencies.jar slave.target/
 	cp -f slave.properties slave.target/
-	cp -f target/hop-experiments-1.0-SNAPSHOT-jar-with-dependencies.jar ~/hammer-bench-slave/hop-experiments-1.0-SNAPSHOT-jar-with-dependencies.jar
 	cp -f existing_subtree.txt slave.target/
+	cp -f slave.properties ~/hammer-bench-slave/
+	cp -f existing_subtree.txt ~/hammer-bench-slave/
+	cp -f target/hop-experiments-1.0-SNAPSHOT-jar-with-dependencies.jar ~/hammer-bench-slave/
 
 bench:
 	java -Dsun.io.serialization.extendedDebugInfo=true -Xmx24g -Xms24g -XX:+UseConcMarkSweepGC -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=4096 -XX:+CMSScavengeBeforeRemark -XX:MaxGCPauseMillis=350 -XX:MaxTenuringThreshold=2 -XX:MaxNewSize=16000m -XX:+CMSClassUnloadingEnabled -XX:+ScavengeBeforeFullGC -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -cp target/hop-experiments-1.0-SNAPSHOT-jar-with-dependencies.jar io.hops.experiments.controller.Master
