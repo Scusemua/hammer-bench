@@ -133,9 +133,6 @@ public class ExistingSubtreeFileGenerator implements FilePool {
     @Override
     public String getFileToCreate() {
         // Create a directory if there aren't any.
-        if (directoriesInPool.isEmpty())
-            getDirToCreate();
-
         return getRandomDirectory() + FILE_NAME + RandomStringUtils.randomAlphabetic(6) +
                 numFilesCreated++;
     }
