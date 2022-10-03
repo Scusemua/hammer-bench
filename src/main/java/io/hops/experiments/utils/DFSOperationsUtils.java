@@ -216,8 +216,7 @@ public class DFSOperationsUtils {
 
     public static FilePool getFilePool(String baseDir, int dirsPerDir, int filesPerDir, boolean fixedDepthTree,
                                        int treeDepth, String fileSizeDistribution, boolean readFilesFromDisk,
-                                       String diskFilesPath, boolean isExistingSubtree, String existingSubtreePath,
-                                       String existingSubtreeRootDir) {
+                                       String diskFilesPath, boolean isExistingSubtree, String existingSubtreePath) {
         FilePool filePool = filePools.get();
         if (filePool == null) {
             if (fixedDepthTree) {
@@ -227,7 +226,7 @@ public class DFSOperationsUtils {
                 filePool = new FileTreeFromDiskGenerator(baseDir,filesPerDir, dirsPerDir,0, diskFilesPath);
             }
             else if (isExistingSubtree) {
-                filePool = new ExistingSubtreeFileGenerator(existingSubtreePath, existingSubtreeRootDir);
+                filePool = new ExistingSubtreeFileGenerator(existingSubtreePath);
             }
             else {
                 filePool = new FileTreeGenerator(baseDir,filesPerDir, dirsPerDir,0, fileSizeDistribution);

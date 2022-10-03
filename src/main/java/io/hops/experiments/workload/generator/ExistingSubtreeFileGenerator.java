@@ -39,11 +39,6 @@ public class ExistingSubtreeFileGenerator implements FilePool {
      */
     protected List<String> baseDirectories;
 
-    /**
-     * The root of the initial subtree.
-     */
-    protected String baseDirectory;
-
     private final Random random;
 
     /**
@@ -64,14 +59,13 @@ public class ExistingSubtreeFileGenerator implements FilePool {
     private int lastModifiedIndex = 0;
 
     /**
-     * @param pathToInitialDirectories Path to a file on-disk that contains all the initial directories to add to this file pool.
-     * @param baseDirectory The root directory of the initial subtree.
+     * @param pathToInitialDirectories Path to a file on-disk that contains all the initial directories
+     *                                 to add to this file pool.
      */
-    public ExistingSubtreeFileGenerator(String pathToInitialDirectories, String baseDirectory) {
+    public ExistingSubtreeFileGenerator(String pathToInitialDirectories) {
         this.baseDirectories = PathUtils.getFilePathsFromFile(pathToInitialDirectories);
         this.filesInPool = new ArrayList<>();
         this.directoriesInPool = new ArrayList<>();
-        this.baseDirectory = baseDirectory;
         this.random = new Random();
     }
 

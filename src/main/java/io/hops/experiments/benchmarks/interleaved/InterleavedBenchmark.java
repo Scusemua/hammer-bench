@@ -304,7 +304,7 @@ public class InterleavedBenchmark extends Benchmark {
               bmConf.getDirPerDir(), bmConf.getFilesPerDir(), bmConf.isFixedDepthTree(),
               bmConf.getTreeDepth(), bmConf.getFileSizeDistribution(),
               bmConf.getReadFilesFromDisk(), bmConf.getDiskNameSpacePath(),
-              bmConf.isExistingSubtree(), bmConf.getExistingSubtreePath(), bmConf.getExistingSubtreeRootDirectory());
+              bmConf.isExistingSubtree(), bmConf.getExistingSubtreePath());
 
       if (canPerformWrites) {
         opCoin = new InterleavedMultiFaceCoin(config.getInterleavedBmCreateFilesPercentage(),
