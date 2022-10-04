@@ -10,6 +10,10 @@ import os
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 
+# # # # # # # # # # # # # # # # # #
+# Plot throughput for \lambdaMDS. #
+# # # # # # # # # # # # # # # # # #
+
 plt.style.use('ggplot')
 mpl.rcParams['text.color'] = 'black'
 mpl.rcParams['xtick.color'] = 'black'
@@ -26,13 +30,18 @@ parser.add_argument("-i", "--input", default = "./ALL_DATA.txt", help = "Path to
 parser.add_argument("-n", "--namenodes", default = None, help = "Path to associated NN monitoring CSV.")
 parser.add_argument("-d", "--duration", default = 60, type = int, help = "Duration of the experiment in seconds.")
 parser.add_argument("-u", "--units", default = "ns", type = str, help = "Units of input data. Enter 'ns' for nanoseconds and 'ms' for milliseconds.")
-
+parser.add_argument("-c", "--columns", default = ["timestamp", "latency", "worker_id", "path"], nargs='+')
 args = parser.parse_args()
 
 input_path = args.input
 duration = args.duration
 namenodes_path = args.namenodes
 units = args.units
+COLUMNS = args.columns
+
+print(COLUMNS)
+
+# COLUMNS = ['timestamp', 'latency', 'worker_id', 'path']
 
 if units == 'ns':
     adjust_divisor = 1e9
@@ -44,24 +53,24 @@ else:
 # If we pass a single .txt file, then just create DataFrame from the .txt file.
 # Otherwise, merge all .txt files in the specified directory.
 if input_path.endswith(".txt"):
-    df = pd.read_csv(input_path)
+    df = pd.read_csv(input_path, index_col=None, header=0)
+    df.columns = COLUMNS
 else:
     print("input_path: " + input_path)
     print("joined: " + str(os.path.join(input_path, "*.txt")))
     all_files = glob.glob(os.path.join(input_path, "*.txt"))
     li = []
-
     print("Merging the following files: %s" % str(all_files))
-
     # Merge the .txt files into a single DataFrame.
     for filename in all_files:
         print("Reading file: " + filename)
         tmp_df = pd.read_csv(filename, index_col=None, header=0)
-        tmp_df.columns = ['timestamp', 'latency', 'path']
+        tmp_df.columns = COLUMNS
         li.append(tmp_df)
     df = pd.concat(li, axis=0, ignore_index=True)
-    df.columns = ['timestamp', 'latency', 'path']
+    df.columns = COLUMNS
 
+print(df)
 # Sort the DataFrame by timestamp.
 print("Sorting now...")
 start_sort = time.time()

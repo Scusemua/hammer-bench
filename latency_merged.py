@@ -8,7 +8,11 @@ import matplotlib.pyplot as plt
 import glob
 import os
 
-# python latency.py -xlim 0.25 -ylim 0.75 -ih "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\HammerBench\Vanilla\hops-vanilla-bursty-15s-202209251644-nr" -il "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\HammerBench\HammerBenchServerless_120Thread_8VM_Loc50k_300sec_v2\latency_data" -n 25
+# python latency_merged.py -xlim 0.25 -ylim 0.75 -ih "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\HammerBench\Vanilla\hops-vanilla-bursty-15s-202209251644-nr" -il "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\HammerBench\HammerBenchServerless_120Thread_8VM_Loc50k_300sec_v2\latency_data" -n 25
+
+#####################################################
+# Latency comparison between HopsFS and \lambdaMDS. #
+#####################################################
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 

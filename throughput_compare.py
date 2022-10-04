@@ -10,6 +10,10 @@ import os
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Plot and compare throughput between HopsFS and \lambdaMDS.  #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 plt.style.use('ggplot')
 mpl.rcParams['text.color'] = 'black'
 mpl.rcParams['xtick.color'] = 'black'
