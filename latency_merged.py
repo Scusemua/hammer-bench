@@ -45,6 +45,7 @@ parser.add_argument("-n", default = 1, type = int, help = "Plot every `n` points
 parser.add_argument("--show", action = 'store_true', help = "Show the plot rather than just write it to a file")
 
 parser.add_argument("-o", "--output", type = str, default = None, help = "File path to write chart to. If none specified, then don't write to file.")
+parser.add_argument("-c", "--columns", default = ["timestamp", "latency", "worker_id", "path"], nargs='+')
 
 args = parser.parse_args()
 
@@ -55,6 +56,9 @@ ylim_percent = args.ylim
 n = args.n 
 show_plot = args.show
 output_path = args.output
+COLUMNS = args.columns
+
+print(COLUMNS)
 
 vanilla_colors = ["#ffa822", "#124c6d", "#ff6150", "#1ac0c6", "#7c849c", "#6918b4", "#117e16", "#ff7c00", "#ff00c5"]
 lambda_colors = ["#cc7a00", "#0b2e42", "#b31200", "#128387", "#424757", "#410f70", "#0c5a10", "#b35600", "#cc009c"]
@@ -87,7 +91,7 @@ def plot_data(input_path, axis = None, vanilla = False):
         for i, filename in enumerate(all_files):
             print("Reading file: " + filename)
             df = pd.read_csv(filename, index_col=None, header=0)
-            df.columns = ['timestamp', 'latency']
+            df.columns = COLUMNS
 
             # Sort the DataFrame by timestamp.
             df = df.sort_values('latency')

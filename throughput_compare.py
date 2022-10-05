@@ -29,12 +29,16 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-ih", "--input-hopsfs", dest="input_hopsfs", default = "./ALL_DATA.txt", help = "Path to file containing ALL data.")
 parser.add_argument("-il", "--input-lambdamds", dest="input_lambdamds", default = "./ALL_DATA.txt", help = "Path to file containing ALL data.")
 parser.add_argument("-d", "--duration", default = 60, type = int, help = "Duration of the experiment in seconds.")
+parser.add_argument("-c", "--columns", default = ["timestamp", "latency", "worker_id", "path"], nargs='+')
 
 args = parser.parse_args()
 
 input_hopsfs = args.input_hopsfs
 input_lambdamds = args.input_lambdamds
 duration = args.duration
+COLUMNS = args.columns
+
+print(COLUMNS)
 
 def get_data(input_path, label = None):
     # If we pass a single .txt file, then just create DataFrame from the .txt file.
@@ -51,10 +55,10 @@ def get_data(input_path, label = None):
         for filename in all_files:
             print("Reading file: " + filename)
             tmp_df = pd.read_csv(filename, index_col=None, header=0)
-            tmp_df.columns = ['timestamp', 'latency']
+            tmp_df.columns = COLUMNS
             li.append(tmp_df)
         df = pd.concat(li, axis=0, ignore_index=True)
-        df.columns = ['timestamp', 'latency']
+        df.columns = COLUMNS
 
     # Sort the DataFrame by timestamp.
     print("Sorting now...")

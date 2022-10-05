@@ -152,6 +152,7 @@ public class DistributionRateLimiter implements WorkerRateLimiter {
           // Log every 1 second
           long c = completed.get();
           LOG.info("Completed: " +  (c - lastCompleted) + " Released: " + unfulfilled);
+          Logger.printMsg("Completed: " +  (c - lastCompleted) + " Released: " + unfulfilled);
           lastCompleted = c;
         }
 
