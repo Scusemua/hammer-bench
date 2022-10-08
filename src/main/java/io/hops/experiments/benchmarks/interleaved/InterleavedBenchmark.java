@@ -65,7 +65,7 @@ public class InterleavedBenchmark extends Benchmark {
   AtomicLong operationsCompleted = new AtomicLong(0);
   AtomicLong operationsFailed = new AtomicLong(0);
   Map<BenchmarkOperations, AtomicLong> operationsStats = new HashMap<>();
-  HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats = new HashMap<>();
+  final HashMap<BenchmarkOperations, ArrayList<BMOpStats>> opsStats = new HashMap<>();
   SynchronizedDescriptiveStatistics avgLatency = new SynchronizedDescriptiveStatistics();
   protected final RateLimiter limiter;
   protected boolean debug = false;

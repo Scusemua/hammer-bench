@@ -304,58 +304,6 @@ public class BMConfiguration implements Serializable {
     return getDouble(ConfigKeys.INTERLEAVED_BM_IAT_PARETO_LOCATION_KEY, ConfigKeys.INTERLEAVED_BM_IAT_PARETO_LOCATION_DEFAULT);
   }
 
-  public BigDecimal getInterleavedBmCreateFilesPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_CREATE_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_CREATE_FILES_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmAppendFilePercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_APPEND_FILE_PERCENTAGE_KEY, ConfigKeys.INTLVD_APPEND_FILE_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmReadFilesPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_READ_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_READ_FILES_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmRenameFilesPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_RENAME_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_RENAME_FILES_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmDeleteFilesPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_DELETE_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_DELETE_FILES_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmChmodFilesPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_CHMOD_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_CHMOD_FILES_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmChmodDirsPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_CHMOD_DIRS_PERCENTAGE_KEY, ConfigKeys.INTLVD_CHMOD_DIRS_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmLsFilePercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_LS_FILE_PERCENTAGE_KEY, ConfigKeys.INTLVD_LS_FILE_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmLsDirPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_LS_DIR_PERCENTAGE_KEY, ConfigKeys.INTLVD_LS_DIR_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmMkdirPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_MKDIR_PERCENTAGE_KEY, ConfigKeys.INTLVD_MKDIR_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmSetReplicationPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_SETREPLICATION_PERCENTAGE_KEY, ConfigKeys.INTLVD_SETREPLICATION_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmGetFileInfoPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_GET_FILE_INFO_PERCENTAGE_KEY, ConfigKeys.INTLVD_GET_FILE_INFO_PERCENTAGE_DEFAULT);
-  }
-
-  public BigDecimal getInterleavedBmGetDirInfoPercentage() {
-    return getBigDecimal(ConfigKeys.INTLVD_GET_DIR_INFO_PERCENTAGE_KEY, ConfigKeys.INTLVD_GET_DIR_INFO_PERCENTAGE_DEFAULT);
-  }
-
   public int getBlockReportBenchMarkDuration() {
     return getInt(ConfigKeys.BR_BENCHMARK_DURATION_KEY, ConfigKeys.BR_BENCHMARK_DURATION_DEFAULT);
   }
@@ -521,20 +469,85 @@ public class BMConfiguration implements Serializable {
     return getInt(ConfigKeys.TREE_DEPTH_KEY, ConfigKeys.TREE_DEPTH_DEFAULT);
   }
 
-  public long getRawFileChangeUserPhaseDuration() {
-    return getLong(ConfigKeys.RAW_FILE_CHANGE_USER_PHASE_DURATION_KEY, ConfigKeys.RAW_FILE_CHANGE_USER_PHASE_DURATION_DEFAULT);
-  }
+  ///////////////////////////////
+  // WORKER Type 1 PERCENTAGES //
+  ///////////////////////////////
 
   public BigDecimal getInterleavedBmFileChangeOwnerPercentage() {
     return getBigDecimal(ConfigKeys.INTLVD_FILE_CHANGE_USER_PERCENTAGE_KEY, ConfigKeys.INTLVD_FILE_CHANGE_USER_PERCENTAGE_DEFAULT);
   }
 
-  public long getRawDirChangeUserPhaseDuration() {
-    return getLong(ConfigKeys.RAW_DIR_CHANGE_USER_PHASE_DURATION_KEY, ConfigKeys.RAW_DIR_CHANGE_USER_PHASE_DURATION_DEFAULT);
-  }
-
   public BigDecimal getInterleavedBmDirChangeOwnerPercentage() {
     return getBigDecimal(ConfigKeys.INTLVD_DIR_CHANGE_USER_PERCENTAGE_KEY, ConfigKeys.INTLVD_DIR_CHANGE_USER_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmCreateFilesPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_CREATE_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_CREATE_FILES_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmAppendFilePercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_APPEND_FILE_PERCENTAGE_KEY, ConfigKeys.INTLVD_APPEND_FILE_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmReadFilesPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_READ_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_READ_FILES_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmRenameFilesPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_RENAME_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_RENAME_FILES_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmDeleteFilesPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_DELETE_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_DELETE_FILES_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmChmodFilesPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_CHMOD_FILES_PERCENTAGE_KEY, ConfigKeys.INTLVD_CHMOD_FILES_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmChmodDirsPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_CHMOD_DIRS_PERCENTAGE_KEY, ConfigKeys.INTLVD_CHMOD_DIRS_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmLsFilePercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_LS_FILE_PERCENTAGE_KEY, ConfigKeys.INTLVD_LS_FILE_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmLsDirPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_LS_DIR_PERCENTAGE_KEY, ConfigKeys.INTLVD_LS_DIR_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmMkdirPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_MKDIR_PERCENTAGE_KEY, ConfigKeys.INTLVD_MKDIR_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmSetReplicationPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_SETREPLICATION_PERCENTAGE_KEY, ConfigKeys.INTLVD_SETREPLICATION_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmGetFileInfoPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_GET_FILE_INFO_PERCENTAGE_KEY, ConfigKeys.INTLVD_GET_FILE_INFO_PERCENTAGE_DEFAULT);
+  }
+
+  public BigDecimal getInterleavedBmGetDirInfoPercentage() {
+    return getBigDecimal(ConfigKeys.INTLVD_GET_DIR_INFO_PERCENTAGE_KEY, ConfigKeys.INTLVD_GET_DIR_INFO_PERCENTAGE_DEFAULT);
+  }
+
+  ///////////////////////////////
+  // WORKER Type 2 PERCENTAGES //
+  ///////////////////////////////
+
+
+  ///////////////////
+  // RAW BENCHMARK //
+  ///////////////////
+
+  public long getRawFileChangeUserPhaseDuration() {
+    return getLong(ConfigKeys.RAW_FILE_CHANGE_USER_PHASE_DURATION_KEY, ConfigKeys.RAW_FILE_CHANGE_USER_PHASE_DURATION_DEFAULT);
+  }
+
+  public long getRawDirChangeUserPhaseDuration() {
+    return getLong(ConfigKeys.RAW_DIR_CHANGE_USER_PHASE_DURATION_KEY, ConfigKeys.RAW_DIR_CHANGE_USER_PHASE_DURATION_DEFAULT);
   }
 
   public int getMaxSlavesFailureThreshold() {

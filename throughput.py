@@ -30,7 +30,10 @@ parser.add_argument("-i", "--input", default = "./ALL_DATA.txt", help = "Path to
 parser.add_argument("-n", "--namenodes", default = None, help = "Path to associated NN monitoring CSV.")
 parser.add_argument("-d", "--duration", default = 60, type = int, help = "Duration of the experiment in seconds.")
 parser.add_argument("-u", "--units", default = "ns", type = str, help = "Units of input data. Enter 'ns' for nanoseconds and 'ms' for milliseconds.")
-parser.add_argument("-c", "--columns", default = ["timestamp", "latency", "worker_id", "path"], nargs='+')
+parser.add_argument("-c", "--columns", default = ["timestamp", "latency"], nargs='+') # ["timestamp", "latency", "worker_id", "path"]
+parser.add_argument("-o", "--output-path", dest = "output_path", default = None, type = str, help = "Output path to write graph to. If not specified, then no output will be saved.")
+parser.add_argument("--show", action = 'store_true', help = "Show the plot rather than just write it to a file")
+
 args = parser.parse_args()
 
 input_path = args.input
@@ -38,9 +41,12 @@ duration = args.duration
 namenodes_path = args.namenodes
 units = args.units
 COLUMNS = args.columns
+output_path = args.output_path
+show = args.show
 
 print(COLUMNS)
 
+# timestamp latency worker_id path
 # COLUMNS = ['timestamp', 'latency', 'worker_id', 'path']
 
 if units == 'ns':
@@ -113,17 +119,10 @@ for i in range(1, duration + 1):
     buckets[i] = len(res)
     total += len(res)
 
-# df.to_csv("test.csv")
+print("Sum of buckets: %d" % total)
 
-# for _, row in df.iterrows():
-#     t = row['ts']
-#     buckets[round(t)] += 1
-
-# for i, t in enumerate(buckets):
-#     print("%d,%d" % (i,t))
-
-#print(sum(buckets))
-#print(len(df))
+print("Average Throughput: " + str(np.mean(buckets)) + " ops/sec.")
+print("Average Latency: " + str(df['ts'].mean()) + " ms.")
 
 # Check for a nns.csv in the input path.
 if namenodes_path is None:
@@ -152,11 +151,20 @@ if namenodes_path is not None:
     axs[0].plot(list(range(len(buckets))), buckets)
     axs[0].set_xlabel("Time (seconds)")
     axs[0].set_ylabel("Throughput (ops/sec)")
+
+    plt.tight_layout()
 else:
     fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
 
     axs.plot(list(range(len(buckets))), buckets)
     axs.set_xlabel("Time (seconds)")
     axs.set_ylabel("Throughput (ops/sec)")
+    plt.tight_layout()
 
-plt.show()
+if output_path is not None:
+  print("Saving plot to file '%s' now" % output_path)
+  plt.savefig(output_path)
+  print("Done")
+
+if args.show:
+    plt.show()
