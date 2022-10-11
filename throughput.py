@@ -26,7 +26,7 @@ mpl.rc('font', **font)
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-i", "--input", default = "./ALL_DATA.txt", help = "Path to file containing ALL data.")
+parser.add_argument("-i1", "--input1", default = "./ALL_DATA.txt", help = "Path to file containing ALL data.")
 parser.add_argument("-i2", "--input2", default = None, help = "Path to file containing ALL data.")
 parser.add_argument("-l1", "--label1", default = r'$\lambda$' + "MDS", help = "Label for first set of data.")
 parser.add_argument("-l2", "--label2", default = "HopsFS", help = "Label for second set of data.")
@@ -40,7 +40,7 @@ parser.add_argument("--legend", action = 'store_true', help = "Show the legend o
 
 args = parser.parse_args()
 
-input_path1 = args.input
+input_path1 = args.input1
 input_path2 = args.input2
 label1 = args.label1
 label2 = args.label2
@@ -69,12 +69,14 @@ if namenodes_path is None:
     if not os.path.isfile(namenodes_path):
         namenodes_path = None
 
-if namenodes_path is not None:
-    fig, axs = plt.subplots(nrows = 1, ncols = 2, figsize=(12,8))
-else:
-    fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
+# if namenodes_path is not None:
+#     fig, axs = plt.subplots(nrows = 1, ncols = 2, figsize=(12,8))
+# else:
+#     fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
 
-def plot(input_path, label = None):
+fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
+
+def plot(input_path, label = None, dataset = -1):
     # If we pass a single .txt file, then just create DataFrame from the .txt file.
     # Otherwise, merge all .txt files in the specified directory.
     if input_path.endswith(".txt"):
@@ -152,31 +154,52 @@ def plot(input_path, label = None):
 
         df_nns["ts"] = df_nns["time"].map(adjust_nn_timestamp)
 
-        xs = df_nns["ts"]
-        ys = df_nns["nns"]
+        # Adjust to account for the warm-up.
+        t = 20
+        xs = df_nns["ts"].values
+        ys = df_nns["nns"].values
+        ys = [y for y in ys]
+        ys = ys[0:t] + ys[t+t:]
 
-        axs[1].plot(xs, ys, label = label)
-        axs[1].set_xlabel("Time (seconds)")
-        axs[1].set_ylabel("Number of Active NNs")
+        xs = xs[0:300]
+        ys = ys[0:300]
 
-        axs[0].plot(list(range(len(buckets))), buckets, label = label)
-        axs[0].set_xlabel("Time (seconds)")
-        axs[0].set_ylabel("Throughput (ops/sec)")
+#         axs[1].plot(xs, ys, label = label)
+#         axs[1].set_xlabel("Time (seconds)")
+#         axs[1].set_ylabel("Number of Active NNs")
+#         axs[0].set_xlabel("Time (seconds)")
+#         axs[0].set_ylabel("Throughput (ops/sec)")
 
+        axs.set_xlabel("Time (seconds)", color = 'black')
+        axs.set_ylabel("Throughput (ops/sec)", color = 'black')
+
+        if (dataset == 1):
+            #axs[0].plot(list(range(len(buckets))), buckets, label = label, linewidth = 2, markersize = 10)
+            axs.plot(list(range(len(buckets))), buckets, label = r'$\lambda$' + "MDS", linewidth = 2, color = '#E24A33')
+        else:
+            #axs[0].plot(list(range(len(buckets))), buckets, label = label, linewidth = 2, markersize = 10)
+            axs.plot(list(range(len(buckets))), buckets, label = "HopsFS", linewidth = 2, color = '#348ABD')
+
+        axs2 = axs.twinx()
+        axs2.plot(xs, ys, color = 'grey', linewidth = 2, label = "Number of Serverless NameNodes")
+        axs2.set_ylabel('Active NameNodes', color = 'black')
         plt.tight_layout()
     else:
-        axs.plot(list(range(len(buckets))), buckets, label = label)
-        axs.set_xlabel("Time (seconds)")
-        axs.set_ylabel("Throughput (ops/sec)")
+        if (dataset == 1):
+            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 2, markersize = 10)
+        else:
+            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 2, markersize = 10)
+        axs.set_xlabel("Time (seconds)", color = 'black')
+        axs.set_ylabel("Throughput (ops/sec)", color = 'black')
         plt.tight_layout()
 
 if input_path1 is not None:
-    print("Plotting: '%s'" % input_path1)
-    plot(input_path1, label = label1)
+    print("Plotting %s: '%s'" % (label1, input_path1))
+    plot(input_path1, label = label1, dataset = 1)
 
 if input_path2 is not None:
-    print("Plotting: '%s'" % input_path2)
-    plot(input_path2, label = label2)
+    print("Plotting %s: '%s'" % (label2, input_path2))
+    plot(input_path2, label = label2, dataset = 2)
 
 if output_path is not None:
   print("Saving plot to file '%s' now" % output_path)
@@ -184,7 +207,18 @@ if output_path is not None:
   print("Done")
 
 if args.legend:
-    plt.legend(loc = 'upper left')
+    lines = []
+    labels = []
+
+    for ax in fig.axes:
+        Line, Label = ax.get_legend_handles_labels()
+        print("Label: '%s'" % str(Label))
+
+        if Label[0] not in labels:
+            lines.extend(Line)
+            labels.extend(Label)
+
+    fig.legend(lines, labels, loc='upper left', bbox_to_anchor=(0.13, 0.95))
 
 if args.show:
     plt.show()
