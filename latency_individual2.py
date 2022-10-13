@@ -7,7 +7,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import glob
 import os
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset, inset_axes
 
 # python latency_individual.py -xlim 0.25 -ylim 0.75 -ih "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\HammerBench\Vanilla\hops-vanilla-bursty-15s-202209251644-nr" -il "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\HammerBench\HammerBenchServerless_120Thread_8VM_Loc50k_300sec_v2\latency_data" -n 25
 
@@ -28,12 +28,12 @@ mpl.rcParams['ytick.color'] = 'black'
 mpl.rcParams["figure.figsize"] = (8,6)
 
 font = {'weight' : 'bold',
-        'size'   : 16}
+        'size'   : 20}
 mpl.rc('font', **font)
 
-x_label_font_size = 18
-y_label_font_size = 16
-xtick_font_size = 14
+x_label_font_size = 20
+y_label_font_size = 18
+xtick_font_size = 18
 markersize = 6
 linewidth = 4
 
@@ -79,6 +79,7 @@ skip_plot = args.skip_plot
 input1_colors = ["#ffa822", "#124c6d", "#ff6150", "#1ac0c6", "#7c849c", "#6918b4", "#117e16", "#ff7c00", "#ff00c5"]
 input2_colors = ["#cc7a00", "#0b2e42", "#b31200", "#128387", "#424757", "#410f70", "#0c5a10", "#b35600", "#cc009c"]
 ops = {}
+sub_axis = {}
 next_idx = 0
 
 name_mapping = {
@@ -193,6 +194,14 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
               next_idx += 1
               ops[fs_operation_name] = idx
 
+            if fs_operation_name in sub_axis:
+                axins = sub_axis[fs_operation_name]
+            else:
+                axins = inset_axes(axis[idx], 2, 2, bbox_transform=axis[idx].transAxes, bbox_to_anchor=(0.90, 0.85))
+                axins.set_xlim(left = -10, right = min(latencies[-1] * 0.25, 300))
+                axins.set_ylim(bottom = 0.95, top = 1.01)
+                sub_axis[fs_operation_name] = axins
+
             print("max(latencies): ", max(latencies))
 
             ys = list(range(0, len(latencies)))
@@ -205,10 +214,12 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
             axis[idx].set_ylabel("Cumulative Probability", fontsize = y_label_font_size)
             axis[idx].tick_params(labelsize=xtick_font_size)
             axis[idx].set_title(fs_operation_name)
-            axis[idx].set_xlim(left = -1, right = 250) #(xlim_percent * latencies[-1]) * 1.05)
+            #axis[idx].set_xlim(left = -1, right = 250) #(xlim_percent * latencies[-1]) * 1.05)
             axis[idx].set_ylim(bottom = ylim_percent, top = 1.0125)
             axis[idx].xaxis.label.set_color('black')
             axis[idx].yaxis.label.set_color('black')
+
+            axins.plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = label, linewidth = 1.85, markersize = markersize * 0.675, marker = marker, markevery = 0.15, color = colors[idx])
 
     print("Removed a total of %d points." % num_cold_starts)
 
@@ -226,7 +237,7 @@ num_columns = 7 #max(num_input1_files, num_input2_files)
 
 print("Plotting data now...")
 
-fig, axs = plt.subplots(nrows = 1, ncols = num_columns, figsize=(48, 8))
+fig, axs = plt.subplots(nrows = 1, ncols = num_columns, figsize=(40, 6))
 plot_start = time.time()
 if input1 is not None:
     plot_data(input1, axis = axs, dataset = 1, label = label1, columns = columns1)
@@ -265,7 +276,7 @@ if show_legend:
         ax.legend(loc = 'lower right')
 
 #fig.legend()
-plt.suptitle("Latency CDF - Spotify Workload - Log Scale x-Axis")
+#plt.suptitle("Latency CDF - Spotify Workload - Log Scale x-Axis")
 fig.tight_layout()
 # axs.set_yscale('linear')
 # axs.set_xlabel("Latency (ms)", fontsize = x_label_font_size)

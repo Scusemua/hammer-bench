@@ -4,3 +4,4 @@
 *.out
 HopsFS_latency.txt
 LambdaMDS_latency.txt
+nns.csv
