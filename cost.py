@@ -52,7 +52,6 @@ output_path = args.output_path
 show = args.show
 cpu_per_nn = args.cpu
 mem_per_nn = args.memory
-plot_cost = args.cost
 
 c2_standard_16_cost_per_second = 0.9406 / (60 * 60)
 cpu_cost_per_ms = 0.03827 / (60 * 60 * 1000) # Divide cost-per-hour by 60 min/hr * 60 sec/min * 1000 ms/sec.
