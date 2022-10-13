@@ -9,8 +9,6 @@ import glob
 import os
 from tqdm import tqdm
 
-from intervaltree import Interval, IntervalTree
-
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 
 # # # # # # # # # # # # # # # # # #
@@ -38,6 +36,8 @@ parser.add_argument("-o", "--output-path", dest = "output_path", default = None,
 parser.add_argument("--show", action = 'store_true', help = "Show the plot rather than just write it to a file")
 parser.add_argument("--legend", action = 'store_true', help = "Show the legend on each plot.")
 
+parser.add_argument("--df", action = 'store_true', help = "Use dataframe-based algorithm to generate cost data (might be faster).")
+
 parser.add_argument("--cpu", default = 5, type = float, help = "vCPU per NN.")
 parser.add_argument("--memory", default = 19, type = float, help = "Memory per NN in GB.")
 
@@ -52,6 +52,7 @@ output_path = args.output_path
 show = args.show
 cpu_per_nn = args.cpu
 mem_per_nn = args.memory
+use_df_alg = args.df
 
 c2_standard_16_cost_per_second = 0.9406 / (60 * 60)
 cpu_cost_per_ms = 0.03827 / (60 * 60 * 1000) # Divide cost-per-hour by 60 min/hr * 60 sec/min * 1000 ms/sec.
@@ -99,53 +100,57 @@ df['start_adjusted'] = df['start_time'].map(adjust)
 df['end_adjusted'] = df['end_time'].map(adjust)
 
 namenodes = df['name_node_id'].unique()
-interval_trees = dict()
-
-for name_node_id in namenodes:
-    interval_trees[name_node_id] = IntervalTree()
-
-print("Building interval trees now...")
-for index, row in tqdm(df.iterrows(), total=df.shape[0]):
-    name_node_id = row['name_node_id']
-    start_time = row['start_adjusted']
-    end_time = row['end_adjusted']
-    data = row.to_dict()
-    interval_tree = interval_trees[name_node_id]
-    if start_time == end_time:
-        interval_tree[start_time:end_time+1] = data
-    else:
-        interval_tree[start_time:end_time] = data
 
 experiment_end_time = df['end_adjusted'].max()
 
-cost_at_each_ms_of_experiment = [0]
-for current_ms in tqdm(range(0, experiment_end_time)):
-    current_ms_cost = 0
-    # For each NN, add 1ms worth of cost if it had a task actively executing.
-    for nn_id, interval_tree in interval_trees.items():
-        if len(interval_tree[current_ms]) > 0:
-            current_ms_cost += nn_cost_per_ms
-    cost_at_each_ms_of_experiment.append(current_ms_cost + cost_at_each_ms_of_experiment[-1])
+if use_df_alg:
+    print("Building interval trees using DataFrame algorithm now...")
 
-with open('interval_tree_cost.txt', 'w') as f:
-    for line in cost_at_each_ms_of_experiment:
-        f.write(str(line))
-        f.write("\n")
+    cost_at_each_ms_of_experiment = [0]
+    for current_ms in tqdm(range(0, experiment_end_time)):
+        # For each NN, add 1ms worth of cost if it had a task actively executing.
+        num_tasks_executing = df[(current_ms >= df['start_adjusted']) & (current_ms < df['end_adjusted'])].groupby('name_node_id').size().sum()
+        current_ms_cost = num_tasks_executing * nn_cost_per_ms
+        cost_at_each_ms_of_experiment.append(current_ms_cost + cost_at_each_ms_of_experiment[-1])
 
-# cost_at_each_ms_of_experiment2 = [0]
-# for current_ms in tqdm(range(0, experiment_end_time)):
-#     # For each NN, add 1ms worth of cost if it had a task actively executing.
-#     num_tasks_executing = df[(current_ms >= df['start_adjusted']) & (current_ms < df['end_adjusted'])].groupby('name_node_id').size().sum()
-#     current_ms_cost = num_tasks_executing * nn_cost_per_ms
-#     cost_at_each_ms_of_experiment2.append(current_ms_cost + cost_at_each_ms_of_experiment2[-1])
-#
-# with open('df_cost.txt', 'w') as f:
-#     for line in cost_at_each_ms_of_experiment2:
-#         f.write(f"{line}\n")
+    with open('df_cost.txt', 'w') as f:
+        for line in cost_at_each_ms_of_experiment:
+            f.write(f"{line}\n")
+else:
+    print("Building interval trees using Interval Tree algorithm now...")
+    from intervaltree import Interval, IntervalTree
+    interval_trees = dict()
+
+    for name_node_id in namenodes:
+        interval_trees[name_node_id] = IntervalTree()
+
+    for index, row in tqdm(df.iterrows(), total=df.shape[0]):
+        name_node_id = row['name_node_id']
+        start_time = row['start_adjusted']
+        end_time = row['end_adjusted']
+        data = row.to_dict()
+        interval_tree = interval_trees[name_node_id]
+        if start_time == end_time:
+            interval_tree[start_time:end_time+1] = data
+        else:
+            interval_tree[start_time:end_time] = data
+
+    cost_at_each_ms_of_experiment = [0]
+    for current_ms in tqdm(range(0, experiment_end_time)):
+        current_ms_cost = 0
+        # For each NN, add 1ms worth of cost if it had a task actively executing.
+        for nn_id, interval_tree in interval_trees.items():
+            if len(interval_tree[current_ms]) > 0:
+                current_ms_cost += nn_cost_per_ms
+        cost_at_each_ms_of_experiment.append(current_ms_cost + cost_at_each_ms_of_experiment[-1])
+
+    with open('interval_tree_cost.txt', 'w') as f:
+        for line in cost_at_each_ms_of_experiment:
+            f.write(str(line))
+            f.write("\n")
 
 cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
-cost_axs.plot(list(range(len(cost_at_each_ms_of_experiment))), cost_at_each_ms_of_experiment, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS Interval")
-#cost_axs.plot(list(range(len(cost_at_each_ms_of_experiment2))), cost_at_each_ms_of_experiment2, linewidth = 4, color = '#6d1c0f', label = r'$\lambda$' + "MDS DF")
+cost_axs.plot(list(range(len(cost_at_each_ms_of_experiment))), cost_at_each_ms_of_experiment, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
 hopsfs_cost = [0]
 for i in range(0, len(cost_at_each_ms_of_experiment)):
     current_cost = hopsfs_cost[-1] + (32 * c2_standard_16_cost_per_second)
