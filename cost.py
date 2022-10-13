@@ -72,8 +72,6 @@ elif units == 'ms':
 else:
     raise ValueError("Unknown/unsupported units: " + str(units))
 
-cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
-
 def compute_cost_of_operation(row):
     end_to_end_latency_ms = row["latency"]
     return (end_to_end_latency_ms * cpu_cost_per_ms) + (end_to_end_latency_ms * mem_cost_per_ms)
@@ -130,52 +128,40 @@ for current_ms in tqdm(range(0, experiment_end_time)):
             current_ms_cost += nn_cost_per_ms
     cost_at_each_ms_of_experiment.append(current_ms_cost + cost_at_each_ms_of_experiment[-1])
 
-cost_at_each_ms_of_experiment2 = [0]
-for current_ms in tqdm(range(0, experiment_end_time)):
-    # For each NN, add 1ms worth of cost if it had a task actively executing.
-    num_tasks_executing = df[(current_ms >= df['start_adjusted']) & (current_ms < df['end_adjusted'])].groupby('name_node_id').size().sum()
-    current_ms_cost = num_tasks_executing * nn_cost_per_ms
-    cost_at_each_ms_of_experiment2.append(current_ms_cost + cost_at_each_ms_of_experiment2[-1])
+with open('interval_tree_cost.txt', 'w') as f:
+    for line in cost_at_each_ms_of_experiment:
+        f.write(f"{line}\n")
 
-#result=df.groupby("name_node_id").agg({"start_adjusted":"min", "end_adjusted": "max"})
+# cost_at_each_ms_of_experiment2 = [0]
+# for current_ms in tqdm(range(0, experiment_end_time)):
+#     # For each NN, add 1ms worth of cost if it had a task actively executing.
+#     num_tasks_executing = df[(current_ms >= df['start_adjusted']) & (current_ms < df['end_adjusted'])].groupby('name_node_id').size().sum()
+#     current_ms_cost = num_tasks_executing * nn_cost_per_ms
+#     cost_at_each_ms_of_experiment2.append(current_ms_cost + cost_at_each_ms_of_experiment2[-1])
+#
+# with open('df_cost.txt', 'w') as f:
+#     for line in cost_at_each_ms_of_experiment2:
+#         f.write(f"{line}\n")
 
-print("Total number of points: %d" % len(df))
-print("Computing cost column now...")
-if plot_cost and 'cost' not in df.columns:
-    df['cost'] = df.apply(lambda row: compute_cost_of_operation(row), axis = 1)
-    df.to_csv("./nns.csv")
-print("Done.")
-cumulative_cost = [0]
-
-# For each second of the workload, count all the data points that occur during that second.
-# These are the points that we'll plot.
-for i in range(1, duration + 1):
-    start = i-1
-    end = i
-    res = df[((df['ts'] >= start) & (df['ts'] <= end))]
-    total += len(res)
-
-    if plot_cost:
-        current_cost = res['cost'].values[::10].sum()
-        last_cost = cumulative_cost[-1]
-        cumulative_cost.append(last_cost + current_cost)
-
-cost_axs.plot(list(range(len(cumulative_cost))), cumulative_cost, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
+cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
+cost_axs.plot(list(range(len(cost_at_each_ms_of_experiment))), cost_at_each_ms_of_experiment, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS Interval")
+#cost_axs.plot(list(range(len(cost_at_each_ms_of_experiment2))), cost_at_each_ms_of_experiment2, linewidth = 4, color = '#6d1c0f', label = r'$\lambda$' + "MDS DF")
 hopsfs_cost = [0]
-print("len(cumulative_cost): %d" % len(cumulative_cost))
-for i in range(0, len(cumulative_cost)):
+for i in range(0, len(cost_at_each_ms_of_experiment)):
     current_cost = hopsfs_cost[-1] + (32 * c2_standard_16_cost_per_second)
     hopsfs_cost.append(current_cost)
+
 cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
+
+cost_axs.set_xlabel("Time (milliseconds)", color = 'black')
+cost_axs.set_yscale('log')
+cost_axs.set_ylabel("Cumulative Cost (USD)", color = 'black')
+cost_fig.legend(loc = 'center right', bbox_to_anchor=(0.85, 0.225))
 
 if output_path is not None:
   print("Saving plot to file '%s' now" % output_path)
   plt.savefig(output_path)
   print("Done")
-
-cost_axs.set_xlabel("Time (seconds)", color = 'black')
-cost_axs.set_ylabel("Cumulative Cost (USD)", color = 'black')
-cost_fig.legend(loc = 'upper left', bbox_to_anchor=(0.16, 0.85))
 
 if args.show:
     cost_fig.show()
