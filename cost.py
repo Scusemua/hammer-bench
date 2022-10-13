@@ -33,10 +33,11 @@ parser.add_argument("-d", "--duration", default = 300, type = int, help = "Durat
 parser.add_argument("-u", "--units", default = "ns", type = str, help = "Units of input data. Enter 'ns' for nanoseconds and 'ms' for milliseconds.")
 parser.add_argument("-c", "--columns", default = ["op_name", "request_id", "start_time", "end_time", "name_node_id"], nargs='+') # ["timestamp", "latency", "worker_id", "path"]
 parser.add_argument("-o", "--output-path", dest = "output_path", default = None, type = str, help = "Output path to write graph to. If not specified, then no output will be saved.")
+
 parser.add_argument("--show", action = 'store_true', help = "Show the plot rather than just write it to a file")
 parser.add_argument("--legend", action = 'store_true', help = "Show the legend on each plot.")
-
 parser.add_argument("--df", action = 'store_true', help = "Use dataframe-based algorithm to generate cost data (might be faster).")
+parser.add_argument("--log", action = 'store_true', help = "Set the y-axis to log scale.")
 
 parser.add_argument("--cpu", default = 5, type = float, help = "vCPU per NN.")
 parser.add_argument("--memory", default = 19, type = float, help = "Memory per NN in GB.")
@@ -53,6 +54,7 @@ show = args.show
 cpu_per_nn = args.cpu
 mem_per_nn = args.memory
 use_df_alg = args.df
+log_scale_y_axis = args.log
 
 c2_standard_16_cost_per_second = 0.9406 / (60 * 60)
 cpu_cost_per_ms = 0.03827 / (60 * 60 * 1000) # Divide cost-per-hour by 60 min/hr * 60 sec/min * 1000 ms/sec.
@@ -159,7 +161,8 @@ for i in range(0, len(cost_at_each_ms_of_experiment)):
 cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
 
 cost_axs.set_xlabel("Time (milliseconds)", color = 'black')
-cost_axs.set_yscale('log')
+if log_scale_y_axis:
+    cost_axs.set_yscale('log')
 cost_axs.set_ylabel("Cumulative Cost (USD)", color = 'black')
 cost_fig.legend(loc = 'center right', bbox_to_anchor=(0.85, 0.225))
 
