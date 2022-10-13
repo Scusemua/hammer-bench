@@ -37,7 +37,6 @@ parser.add_argument("-c", "--columns", default = ["op_name", "request_id", "star
 parser.add_argument("-o", "--output-path", dest = "output_path", default = None, type = str, help = "Output path to write graph to. If not specified, then no output will be saved.")
 parser.add_argument("--show", action = 'store_true', help = "Show the plot rather than just write it to a file")
 parser.add_argument("--legend", action = 'store_true', help = "Show the legend on each plot.")
-parser.add_argument("--cost", action = 'store_true', help = "Show the legend on each plot.")
 
 parser.add_argument("--cpu", default = 5, type = float, help = "vCPU per NN.")
 parser.add_argument("--memory", default = 19, type = float, help = "Memory per NN in GB.")
@@ -106,6 +105,7 @@ interval_trees = dict()
 for name_node_id in namenodes:
     interval_trees[name_node_id] = IntervalTree()
 
+print("Building interval trees now...")
 for index, row in tqdm(df.iterrows(), total=df.shape[0]):
     name_node_id = row['name_node_id']
     start_time = row['start_adjusted']
@@ -130,7 +130,7 @@ for current_ms in tqdm(range(0, experiment_end_time)):
 
 with open('interval_tree_cost.txt', 'w') as f:
     for line in cost_at_each_ms_of_experiment:
-        f.write(line)
+        f.write(str(line))
         f.write("\n")
 
 # cost_at_each_ms_of_experiment2 = [0]
