@@ -80,6 +80,7 @@ def compute_cost_of_operation(row):
 def compute_cost_of_latency(latency_ms):
     return (latency_ms * cpu_cost_per_ms) + (latency_ms * mem_cost_per_ms)
 
+print("Reading DataFrame now...")
 # If we pass a single .txt file, then just create DataFrame from the .txt file.
 # Otherwise, merge all .txt files in the specified directory.
 if input_path.endswith(".txt") or input_path.endswith(".csv"):
@@ -87,7 +88,7 @@ if input_path.endswith(".txt") or input_path.endswith(".csv"):
     df.columns = COLUMNS
 
 # Sort the DataFrame by timestamp.
-print("Sorting now...")
+print("Done. Sorting now...")
 start_sort = time.time()
 df = df.sort_values('start_time')
 print("Sorted dataframe in %f seconds." % (time.time() - start_sort))
