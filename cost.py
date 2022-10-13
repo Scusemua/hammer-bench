@@ -130,7 +130,8 @@ for current_ms in tqdm(range(0, experiment_end_time)):
 
 with open('interval_tree_cost.txt', 'w') as f:
     for line in cost_at_each_ms_of_experiment:
-        f.write(f"{line}\n")
+        f.write(line)
+        f.write("\n")
 
 # cost_at_each_ms_of_experiment2 = [0]
 # for current_ms in tqdm(range(0, experiment_end_time)):
