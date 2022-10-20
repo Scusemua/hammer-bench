@@ -277,12 +277,13 @@ if show_legend:
 
 #fig.legend()
 #plt.suptitle("Latency CDF - Spotify Workload - Log Scale x-Axis")
-fig.tight_layout()
 # axs.set_yscale('linear')
 # axs.set_xlabel("Latency (ms)", fontsize = x_label_font_size)
 # axs.set_ylabel("Cumulative Probability", fontsize = y_label_font_size)
 # axs.tick_params(labelsize=xtick_font_size)
 # axs.set_title("CDF - Spotify Workload - Log Scale x-Axis")
+
+axs.xaxis.set_major_formatter(ticker.EngFormatter(sep=""))
 
 plt.tight_layout()
 

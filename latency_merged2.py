@@ -41,7 +41,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-ih", "--input-hopsfs", dest="input_hopsfs", help = "Path to file containing ALL data.")
 parser.add_argument("-il", "--input-lambdamds", dest="input_lambdamds", help = "Path to file containing ALL data.")
 
-parser.add_argument("-ylim", default = 0.0, type = float, help = "Set the limit of each y-axis to this percent of the max value.")
+parser.add_argument("-ylim", default = 0.5, type = float, help = "Set the limit of each y-axis to this percent of the max value.")
 parser.add_argument("-xlim", default = 1.0, type = float, help = "Set the limit of each x-axis to this percent of the max value.")
 
 parser.add_argument("-n", default = 1, type = int, help = "Plot every `n` points (instead of all points).")
@@ -134,6 +134,7 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
             latencies = df['latency'].values.tolist()
 
             fs_operation_name = os.path.basename(filename)[:-4] # remove the ".txt" with `[:-4]`
+            current_label = "%s %s" % (label, fs_operation_name)
 
             if (dataset == 1):
                 if (fs_operation_name in name_mapping):
@@ -160,6 +161,7 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
             current_label = "%s %s" % (label, fs_operation_name)
 
             if fs_operation_name not in op_color_indices:
+                print("Could not find %s in colors." % fs_operation_name)
                 op_color_indices[fs_operation_name] = idx
                 idx += 1
 
@@ -180,13 +182,13 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
             ys = list(range(0, len(latencies)))
             ys = [y / len(ys) for y in ys]
 
-            axs.plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = label, linewidth = 2, markersize = markersize, marker = marker, markevery = 0.1, color = line_color)
+            axs.plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = current_label, linewidth = 2, markersize = markersize, marker = marker, markevery = 0.1, color = line_color)
 
 fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(15,15))
 axs.set_yscale('linear')
 axs.set_xlabel("Latency (ms)", fontsize = x_label_font_size, color = 'black')
 axs.set_ylabel("Cumulative Probability", fontsize = y_label_font_size, color = 'black')
-axs.set_xlim(left = -1, right = 250) #(xlim_percent * latencies[-1]) * 1.05)
+#axs.set_xlim(left = -1, right = 250) #(xlim_percent * latencies[-1]) * 1.05)
 axs.set_ylim(bottom = ylim_percent, top = 1.0125)
 axs.tick_params(labelsize=xtick_font_size)
 axs.xaxis.label.set_color('black')
@@ -194,13 +196,15 @@ axs.yaxis.label.set_color('black')
 
 plot_start = time.time()
 if input_hopsfs is not None:
-    plot_data(input_hopsfs, axis = axs, label = label1, dataset = 1)
+    print("Plotting \"%s\" now..." % input_hopsfs)
+    plot_data(input_hopsfs, axis = axs, label = label2, dataset = 2)
 if input_lambdamds is not None:
-    plot_data(input_lambdamds, axis = axs, label = label2, dataset = 2)
+    print("Plotting \"%s\" now..." % input_lambdamds)
+    plot_data(input_lambdamds, axis = axs, label = label1, dataset = 1)
 print("Plotted all data points in %f seconds" % (time.time() - plot_start))
 
 if show_legend:
-    fig.legend(loc = 'lower right')
+    fig.legend(loc = 'lower right', bbox_to_anchor=(0.95, 0.5))
 
 plt.suptitle("Latency CDF - Spotify Workload - Log Scale x-Axis")
 fig.tight_layout()

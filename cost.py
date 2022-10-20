@@ -5,6 +5,7 @@ import time
 import random
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import glob
 import os
 from tqdm import tqdm
@@ -57,6 +58,7 @@ use_df_alg = args.df
 log_scale_y_axis = args.log
 
 c2_standard_16_cost_per_second = 0.9406 / (60 * 60)
+c2_standard_16_cost_per_ms = c2_standard_16_cost_per_second / 1000
 cpu_cost_per_ms = 0.03827 / (60 * 60 * 1000) # Divide cost-per-hour by 60 min/hr * 60 sec/min * 1000 ms/sec.
 mem_cost_per_ms = 0.00512 / (60 * 60 * 1000) # Divide cost-per-hour by 60 min/hr * 60 sec/min * 1000 ms/sec.
 nn_cost_per_ms = (cpu_per_nn * cpu_cost_per_ms) + (mem_per_nn * mem_cost_per_ms)
@@ -152,21 +154,26 @@ else:
             f.write(str(line))
             f.write("\n")
 
-cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
-cost_axs.plot(list(range(len(cost_at_each_ms_of_experiment))), cost_at_each_ms_of_experiment, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
+cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(10,6))
+cost_axs.plot(list(range(len(cost_at_each_ms_of_experiment3)))[1:], cost_at_each_ms_of_experiment3[1:], linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
 hopsfs_cost = [0]
-for i in range(0, len(cost_at_each_ms_of_experiment)):
-    current_cost = hopsfs_cost[-1] + (32 * c2_standard_16_cost_per_second)
+for i in range(0, len(cost_at_each_ms_of_experiment3)):
+    current_cost = hopsfs_cost[-1] + (32 * c2_standard_16_cost_per_ms)
     hopsfs_cost.append(current_cost)
 
-cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
+cost_axs.plot(list(range(len(hopsfs_cost)))[1:], hopsfs_cost[1:], linewidth = 4, color = '#348ABD', label = "HopsFS")
 
+#cost_axs.set_ylim(bottom = 1e-4, top = 5)
 cost_axs.set_xlabel("Time (milliseconds)", color = 'black')
 if log_scale_y_axis:
     cost_axs.set_yscale('log')
-cost_axs.set_ylabel("Cumulative Cost (USD)", color = 'black')
-cost_fig.legend(loc = 'center right', bbox_to_anchor=(0.85, 0.225))
+    cost_fig.legend(loc = 'lower right', bbox_to_anchor=(0.85, 0.15))
+else:
+    cost_fig.legend(loc = 'upper left', bbox_to_anchor=(0.15, 0.85))
 
+cost_axs.set_ylabel("Cumulative Cost (USD)", color = 'black')
+cost_axs.xaxis.set_major_formatter(ticker.EngFormatter(sep=""))
+cost_fig.show()
 if output_path is not None:
   print("Saving plot to file '%s' now" % output_path)
   plt.savefig(output_path)

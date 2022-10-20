@@ -5,6 +5,7 @@ import time
 import random
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import glob
 import os
 
@@ -18,10 +19,10 @@ plt.style.use('ggplot')
 mpl.rcParams['text.color'] = 'black'
 mpl.rcParams['xtick.color'] = 'black'
 mpl.rcParams['ytick.color'] = 'black'
-mpl.rcParams["figure.figsize"] = (8,6)
+#mpl.rcParams["figure.figsize"] = (8,6)
 
 font = {'weight' : 'bold',
-        'size'   : 20}
+        'size'   : 28}
 mpl.rc('font', **font)
 
 parser = argparse.ArgumentParser()
@@ -31,7 +32,7 @@ parser.add_argument("-i2", "--input2", default = None, help = "Path to folder co
 parser.add_argument("-i3", "--input3", default = None, help = "Path to folder containing the data.")
 parser.add_argument("-l1", "--label1", default = r'$\lambda$' + "MDS", help = "Label for first set of data.")
 parser.add_argument("-l2", "--label2", default = "HopsFS", help = "Label for second set of data.")
-parser.add_argument("-l3", "--label3", default = r'$\lambda$' + "MDS Smaller Cache", help = "Label for second set of data.")
+parser.add_argument("-l3", "--label3", default = r'$\lambda$' + "MDS Small Cache", help = "Label for second set of data.")
 parser.add_argument("-n", "--namenodes", default = None, help = "Path to associated NN monitoring CSV.")
 parser.add_argument("-d", "--duration", default = 60, type = int, help = "Duration of the experiment in seconds.")
 parser.add_argument("-u", "--units", default = "ns", type = str, help = "Units of input data. Enter 'ns' for nanoseconds and 'ms' for milliseconds.")
@@ -40,6 +41,7 @@ parser.add_argument("-o", "--output-path", dest = "output_path", default = None,
 parser.add_argument("--show", action = 'store_true', help = "Show the plot rather than just write it to a file")
 parser.add_argument("--legend", action = 'store_true', help = "Show the legend on each plot.")
 parser.add_argument("--cost", action = 'store_true', help = "Show the legend on each plot.")
+parser.add_argument("--no-y-axis-labels", dest = "no_y_axis_labels", action = 'store_true', help = "Do not plot y-axis labels.")
 
 parser.add_argument("--cpu", default = 5, type = float, help = "vCPU per NN.")
 parser.add_argument("--memory", default = 19, type = float, help = "Memory per NN in GB.")
@@ -61,6 +63,7 @@ show = args.show
 cpu_per_nn = args.cpu
 mem_per_nn = args.memory
 plot_cost = args.cost
+no_y_axis_labels = args.no_y_axis_labels
 
 c2_standard_16_cost_per_second = 0.9406 / (60 * 60)
 cpu_cost_per_ms = 0.03827 / (60 * 60 * 1000) # Divide cost-per-hour by 60 min/hr * 60 sec/min * 1000 ms/sec.
@@ -90,8 +93,13 @@ if namenodes_path is None:
 #     fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
 
 if plot_cost:
-    cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
-fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
+    cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,10))
+fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,10))
+axs.set_xlabel("Time (seconds)", color = 'black')
+if not no_y_axis_labels:
+    axs.set_ylabel("Throughput (ops/sec)", color = 'black')
+axs.yaxis.set_major_formatter(ticker.EngFormatter(sep=""))
+nns_axs = axs.twinx()
 
 def compute_cost_of_operation(row):
     end_to_end_latency_ms = row["latency"]
@@ -180,35 +188,31 @@ def plot(input_path, label = None, dataset = -1):
     print("Average Latency: " + str(df['ts'].mean()) + " ms.")
 
     if namenodes_path is not None:
-        df_nns = pd.read_csv(namenodes_path)
-        min_val = min(df_nns["time"])
-
-        def adjust_nn_timestamp(timestamp):
-            return (timestamp - min_val) / 1e3
-
-        df_nns["ts"] = df_nns["time"].map(adjust_nn_timestamp)
-
-        # Adjust to account for the warm-up.
-        t = 20
-        xs = df_nns["ts"].values
-        ys = df_nns["nns"].values
-        ys = [y for y in ys]
-        ys = ys[0:t] + ys[t+t:]
-
-        xs = xs[0:300]
-        ys = ys[0:300]
-
-#         axs[1].plot(xs, ys, label = label)
-#         axs[1].set_xlabel("Time (seconds)")
-#         axs[1].set_ylabel("Number of Active NNs")
-#         axs[0].set_xlabel("Time (seconds)")
-#         axs[0].set_ylabel("Throughput (ops/sec)")
-
-        axs.set_xlabel("Time (seconds)", color = 'black')
-        axs.set_ylabel("Throughput (ops/sec)", color = 'black')
-
         if (dataset == 1):
+            df_nns = pd.read_csv(namenodes_path)
+            min_val = min(df_nns["time"])
+
+            def adjust_nn_timestamp(timestamp):
+                return (timestamp - min_val) / 1e3
+
+            df_nns["ts"] = df_nns["time"].map(adjust_nn_timestamp)
+
+            # Adjust to account for the warm-up.
+            t = 12
+            xs = df_nns["ts"].values
+            ys = df_nns["nns"].values
+            ys = [y for y in ys]
+            ys = ys[0:t] + ys[t+t:]
+
+            xs = xs[0:300]
+            ys = ys[0:300]
+
+            for i in range(0, len(xs)):
+                if xs[i] > 300:
+                    xs[i] = 300
+
             axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, color = '#E24A33')
+            # axs.set_xlim(left = -5, right = 305)
 
             if plot_cost:
                 cost_axs.plot(list(range(len(cumulative_cost))), cumulative_cost, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
@@ -218,19 +222,22 @@ def plot(input_path, label = None, dataset = -1):
                     current_cost = hopsfs_cost[-1] + (32 * c2_standard_16_cost_per_second)
                     hopsfs_cost.append(current_cost)
                 cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
-        elif (dataset == 2):
-            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, color = '#348ABD')
-        elif (dataset == 3):
-            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, color = '#b31f08')
 
-        axs2 = axs.twinx()
-        axs2.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = r'$\lambda$' + "MDS NameNodes")
-        axs2.set_ylabel("Active " + r'$\lambda$' + "MDS NameNodes", color = 'black')
-        plt.tight_layout()
+
+
+            #axs.set_ylim(bottom = 0, top = 170000)
+
+            nns_axs.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = r'$\lambda$' + "MDS NameNodes")
+
+            if not no_y_axis_labels:
+                nns_axs.set_ylabel("Active " + r'$\lambda$' + "MDS NameNodes", color = 'black')
+        elif (dataset == 2):
+            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = '.', markevery=0.05, markersize = 14, color = '#348ABD')
+        elif (dataset == 3):
+            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = 'D', markevery=0.15, markersize = 6, color = '#b31f08')
+        #plt.tight_layout()
     else:
         axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, markersize = 10)
-        axs.set_xlabel("Time (seconds)", color = 'black')
-        axs.set_ylabel("Throughput (ops/sec)", color = 'black')
 
         if plot_cost:
             cumulative_cost_est = [c * 0.75 for c in cumulative_cost]
@@ -243,19 +250,27 @@ def plot(input_path, label = None, dataset = -1):
             #    hopsfs_cost.append(current_cost)
             #cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
 
-        plt.tight_layout()
-
 if input_path1 is not None:
-    print("Plotting %s: '%s'" % (label1, input_path1))
+    print("Plotting dataset1 %s: '%s'" % (label1, input_path1))
     plot(input_path1, label = label1, dataset = 1)
 
 if input_path2 is not None:
-    print("Plotting %s: '%s'" % (label2, input_path2))
+    print("Plotting dataset2 %s: '%s'" % (label2, input_path2))
     plot(input_path2, label = label2, dataset = 2)
 
 if input_path3 is not None:
-    print("Plotting %s: '%s'" % (label3, input_path3))
+    print("Plotting dataset3 %s: '%s'" % (label3, input_path3))
     plot(input_path3, label = label3, dataset = 3)
+
+axs.tick_params(axis='x', labelsize=36)
+axs.tick_params(axis='y', labelsize=32)
+try:
+    nns_axs.tick_params(axis='y', labelsize=30)
+except:
+    print("[ERROR] No axs2 exists...")
+    pass
+
+plt.tight_layout()
 
 if output_path is not None:
   print("Saving plot to file '%s' now" % output_path)
@@ -274,7 +289,7 @@ if args.legend:
             lines.extend(Line)
             labels.extend(Label)
 
-    fig.legend(lines, labels, loc='upper left', bbox_to_anchor=(0.16, 0.97))
+    fig.legend(lines, labels, loc='upper left', prop={'size': 25}, bbox_to_anchor=(0.175, 0.97))
 
 if plot_cost:
     cost_axs.set_xlabel("Time (seconds)", color = 'black')
@@ -283,4 +298,6 @@ if plot_cost:
 
 if args.show:
     plt.show()
-    cost_fig.show()
+
+    if plot_cost:
+        cost_fig.show()
