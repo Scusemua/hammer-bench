@@ -22,7 +22,7 @@ mpl.rcParams['ytick.color'] = 'black'
 #mpl.rcParams["figure.figsize"] = (8,6)
 
 font = {'weight' : 'bold',
-        'size'   : 28}
+        'size'   : 40}
 mpl.rc('font', **font)
 
 parser = argparse.ArgumentParser()
@@ -105,26 +105,28 @@ def compute_cost_of_operation(row):
     end_to_end_latency_ms = row["latency"]
     return (end_to_end_latency_ms * cpu_cost_per_ms) + (end_to_end_latency_ms * mem_cost_per_ms)
 
-def plot(input_path, label = None, dataset = -1):
+def plot(input_path, df = None, label = None, dataset = -1):
     # If we pass a single .txt file, then just create DataFrame from the .txt file.
     # Otherwise, merge all .txt files in the specified directory.
-    if input_path.endswith(".txt") or input_path.endswith(".csv"):
-        df = pd.read_csv(input_path, index_col=None, header=0)
-        df.columns = COLUMNS
-    else:
-        print("input_path: " + input_path)
-        print("joined: " + str(os.path.join(input_path, "*.txt")))
-        all_files = glob.glob(os.path.join(input_path, "*.txt"))
-        li = []
-        print("Merging the following files: %s" % str(all_files))
-        # Merge the .txt files into a single DataFrame.
-        for filename in all_files:
-            print("Reading file: " + filename)
-            tmp_df = pd.read_csv(filename, index_col=None, header=0)
-            tmp_df.columns = COLUMNS
-            li.append(tmp_df)
-        df = pd.concat(li, axis=0, ignore_index=True)
-        df.columns = COLUMNS
+    if df is None:
+        if input_path.endswith(".txt") or input_path.endswith(".csv"):
+            df = pd.read_csv(input_path, index_col=None, header=0)
+            print("Read DF")
+            #df.columns = COLUMNS
+        else:
+            print("input_path: " + input_path)
+            print("joined: " + str(os.path.join(input_path, "*.txt")))
+            all_files = glob.glob(os.path.join(input_path, "*.txt"))
+            li = []
+            print("Merging the following files: %s" % str(all_files))
+            # Merge the .txt files into a single DataFrame.
+            for filename in all_files:
+                print("Reading file: " + filename)
+                tmp_df = pd.read_csv(filename, index_col=None, header=0)
+                tmp_df.columns = COLUMNS
+                li.append(tmp_df)
+            df = pd.concat(li, axis=0, ignore_index=True)
+            df.columns = COLUMNS
 
     if 'ts' not in df.columns:
         # Sort the DataFrame by timestamp.
@@ -155,11 +157,12 @@ def plot(input_path, label = None, dataset = -1):
 
             df['ts'] = df['ts'].map(adjust2)
 
+        #df.to_csv("df" + str(dataset) + ".csv")
     print(df)
 
     print("Total number of points: %d" % len(df))
-    print("Computing cost column now...")
     if plot_cost and 'cost' not in df.columns:
+        print("Computing cost column now...")
         df['cost'] = df.apply(lambda row: compute_cost_of_operation(row), axis = 1)
         df.to_csv("./nns.csv")
     print("Done.")
@@ -223,32 +226,26 @@ def plot(input_path, label = None, dataset = -1):
                     hopsfs_cost.append(current_cost)
                 cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
 
-
-
             #axs.set_ylim(bottom = 0, top = 170000)
+            axs.yaxis.set_major_locator(ticker.MultipleLocator(50_000))
 
-            nns_axs.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = r'$\lambda$' + "MDS NameNodes")
+            nns_axs.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = r'$\lambda$' + "MDS NNs")
 
             if not no_y_axis_labels:
-                nns_axs.set_ylabel("Active " + r'$\lambda$' + "MDS NameNodes", color = 'black')
+                nns_axs.set_ylabel("Active " + r'$\lambda$' + "MDS NNs", color = 'black')
         elif (dataset == 2):
-            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = '.', markevery=0.05, markersize = 14, color = '#348ABD')
+            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = 'x', markevery=0.025, markersize = 8, color = '#0065a1')
         elif (dataset == 3):
-            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = 'D', markevery=0.15, markersize = 6, color = '#b31f08')
+            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = '.', markevery=0.025, markersize = 14, color = '#6b1204')
         #plt.tight_layout()
     else:
-        axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, markersize = 10)
+        axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, markersize = 14)
 
         if plot_cost:
             cumulative_cost_est = [c * 0.75 for c in cumulative_cost]
             cost_axs.plot(list(range(len(cumulative_cost_est))), cumulative_cost_est, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
-            #cost_axs.plot(list(range(len(cumulative_cost_est))), cumulative_cost_est, linewidth = 4, color = '#b02d19', label = r'$\lambda$' + "MDS Estimated")
             hopsfs_cost = [0]
             print("len(cumulative_cost): %d" % len(cumulative_cost))
-            #for i in range(0, len(cumulative_cost)):
-            #    current_cost = hopsfs_cost[-1] + (32 * c2_standard_16_cost_per_second)
-            #    hopsfs_cost.append(current_cost)
-            #cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
 
 if input_path1 is not None:
     print("Plotting dataset1 %s: '%s'" % (label1, input_path1))
@@ -262,20 +259,13 @@ if input_path3 is not None:
     print("Plotting dataset3 %s: '%s'" % (label3, input_path3))
     plot(input_path3, label = label3, dataset = 3)
 
-axs.tick_params(axis='x', labelsize=36)
-axs.tick_params(axis='y', labelsize=32)
+axs.tick_params(axis='x', labelsize=40)
+axs.tick_params(axis='y', labelsize=40)
 try:
-    nns_axs.tick_params(axis='y', labelsize=30)
+    nns_axs.tick_params(axis='y', labelsize=40)
 except:
     print("[ERROR] No axs2 exists...")
     pass
-
-plt.tight_layout()
-
-if output_path is not None:
-  print("Saving plot to file '%s' now" % output_path)
-  plt.savefig(output_path)
-  print("Done")
 
 if args.legend:
     lines = []
@@ -289,12 +279,19 @@ if args.legend:
             lines.extend(Line)
             labels.extend(Label)
 
-    fig.legend(lines, labels, loc='upper left', prop={'size': 25}, bbox_to_anchor=(0.175, 0.97))
+    fig.legend(lines, labels, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.21, 0.975), framealpha=0.0, handlelength=1, labelspacing=0.2)
 
 if plot_cost:
     cost_axs.set_xlabel("Time (seconds)", color = 'black')
     cost_axs.set_ylabel("Cumulative Cost (USD)", color = 'black')
     cost_fig.legend(loc = 'upper left', bbox_to_anchor=(0.16, 0.85))
+
+plt.tight_layout()
+
+if output_path is not None:
+  print("Saving plot to file '%s' now" % output_path)
+  plt.savefig(output_path)
+  print("Done")
 
 if args.show:
     plt.show()

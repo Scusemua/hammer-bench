@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import glob
 import os
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset, inset_axes
+import matplotlib.ticker as ticker
 
 # python latency_individual.py -xlim 0.25 -ylim 0.75 -ih "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\HammerBench\Vanilla\hops-vanilla-bursty-15s-202209251644-nr" -il "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\HammerBench\HammerBenchServerless_120Thread_8VM_Loc50k_300sec_v2\latency_data" -n 25
 
@@ -28,12 +29,12 @@ mpl.rcParams['ytick.color'] = 'black'
 mpl.rcParams["figure.figsize"] = (8,6)
 
 font = {'weight' : 'bold',
-        'size'   : 20}
+        'size'   : 28}
 mpl.rc('font', **font)
 
-x_label_font_size = 26
-y_label_font_size = 26
-xtick_font_size = 24
+x_label_font_size = 32
+y_label_font_size = 32
+xtick_font_size = 32
 markersize = 10
 linewidth = 4
 
@@ -44,8 +45,8 @@ parser.add_argument("-i2", "--input2", dest="input2", help = "\lambdaMDS Spotify
 parser.add_argument("-i3", "--input3", dest="input3", help = "HopsFS Spotify 25k.")
 parser.add_argument("-i4", "--input4", dest="input4", help = "HopsFS Spotify 50k.")
 
-parser.add_argument("-l1", "--label1", default = r'$\lambda$' + "MDS", help = "Label for first set of data.")
-parser.add_argument("-l2", "--label2", default =  "HopsFS", help = "Label for second set of data.")
+parser.add_argument("-l1", "--label1", default = r'$\lambda$', help = "Label for first set of data.") # r'$\lambda$' + "MDS"
+parser.add_argument("-l2", "--label2", default =  "H", help = "Label for second set of data.")
 
 parser.add_argument("-ylim", default = 0.0, type = float, help = "Set the limit of each y-axis to this percent of the max value.")
 parser.add_argument("-xlim", default = 1.0, type = float, help = "Set the limit of each x-axis to this percent of the max value.")
@@ -107,6 +108,8 @@ counts_2 = {}
 df_s_create = None
 df_s_complete = None
 
+ONLY_PLOT_THESE = [] # ["READ"]
+
 def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, dataset = 1, label = ""):
     global ops
     global next_idx
@@ -143,6 +146,11 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
 
         # Merge the .txt files into a single DataFrame.
         for i, filename in enumerate(all_files):
+            fs_operation_name = os.path.basename(filename)[:-4] # remove the ".txt" with `[:-4]`
+
+            if len(ONLY_PLOT_THESE) > 0 and fs_operation_name not in ONLY_PLOT_THESE:
+                continue
+
             print("Reading file: " + filename)
             num_starts_for_op = 0
             df = pd.read_csv(filename, index_col=None, header=0, )
@@ -158,8 +166,6 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
 #               latencies = latencies[:-1]
 #               num_cold_starts += 1
 #               num_starts_for_op += 1
-
-            fs_operation_name = os.path.basename(filename)[:-4] # remove the ".txt" with `[:-4]`
 
             if (dataset == 1 or dataset == 2):
                 if (fs_operation_name in name_mapping):
@@ -212,7 +218,7 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
             if idx == 0:
                 axis[idx].set_ylabel("Cumulative Probability", fontsize = y_label_font_size)
             axis[idx].tick_params(labelsize=xtick_font_size)
-            axis[idx].set_title(fs_operation_name)
+            axis[idx].set_title(fs_operation_name, fontdict={"fontsize": 36})
             #axis[idx].set_xlim(left = -1, right = 250) #(xlim_percent * latencies[-1]) * 1.05)
             axis[idx].set_ylim(bottom = ylim_percent, top = 1.0125)
             axis[idx].xaxis.label.set_color('black')
@@ -222,9 +228,10 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
                 if fs_operation_name in sub_axis:
                     axins = sub_axis[fs_operation_name]
                 else:
-                    axins = inset_axes(axis[idx], 2, 2, bbox_transform=axis[idx].transAxes, bbox_to_anchor=(0.95, 0.95))
+                    axins = inset_axes(axis[idx], 2, 2, bbox_transform=axis[idx].transAxes, bbox_to_anchor=(0.95, 0.96))
                     axins.set_xlim(left = -10, right = min(latencies[-1] * 0.25, 200))
-                    axins.set_ylim(bottom = 0.95, top = 1.01)
+                    axins.set_ylim(bottom = 0.95, top = 1.00125)
+                    axins.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
                     sub_axis[fs_operation_name] = axins
 
                 axins.plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = label, linewidth = 1.85, markersize = markersize * 0.675, marker = marker, markevery = 0.05, color = colors[idx])
@@ -242,6 +249,8 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
 #     num_input2_files = 0
 
 num_columns = 7 #max(num_input1_files, num_input2_files)
+if len(ONLY_PLOT_THESE) > 0:
+    num_columns = len(ONLY_PLOT_THESE)
 
 print("Plotting data now...")
 
@@ -272,7 +281,12 @@ if skip_plot:
 
 if show_legend:
     for ax in axs:
-        ax.legend(loc = 'lower right', prop={'size': 16})
+        leg = ax.legend(loc = 'lower left', prop={'size': 26}, labelspacing=0.16, framealpha=0.25, handlelength=0.9, handletextpad = 0.175, ncol=2, columnspacing = 0.2, bbox_to_anchor = (0.1, -0.095), borderaxespad = 0.1)
+        if leg:
+            leg.set_zorder(999)
+            leg.set_draggable(state = True)
+        ax.xaxis.set_major_formatter(ticker.EngFormatter(sep=""))
+        ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
 
 #fig.legend()
 #plt.suptitle("Latency CDF - Spotify Workload - Log Scale x-Axis")
@@ -284,6 +298,7 @@ fig.tight_layout()
 # axs.set_title("CDF - Spotify Workload - Log Scale x-Axis")
 
 plt.tight_layout()
+plt.subplots_adjust(wspace=0.225)
 
 if output_path is not None:
   print("Saving plot to file '%s' now" % output_path)
