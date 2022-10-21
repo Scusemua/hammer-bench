@@ -228,10 +228,11 @@ def plot_data(input_path, columns = ["timestamp", "latency"], axis = None, datas
                 if fs_operation_name in sub_axis:
                     axins = sub_axis[fs_operation_name]
                 else:
-                    axins = inset_axes(axis[idx], 2, 2, bbox_transform=axis[idx].transAxes, bbox_to_anchor=(0.95, 0.96))
+                    axins = inset_axes(axis[idx], 2, 2, bbox_transform=axis[idx].transAxes, bbox_to_anchor=(0.94, 0.94))
                     axins.set_xlim(left = -10, right = min(latencies[-1] * 0.25, 200))
                     axins.set_ylim(bottom = 0.95, top = 1.00125)
                     axins.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
+                    axins.yaxis.set_major_locator(ticker.MultipleLocator(0.01))
                     sub_axis[fs_operation_name] = axins
 
                 axins.plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = label, linewidth = 1.85, markersize = markersize * 0.675, marker = marker, markevery = 0.05, color = colors[idx])
@@ -281,7 +282,7 @@ if skip_plot:
 
 if show_legend:
     for ax in axs:
-        leg = ax.legend(loc = 'lower left', prop={'size': 26}, labelspacing=0.16, framealpha=0.25, handlelength=0.9, handletextpad = 0.175, ncol=2, columnspacing = 0.2, bbox_to_anchor = (0.1, -0.095), borderaxespad = 0.1)
+        leg = ax.legend(loc = 'lower left', prop={'size': 26}, labelspacing=0.16, framealpha=0.0, handlelength=0.9, handletextpad = 0.175, ncol=2, columnspacing = 0.2, bbox_to_anchor = (0.065, -0.04), borderaxespad = 0.05)
         if leg:
             leg.set_zorder(999)
             leg.set_draggable(state = True)
