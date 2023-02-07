@@ -268,18 +268,16 @@ if input_file_path is not None:
         for line in path_label_pairs:
             tmp = line.split(",")
             input = tmp[0]
-            labels = tmp[1]
+            label = tmp[1].strip()
+            
+            print("Discovered input '%s' with path '%s'" % (label, input))
             
             inputs.append(input)
-            inputs.append(labels)
-
-    # Just print 'em first.
-    for i in range(0, len(inputs)):
-        print("Discovered input '%s' with path '%s'" % (labels[i], inputs[i]))
+            labels.append(label)
     
     for i, tmp in enumerate(list(zip(labels, inputs))):
         label, input_path = tmp
-        print("Plotting dataset #%d: '%s' -- '%s'" % (i, label, input_path))
+        print("Plotting dataset #%d: '%s'. Path: '%s'" % (i, label, input_path))
         plot(input_path, label = label, dataset = i)
     
 else:
