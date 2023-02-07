@@ -34,7 +34,7 @@ parser.add_argument("-l1", "--label1", default = r'$\lambda$' + "MDS", help = "L
 parser.add_argument("-l2", "--label2", default = "HopsFS", help = "Label for second set of data.")
 parser.add_argument("-l3", "--label3", default = r'$\lambda$' + "MDS Small Cache", help = "Label for second set of data.")
 
-parser.add_argument("-i", "--input", type = str, default = None, help = "Path to input file. Each line contains a pair of the form \"<path>,<label>\", specifying an input and its associated label. This is an alternative to passing specific inputs via the -i1 -l1 -i2 -l2 -i3 -l3 flags.")
+parser.add_argument("-i", "--input", type = str, default = None, help = "Path to input file. Each line contains a pair of the form \"<path>;<label>\", specifying an input and its associated label. This is an alternative to passing specific inputs via the -i1 -l1 -i2 -l2 -i3 -l3 flags.")
 
 parser.add_argument("-n", "--namenodes", default = None, help = "Path to associated NN monitoring CSV.")
 parser.add_argument("-d", "--duration", default = 60, type = int, help = "Duration of the experiment in seconds.")
@@ -77,6 +77,11 @@ mem_cost_per_ms = 0.00512 / (60 * 60 * 1000) # Divide cost-per-hour by 60 min/hr
 
 print(COLUMNS)
 
+COLORS  = ['#E24A33', '#348ABD', '#048513', '#6b078a', '#c97200', '#0eede9', '#ff2b6b']
+MARKERS = ['x', '.', 'X', 'o', 'v', '^', '<', '>']
+marker_idx = 0
+color_idx = 0
+
 # timestamp latency worker_id path
 # COLUMNS = ['timestamp', 'latency', 'worker_id', 'path']
 
@@ -116,6 +121,8 @@ def compute_cost_of_operation(row):
     return (end_to_end_latency_ms * cpu_cost_per_ms) + (end_to_end_latency_ms * mem_cost_per_ms)
 
 def plot(input_path, df = None, label = None, dataset = -1):
+    global color_idx
+    global marker_idx
     # If we pass a single .txt file, then just create DataFrame from the .txt file.
     # Otherwise, merge all .txt files in the specified directory.
     if df is None:
@@ -224,7 +231,7 @@ def plot(input_path, df = None, label = None, dataset = -1):
                 if xs[i] > 300:
                     xs[i] = 300
 
-            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, color = '#E24A33')
+            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, color = COLORS[color_idx]) #color = '#E24A33')
             # axs.set_xlim(left = -5, right = 305)
 
             if plot_cost:
@@ -244,10 +251,15 @@ def plot(input_path, df = None, label = None, dataset = -1):
 
             if not no_y_axis_labels and nns_axs is not None:
                 nns_axs.set_ylabel("Active " + r'$\lambda$' + "MDS NNs", color = 'black')
-        elif (dataset == 2):
-            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = 'x', markevery=0.025, markersize = 8, color = '#0065a1')
-        elif (dataset == 3):
-            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = '.', markevery=0.025, markersize = 14, color = '#6b1204')
+        #elif (dataset == 2):
+        #    axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = 'x', markevery=0.025, markersize = 8, color = COLORS[color_idx]) #'#0065a1')
+        #elif (dataset == 3):
+        #    axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = '.', markevery=0.025, markersize = 14, color = COLORS[color_idx]) #'#6b1204')
+        else:
+            axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = MARKERS[marker_idx], markevery=0.025, markersize = 11, color = COLORS[color_idx]) #'#6b1204')
+        
+        color_idx += 1
+        marker_idx += 1
         #plt.tight_layout()
     else:
         axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, markersize = 14)
@@ -266,7 +278,11 @@ if input_file_path is not None:
         path_label_pairs = input_file.readlines()
         
         for line in path_label_pairs:
-            tmp = line.split(",")
+            # Comment 
+            if line[0] == "#":
+                continue 
+            
+            tmp = line.split(";")
             input = tmp[0]
             label = tmp[1].strip()
             
@@ -277,7 +293,7 @@ if input_file_path is not None:
     
     for i, tmp in enumerate(list(zip(labels, inputs))):
         label, input_path = tmp
-        print("Plotting dataset #%d: '%s'. Path: '%s'" % (i, label, input_path))
+        print("\n\n\nPlotting dataset #%d: '%s'. Path: '%s'" % (i, label, input_path))
         plot(input_path, label = label, dataset = i)
     
 else:

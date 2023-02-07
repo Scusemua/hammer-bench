@@ -1,4 +1,0 @@
-G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\df1.csv,L-MDS [GCP]
-G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-10-2022\V1\df2.csv,HopsFS [GCP]
-G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S4 (25k, 25kCache)\df3.csv,HopsFS Reduced Cache [GCP]
-G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-06-2023\0f6fd194-c919-4494-85cc-5efd78027ee4 (hopsfs+cache 25k),HopsFS+Cache [AWS]

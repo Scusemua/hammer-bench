@@ -1,0 +1,4 @@
+G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S3 (50k);L-MDS [GCP]
+G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-9-2022\V2;HopsFS [GCP]
+G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-07-2023\eed7f0ac-af68-4745-aa1b-32d0444c7c95 (V+C 50k);HopsFS+Cache [AWS]
+# python throughput.py -d 300 -u ms --show --legend --no-y-axis-labels -n "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S3 (50k)\nns.csv" -i inputs_50k.txt
