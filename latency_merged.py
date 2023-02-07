@@ -23,13 +23,13 @@ mpl.rcParams['ytick.color'] = 'black'
 mpl.rcParams["figure.figsize"] = (8,6)
 
 font = {'weight' : 'bold',
-        'size'   : 16}
+        'size'   : 32}
 mpl.rc('font', **font)
 
-x_label_font_size = 18
-y_label_font_size = 16
-xtick_font_size = 14
-markersize = 6
+x_label_font_size = 32
+y_label_font_size = 32
+xtick_font_size = 32
+markersize = 10
 linewidth = 4
 
 parser = argparse.ArgumentParser()

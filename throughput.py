@@ -33,6 +33,9 @@ parser.add_argument("-i3", "--input3", default = None, help = "Path to folder co
 parser.add_argument("-l1", "--label1", default = r'$\lambda$' + "MDS", help = "Label for first set of data.")
 parser.add_argument("-l2", "--label2", default = "HopsFS", help = "Label for second set of data.")
 parser.add_argument("-l3", "--label3", default = r'$\lambda$' + "MDS Small Cache", help = "Label for second set of data.")
+
+parser.add_argument("-i", "--input", type = str, default = None, help = "Path to input file. Each line contains a pair of the form \"<path>,<label>\", specifying an input and its associated label. This is an alternative to passing specific inputs via the -i1 -l1 -i2 -l2 -i3 -l3 flags.")
+
 parser.add_argument("-n", "--namenodes", default = None, help = "Path to associated NN monitoring CSV.")
 parser.add_argument("-d", "--duration", default = 60, type = int, help = "Duration of the experiment in seconds.")
 parser.add_argument("-u", "--units", default = "ns", type = str, help = "Units of input data. Enter 'ns' for nanoseconds and 'ms' for milliseconds.")
@@ -54,6 +57,9 @@ input_path3 = args.input3
 label1 = args.label1
 label2 = args.label2
 label3 = args.label3
+
+input_file_path = args.input
+
 duration = args.duration
 namenodes_path = args.namenodes
 units = args.units
@@ -99,7 +105,11 @@ axs.set_xlabel("Time (seconds)", color = 'black')
 if not no_y_axis_labels:
     axs.set_ylabel("Throughput (ops/sec)", color = 'black')
 axs.yaxis.set_major_formatter(ticker.EngFormatter(sep=""))
-nns_axs = axs.twinx()
+
+if namenodes_path is not None:
+    nns_axs = axs.twinx()
+else:
+    nns_axs = None
 
 def compute_cost_of_operation(row):
     end_to_end_latency_ms = row["latency"]
@@ -229,9 +239,10 @@ def plot(input_path, df = None, label = None, dataset = -1):
             #axs.set_ylim(bottom = 0, top = 170000)
             axs.yaxis.set_major_locator(ticker.MultipleLocator(50_000))
 
-            nns_axs.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = r'$\lambda$' + "MDS NNs")
+            if nns_axs is not None:
+                nns_axs.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = r'$\lambda$' + "MDS NNs")
 
-            if not no_y_axis_labels:
+            if not no_y_axis_labels and nns_axs is not None:
                 nns_axs.set_ylabel("Active " + r'$\lambda$' + "MDS NNs", color = 'black')
         elif (dataset == 2):
             axs.plot(list(range(len(buckets))), buckets, label = label, linewidth = 4, marker = 'x', markevery=0.025, markersize = 8, color = '#0065a1')
@@ -247,22 +258,48 @@ def plot(input_path, df = None, label = None, dataset = -1):
             hopsfs_cost = [0]
             print("len(cumulative_cost): %d" % len(cumulative_cost))
 
-if input_path1 is not None:
-    print("Plotting dataset1 %s: '%s'" % (label1, input_path1))
-    plot(input_path1, label = label1, dataset = 1)
+if input_file_path is not None:
+    inputs, labels = [], []
+    
+    # Parse the input file to extract the labels and the associated paths.
+    with open(input_file_path, 'r') as input_file:
+        path_label_pairs = input_file.readlines()
+        
+        for line in path_label_pairs:
+            tmp = line.split(",")
+            input = tmp[0]
+            labels = tmp[1]
+            
+            inputs.append(input)
+            inputs.append(labels)
 
-if input_path2 is not None:
-    print("Plotting dataset2 %s: '%s'" % (label2, input_path2))
-    plot(input_path2, label = label2, dataset = 2)
+    # Just print 'em first.
+    for i in range(0, len(inputs)):
+        print("Discovered input '%s' with path '%s'" % (labels[i], inputs[i]))
+    
+    for i, tmp in enumerate(list(zip(labels, inputs))):
+        label, input_path = tmp
+        print("Plotting dataset #%d: '%s' -- '%s'" % (i, label, input_path))
+        plot(input_path, label = label, dataset = i)
+    
+else:
+    if input_path1 is not None:
+        print("Plotting dataset1 %s: '%s'" % (label1, input_path1))
+        plot(input_path1, label = label1, dataset = 1)
 
-if input_path3 is not None:
-    print("Plotting dataset3 %s: '%s'" % (label3, input_path3))
-    plot(input_path3, label = label3, dataset = 3)
+    if input_path2 is not None:
+        print("Plotting dataset2 %s: '%s'" % (label2, input_path2))
+        plot(input_path2, label = label2, dataset = 2)
+
+    if input_path3 is not None:
+        print("Plotting dataset3 %s: '%s'" % (label3, input_path3))
+        plot(input_path3, label = label3, dataset = 3)
 
 axs.tick_params(axis='x', labelsize=40)
 axs.tick_params(axis='y', labelsize=40)
 try:
-    nns_axs.tick_params(axis='y', labelsize=40)
+    if nns_axs is not None:
+        nns_axs.tick_params(axis='y', labelsize=40)
 except:
     print("[ERROR] No axs2 exists...")
     pass
@@ -274,7 +311,10 @@ if args.legend:
     for ax in fig.axes:
         Line, Label = ax.get_legend_handles_labels()
         print("Label: '%s'" % str(Label))
-
+        
+        if len(Label) == 0:
+            continue
+        
         if Label[0] not in labels:
             lines.extend(Line)
             labels.extend(Label)
