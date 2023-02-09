@@ -1,0 +1,44 @@
+-
+  label: L-MDS [GCP]
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\df1.csv
+  secondarylabel: λMDS NNs
+  secondarypath: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\nns.csv
+  linecolor: E24A33
+  linestyle: solid
+  marker: x
+  markersize:
+  linewidth: 4
+-
+  label: HopsFS [GCP]
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-10-2022\V1\df2.csv
+  linecolor: 348ABD
+  linestyle: solid
+  marker: +
+  markersize: 7
+  linewidth: 4
+- 
+  label: HopsFS+Cache [AWS]
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-07-2023\f8ec8248-89bf-4ea6-871a-3a4b7a0d3a97 (V+C 25k)
+  linecolor: 048513
+  linestyle: dashed
+  marker: X
+  markersize: 7
+  linewidth: 4
+-
+  label: L-MDS Reduced Cache [GCP]
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S4 (25k, 25kCache)\df3.csv
+  linecolor: 6b078a
+  linestyle: solid
+  marker: 8
+  markersize: 7
+  linewidth: 4
+-
+  label: CN HopsFS+Cache [AWS]
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-09-2023\2d5637bb-6f45-473f-a73c-0d7f64ae49ca (Cost-Normal HopsFS+Cache 25k)
+  linecolor: c97200
+  linestyle: dashdot
+  marker: "*"
+  markersize: 7
+  linewidth: 4
+
+# python throughput.py -d 300 -u ms --show --legend -i "./inputs_25k.txt"

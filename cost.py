@@ -13,7 +13,7 @@ from tqdm import tqdm
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 
 # # # # # # # # # # # # # # # # # #
-# Plot throughput for \lambdaMDS. #
+# Plot cost for \lambdaMDS. #
 # # # # # # # # # # # # # # # # # #
 
 plt.style.use('ggplot')
@@ -157,7 +157,7 @@ else:
 cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(10,6))
 cost_axs.plot(list(range(len(cost_at_each_ms_of_experiment3)))[1:], cost_at_each_ms_of_experiment3[1:], linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
 hopsfs_cost = [0]
-for i in range(0, len(cost_at_each_ms_of_experiment3)):
+for i in range(0, len(cost_at_each_ms_of_experiment)):
     current_cost = hopsfs_cost[-1] + (32 * c2_standard_16_cost_per_ms)
     hopsfs_cost.append(current_cost)
 

@@ -1,5 +1,6 @@
 G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\df1.csv;L-MDS [GCP]
 G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-10-2022\V1\df2.csv;HopsFS [GCP]
-G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S4 (25k, 25kCache)\df3.csv;L-MDS Reduced Cache [GCP]
 G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-07-2023\f8ec8248-89bf-4ea6-871a-3a4b7a0d3a97 (V+C 25k);HopsFS+Cache [AWS]
+G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S4 (25k, 25kCache)\df3.csv;L-MDS Reduced Cache [GCP]
+G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-09-2023\2d5637bb-6f45-473f-a73c-0d7f64ae49ca (Cost-Normal HopsFS+Cache 25k); CN HopsFS+Cache [AWS]
 # python throughput.py -d 300 -u ms --show --legend -n "G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\nns.csv" -i "./inputs_25k.txt"
