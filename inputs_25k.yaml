@@ -6,7 +6,7 @@
   linecolor: E24A33
   linestyle: solid
   marker: x
-  markersize:
+  markersize: 7
   linewidth: 4
 -
   label: HopsFS [GCP]
@@ -41,4 +41,4 @@
   markersize: 7
   linewidth: 4
 
-# python throughput.py -d 300 -u ms --show --legend -i "./inputs_25k.txt"
+# python throughput_yaml.py -d 300 -u ms --show --legend -i "./inputs_25k.yaml"

@@ -93,13 +93,14 @@ axs.set_xlabel("Time (seconds)", color = 'black')
 if not no_y_axis_labels:
     axs.set_ylabel("Throughput (ops/sec)", color = 'black')
 axs.yaxis.set_major_formatter(ticker.EngFormatter(sep=""))
+axs.set_ylim(0, 160000)
 secondary_axis = None 
 
 def compute_cost_of_operation(row):
     end_to_end_latency_ms = row["latency"]
     return (end_to_end_latency_ms * cpu_cost_per_ms) + (end_to_end_latency_ms * mem_cost_per_ms)
 
-def plot(input= None, dataset = -1):
+def plot(input:dict):
     global color_idx
     global marker_idx
     global secondary_axis
@@ -114,33 +115,35 @@ def plot(input= None, dataset = -1):
         if secondary_axis is not None:
             secondary_axis = axs.twinx()
 
-    marker = input.get("marker", None)
-    markersize = input.get("markersize", 8)
-    linestyle = input.get("linestyle", "solid")
-    linecolor = input.get("linecolor", "black")
-    linewidth = input.get("linewidth", 4)
+    # Adding the 'or' part ensures that, if an empty value is specified in the yaml (i.e., "markersize: " with no number), then we still default to a valid value.
+    marker = input.get("marker", "None") or "None"
+    markersize = input.get("markersize", 8) or 8
+    linestyle = input.get("linestyle", "solid") or "solid"
+    linecolor = input.get("linecolor", "black") or "black"
+    linewidth = input.get("linewidth", 4) or 4
+    
+    print("Marker: %s\nMarker Size: %s\nLine style: %s\nLine color: %s\nLine width: %s" % (str(marker), str(markersize), linestyle, linecolor, str(linewidth)))
     
     # If we pass a single .txt file, then just create DataFrame from the .txt file.
     # Otherwise, merge all .txt files in the specified directory.
-    if df is None:
-        if input_path.endswith(".txt") or input_path.endswith(".csv"):
-            df = pd.read_csv(input_path, index_col=None, header=0)
-            print("Read DF")
-            #df.columns = COLUMNS
-        else:
-            print("input_path: " + input_path)
-            print("joined: " + str(os.path.join(input_path, "*.txt")))
-            all_files = glob.glob(os.path.join(input_path, "*.txt"))
-            li = []
-            print("Merging the following files: %s" % str(all_files))
-            # Merge the .txt files into a single DataFrame.
-            for filename in all_files:
-                print("Reading file: " + filename)
-                tmp_df = pd.read_csv(filename, index_col=None, header=0)
-                tmp_df.columns = COLUMNS
-                li.append(tmp_df)
-            df = pd.concat(li, axis=0, ignore_index=True)
-            df.columns = COLUMNS
+    if input_path.endswith(".txt") or input_path.endswith(".csv"):
+        df = pd.read_csv(input_path, index_col=None, header=0)
+        print("Read DF")
+        #df.columns = COLUMNS
+    else:
+        print("input_path: " + input_path)
+        print("joined: " + str(os.path.join(input_path, "*.txt")))
+        all_files = glob.glob(os.path.join(input_path, "*.txt"))
+        li = []
+        print("Merging the following files: %s" % str(all_files))
+        # Merge the .txt files into a single DataFrame.
+        for filename in all_files:
+            print("Reading file: " + filename)
+            tmp_df = pd.read_csv(filename, index_col=None, header=0)
+            tmp_df.columns = COLUMNS
+            li.append(tmp_df)
+        df = pd.concat(li, axis=0, ignore_index=True)
+        df.columns = COLUMNS
 
     if 'ts' not in df.columns:
         # Sort the DataFrame by timestamp.
@@ -249,19 +252,18 @@ def plot(input= None, dataset = -1):
             hopsfs_cost.append(current_cost)
         cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
 
-if input_file_path is not None:
-    with open(input_file_path, 'r') as input_file:
-        inputs = input_file 
-    
-    for i, input in enumerate(inputs):
-        print("\n\n\nPlotting dataset #%d: '%s'. Path: '%s'" % (i, input["label"], input["path"]))
-        plot(input = input, dataset = i)
+with open(input_file_path, 'r') as input_file:
+    inputs = yaml.safe_load(input_file) 
+
+for i, input in enumerate(inputs):
+    print("\n\n\nPlotting dataset #%d: '%s'. Path: '%s'" % (i, input["label"], input["path"]))
+    plot(input)
 
 axs.tick_params(axis='x', labelsize=40)
 axs.tick_params(axis='y', labelsize=40)
 try:
-    if nns_axs is not None:
-        nns_axs.tick_params(axis='y', labelsize=40)
+    if secondary_axis is not None:
+        secondary_axis.tick_params(axis='y', labelsize=40)
 except:
     print("[ERROR] No axs2 exists...")
     pass
