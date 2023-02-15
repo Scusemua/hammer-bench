@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import glob
 import os
+import pickle 
 import yaml 
 from ast import literal_eval as make_tuple
 import re
@@ -118,6 +119,7 @@ def plot(input:dict):
     markevery = input.get("markevery", 0.1)
     secondary_label = input.get("secondarylabel", None)
     secondary_path = input.get("secondarypath", None) 
+    buckets_path = input.get("buckets-path", None)
         
     if secondary_path is not None and secondary_axis is None:
         print("Creating secondary axis!")
@@ -142,12 +144,19 @@ def plot(input:dict):
     
     print("Marker: %s\nMarker Size: %s\nLine style: %s\nLine color: %s\nLine width: %s" % (str(marker), str(markersize), linestyle, linecolor, str(linewidth)))
     
+    start_time = time.time()
+    
     # If we pass a single .txt file, then just create DataFrame from the .txt file.
     # Otherwise, merge all .txt files in the specified directory.
     if input_path.endswith(".txt") or input_path.endswith(".csv"):
+        print("Reading existing DF from file at '%s'" % input_path)
         df = pd.read_csv(input_path, index_col=None, header=0)
-        print("Read DF")
-        df.columns = COLUMNS
+        print("Existing DF has the following columns: %s" % str(df.columns))
+        if len(df.columns) == 2:
+            df.columns = COLUMNS
+            print("Set DF's columns to %s" % str(COLUMNS))
+        
+        print("Loaded existing DF in %f seconds" % (time.time() - start_time))
     else:
         print("input_path: " + input_path)
         print("joined: " + str(os.path.join(input_path, "*.txt")))
@@ -162,7 +171,10 @@ def plot(input:dict):
             li.append(tmp_df)
         df = pd.concat(li, axis=0, ignore_index=True)
         df.columns = COLUMNS
+        
+        print("Loaded data and created DF in %f seconds" % (time.time() - start_time))
 
+    st_time = time.time()
     if 'ts' not in df.columns:
         # Sort the DataFrame by timestamp.
         print("Sorting now...")
@@ -193,47 +205,55 @@ def plot(input:dict):
             df['ts'] = df['ts'].map(adjust2)
 
         #df.to_csv("df" + str(dataset) + ".csv")
+        
+        print("Added `ts` column to DF in %f seconds" % (time.time() - st_time))
     print(df)
 
     print("Total number of points: %d" % len(df))
-    # if plot_cost and 'cost' not in df.columns:
-    #     print("Computing cost column now...")
-    #     df['cost'] = df.apply(lambda row: compute_cost_of_operation(row), axis = 1)
-    #     df.to_csv("./nns.csv")
+    df.to_csv("./%s-cost-df.csv" % label)
     print("Done.")
+    st_time = time.time()
     cumulative_cost = [0]
+    
+    if buckets_path is None:
+        # For each second of the workload, count all the data points that occur during that second.
+        # These are the points that we'll plot.
+        buckets = [0 for _ in range(0, duration + 1)]
+        total = 0
+        for i in range(1, duration + 1):
+            start = i-1
+            end = i
+            res = df[((df['ts'] >= start) & (df['ts'] <= end))]
+            #print("%d points between %d and %d" % (len(res), start, end))
+            buckets[i] = len(res)
+            total += len(res)
 
-    # For each second of the workload, count all the data points that occur during that second.
-    # These are the points that we'll plot.
-    buckets = [0 for _ in range(0, duration + 1)]
-    total = 0
-    for i in range(1, duration + 1):
-        start = i-1
-        end = i
-        res = df[((df['ts'] >= start) & (df['ts'] <= end))]
-        #print("%d points between %d and %d" % (len(res), start, end))
-        buckets[i] = len(res)
-        total += len(res)
-
-        # if plot_cost:
-        #     current_cost = res['cost'].values[::10].sum()
-        #     last_cost = cumulative_cost[-1]
-        #     cumulative_cost.append(last_cost + current_cost)
-
-    print("Sum of buckets: %d" % total)
-
-    print("Average Throughput: " + str(np.mean(buckets)) + " ops/sec.")
-    print("Average Latency: " + str(df['ts'].mean()) + " ms.")
+        print("Sum of buckets: %d" % total)
+        print("Average Throughput: " + str(np.mean(buckets)) + " ops/sec.")
+        print("Average Latency: " + str(df['ts'].mean()) + " ms.")
+        print("Computed cost for all buckets in %f seconds" % (time.time() - st_time))
+        
+        with open('%s_buckets.pkl' % label, 'wb') as bucket_file:
+            pickle.dump(buckets, bucket_file)
+            print("Wrote 'buckets' file for %s to file at ./%s_buckets.pkl" % (label, label))
+    else:
+        with open(buckets_path, "rb") as bucket_file:
+            buckets = pickle.load(bucket_file)
+    
+    start_time = time.time()
 
     if secondary_path is not None:
         print("Plotting secondary dataset.")
         secondary_df = pd.read_csv(secondary_path)
+        print("Loaded secondary DF for %s in %f seconds." % (label, time.time() - start_time))
+        start_time = time.time() 
         min_val = min(secondary_df["time"])
 
         def adjust_nn_timestamp(timestamp):
             return (timestamp - min_val) / 1e3
 
         secondary_df["ts"] = secondary_df["time"].map(adjust_nn_timestamp)
+        print("Adjusted secondary DF for %s in %f seconds." % (label, time.time() - start_time))
 
         # Adjust to account for the warm-up.
         t = 12
@@ -248,12 +268,6 @@ def plot(input:dict):
         for i in range(0, len(xs)):
             if xs[i] > 300:
                 xs[i] = 300
-
-        #if secondary_axis is not None:
-        #    secondary_axis.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = secondary_label)
-
-        #if not no_y_axis_labels and secondary_axis is not None:
-        #    secondary_axis.set_ylabel(secondary_label, color = 'black')
         
         print("len(buckets):", len(buckets))
         print("len(ys):", len(ys))
@@ -266,13 +280,21 @@ def plot(input:dict):
             instantaneous_cost = (ys[i] * cost_factor_vcpu * 5) + (ys[i] * cost_factor_mem * 12)
             metric = instantaneous_throughput / instantaneous_cost
             metric_values.append(metric)
+        
+        start_time = time.time() 
+        print("Computed costs for %s in %f seconds" % (label, time.time() - start_time))
+        start_time = time.time() 
         axs.plot(list(range(len(buckets))), buckets, label = label + " Throughput", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
         secondary_axis.plot(list(range(len(metric_values))), metric_values, label = label + " Throughput/Cost", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#752013") 
+        
+        print("Plotting series %s in %f seconds" % (label, time.time() - start_time))
     else:
         cost_factor = (16 * 0.03827 * 32) / 3600
         cost_factor += (19 * 0.00512 * 32) / 3600
         axs.plot(list(range(len(buckets))), buckets, label = label + " Throughput", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
         secondary_axis.plot(list(range(len(buckets))), [b / cost_factor for b in buckets], label = label + " Throughput/Cost", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#30642A") 
+        
+        print("Plotting series %s in %f seconds" % (label, time.time() - start_time))
         
     # if plot_cost:
     #     cost_axs.plot(list(range(len(cumulative_cost))), cumulative_cost, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
@@ -316,7 +338,7 @@ if args.legend:
 
     lines, labels = axs.get_legend_handles_labels()
     lines2, labels2 = secondary_axis.get_legend_handles_labels()
-    ax.legend(lines + lines2, labels + labels2, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.21, 0.975), framealpha=0.0, handlelength=1, labelspacing=0.2)
+    ax.legend(lines + lines2, labels + labels2, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.0, 1), framealpha=0.0, handlelength=1, labelspacing=0.2)
 
     # fig.legend(lines, labels, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.21, 0.975), framealpha=0.0, handlelength=1, labelspacing=0.2)
 
