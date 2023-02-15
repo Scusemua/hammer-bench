@@ -249,13 +249,30 @@ def plot(input:dict):
             if xs[i] > 300:
                 xs[i] = 300
 
-        if secondary_axis is not None:
-            secondary_axis.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = secondary_label)
+        #if secondary_axis is not None:
+        #    secondary_axis.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = secondary_label)
 
-        if not no_y_axis_labels and secondary_axis is not None:
-            secondary_axis.set_ylabel(secondary_label, color = 'black')
-    
-    axs.plot(list(range(len(buckets))), buckets, label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
+        #if not no_y_axis_labels and secondary_axis is not None:
+        #    secondary_axis.set_ylabel(secondary_label, color = 'black')
+        
+        print("len(buckets):", len(buckets))
+        print("len(ys):", len(ys))
+        
+        metric_values = []
+        cost_factor_vcpu = 0.03827 / 3600
+        cost_factor_mem  = 0.00512 / 3600
+        for i in range(300):
+            instantaneous_throughput = buckets[i]
+            instantaneous_cost = (ys[i] * cost_factor_vcpu * 5) + (ys[i] * cost_factor_mem * 12)
+            metric = instantaneous_throughput / instantaneous_cost
+            metric_values.append(metric)
+        axs.plot(list(range(len(buckets))), buckets, label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
+        secondary_axis.plot(list(range(len(metric_values))), metric_values, label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#752013") 
+    else:
+        cost_factor = (16 * 0.03827 * 32) / 3600
+        cost_factor += (19 * 0.00512 * 32) / 3600
+        axs.plot(list(range(len(buckets))), buckets, label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
+        secondary_axis.plot(list(range(len(buckets))), [b / cost_factor for b in buckets], label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#30642A") 
         
     if plot_cost:
         cost_axs.plot(list(range(len(cumulative_cost))), cumulative_cost, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
@@ -267,7 +284,7 @@ def plot(input:dict):
         cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
 
 with open(input_file_path, 'r') as input_file:
-    inputs = yaml.safe_load(input_file) 
+    inputs = yaml.safe_load(input_file)
 
 for i, input in enumerate(inputs):
     print("\n\n\nPlotting dataset #%d: '%s'. Path: '%s'" % (i, input["label"], input["path"]))

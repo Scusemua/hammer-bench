@@ -83,12 +83,37 @@ def compute_cost_of_latency(latency_ms):
     return (latency_ms * cpu_cost_per_ms) + (latency_ms * mem_cost_per_ms)
 
 print("Reading DataFrame now...")
+
 # If we pass a single .txt file, then just create DataFrame from the .txt file.
 # Otherwise, merge all .txt files in the specified directory.
 if input_path.endswith(".txt") or input_path.endswith(".csv"):
     df = pd.read_csv(input_path, index_col=None, header=0)
     df.columns = COLUMNS
-
+# INCOMPLETE:
+# The 'else' branch below is incomplete, so I commented it out. 
+# else:
+#     if any(file == "ALL_OPS.txt" for file in os.listdir(input_path)):
+#         all_ops_path = os.path.join(input_path, "ALL_OPS.txt")
+#         df = pd.read_csv(all_ops_path, index_col=None, header=0)
+#         df.columns = ["timestamp", "latency"] # Input columns.
+        
+#     else:
+#         print("input_path: " + input_path)
+#         print("joined: " + str(os.path.join(input_path, "*.txt")))
+#         all_files = glob.glob(os.path.join(input_path, "*.txt"))
+#         individual_dfs = []
+#         print("Merging the following files: %s" % str(all_files))
+#         # Merge the .txt files into a single DataFrame.
+#         for filename in all_files:
+#             print("Reading file: " + filename)
+#             individual_df = pd.read_csv(filename, index_col=None, header=0)
+#             individual_df.columns = ["timestamp", "latency"]
+#             individual_dfs.append(individual_df)
+#         df = pd.concat(individual_dfs, axis=0, ignore_index=True)
+#         df.columns = ["timestamp", "latency"]
+        
+#         # Desired columns are: ["start_time", "end_time", "name_node_id"]
+    
 # Sort the DataFrame by timestamp.
 print("Done. Sorting now...")
 start_sort = time.time()

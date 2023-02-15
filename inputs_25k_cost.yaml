@@ -1,0 +1,22 @@
+-
+  label: L-MDS [GCP]
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\ALL_OPS.csv
+  secondarylabel: L-MDS NNs
+  secondarypath: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\nns.csv
+  linecolor: EA4027
+  linestyle: solid
+  marker: 'D'
+  markersize: 7
+  markevery: 0.05
+  linewidth: 4
+- 
+  label: HopsFS+Cache [AWS]
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-07-2023\f8ec8248-89bf-4ea6-871a-3a4b7a0d3a97 (V+C 25k)
+  linecolor: 60C955
+  linestyle: "(3.75, (5, 1.95))"
+  marker: x
+  markersize: 10
+  markevery: 0.05
+  linewidth: 4
+
+# python throughput_yaml.py -d 300 -u ms --show --legend -i "./inputs_25k.yaml"
