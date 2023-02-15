@@ -147,7 +147,10 @@ def plot(input:dict):
     if input_path.endswith(".txt") or input_path.endswith(".csv"):
         df = pd.read_csv(input_path, index_col=None, header=0)
         print("Read DF")
-        df.columns = COLUMNS
+        try:
+            df.columns = COLUMNS
+        except:
+            pass 
     else:
         print("input_path: " + input_path)
         print("joined: " + str(os.path.join(input_path, "*.txt")))

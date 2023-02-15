@@ -19,4 +19,4 @@
   markevery: 0.05
   linewidth: 4
 
-# python throughput_yaml.py -d 300 -u ms --show --legend -i "./inputs_25k.yaml"
+# python throughput_yaml_per_cost.py -d 300 -u ms --show --legend -i "./inputs_25k_cost.yaml"

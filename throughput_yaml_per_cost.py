@@ -39,7 +39,7 @@ parser.add_argument("-c", "--columns", default = ["timestamp", "latency"], nargs
 parser.add_argument("-o", "--output-path", dest = "output_path", default = None, type = str, help = "Output path to write graph to. If not specified, then no output will be saved.")
 parser.add_argument("--show", action = 'store_true', help = "Show the plot rather than just write it to a file")
 parser.add_argument("--legend", action = 'store_true', help = "Show the legend on each plot.")
-parser.add_argument("--cost", action = 'store_true', help = "Show the legend on each plot.")
+#parser.add_argument("--cost", action = 'store_true', help = "Show the legend on each plot.")
 parser.add_argument("--no-y-axis-labels", dest = "no_y_axis_labels", action = 'store_true', help = "Do not plot y-axis labels.")
 
 parser.add_argument("--cpu", default = 5, type = float, help = "vCPU per NN.")
@@ -57,7 +57,7 @@ output_path = args.output_path
 show = args.show
 cpu_per_nn = args.cpu
 mem_per_nn = args.memory
-plot_cost = args.cost
+#plot_cost = args.cost
 no_y_axis_labels = args.no_y_axis_labels
 
 c2_standard_16_cost_per_second = 0.9406 / (60 * 60)
@@ -88,8 +88,8 @@ assert(input_file_path is not None)
 # else:
 #     fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,8))
 
-if plot_cost:
-    cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,10))
+#if plot_cost:
+#    cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,10))
 fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,10))
 axs.set_xlabel("Time (seconds)", color = 'black')
 if not no_y_axis_labels:
@@ -196,10 +196,10 @@ def plot(input:dict):
     print(df)
 
     print("Total number of points: %d" % len(df))
-    if plot_cost and 'cost' not in df.columns:
-        print("Computing cost column now...")
-        df['cost'] = df.apply(lambda row: compute_cost_of_operation(row), axis = 1)
-        df.to_csv("./nns.csv")
+    # if plot_cost and 'cost' not in df.columns:
+    #     print("Computing cost column now...")
+    #     df['cost'] = df.apply(lambda row: compute_cost_of_operation(row), axis = 1)
+    #     df.to_csv("./nns.csv")
     print("Done.")
     cumulative_cost = [0]
 
@@ -215,10 +215,10 @@ def plot(input:dict):
         buckets[i] = len(res)
         total += len(res)
 
-        if plot_cost:
-            current_cost = res['cost'].values[::10].sum()
-            last_cost = cumulative_cost[-1]
-            cumulative_cost.append(last_cost + current_cost)
+        # if plot_cost:
+        #     current_cost = res['cost'].values[::10].sum()
+        #     last_cost = cumulative_cost[-1]
+        #     cumulative_cost.append(last_cost + current_cost)
 
     print("Sum of buckets: %d" % total)
 
@@ -259,29 +259,29 @@ def plot(input:dict):
         print("len(ys):", len(ys))
         
         metric_values = []
-        cost_factor_vcpu = 0.03827 / 3600
-        cost_factor_mem  = 0.00512 / 3600
+        cost_factor_vcpu = 0.03827 / 3600 # Per second
+        cost_factor_mem  = 0.00512 / 3600 # Per second
         for i in range(300):
             instantaneous_throughput = buckets[i]
             instantaneous_cost = (ys[i] * cost_factor_vcpu * 5) + (ys[i] * cost_factor_mem * 12)
             metric = instantaneous_throughput / instantaneous_cost
             metric_values.append(metric)
-        axs.plot(list(range(len(buckets))), buckets, label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
-        secondary_axis.plot(list(range(len(metric_values))), metric_values, label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#752013") 
+        axs.plot(list(range(len(buckets))), buckets, label = label + " Throughput", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
+        secondary_axis.plot(list(range(len(metric_values))), metric_values, label = label + " Throughput/Cost", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#752013") 
     else:
         cost_factor = (16 * 0.03827 * 32) / 3600
         cost_factor += (19 * 0.00512 * 32) / 3600
-        axs.plot(list(range(len(buckets))), buckets, label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
-        secondary_axis.plot(list(range(len(buckets))), [b / cost_factor for b in buckets], label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#30642A") 
+        axs.plot(list(range(len(buckets))), buckets, label = label + " Throughput", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
+        secondary_axis.plot(list(range(len(buckets))), [b / cost_factor for b in buckets], label = label + " Throughput/Cost", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#30642A") 
         
-    if plot_cost:
-        cost_axs.plot(list(range(len(cumulative_cost))), cumulative_cost, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
-        hopsfs_cost = [0]
-        print("len(cumulative_cost): %d" % len(cumulative_cost))
-        for i in range(0, len(cumulative_cost)):
-            current_cost = hopsfs_cost[-1] + (32 * c2_standard_16_cost_per_second)
-            hopsfs_cost.append(current_cost)
-        cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
+    # if plot_cost:
+    #     cost_axs.plot(list(range(len(cumulative_cost))), cumulative_cost, linewidth = 4, color = '#E24A33', label = r'$\lambda$' + "MDS")
+    #     hopsfs_cost = [0]
+    #     print("len(cumulative_cost): %d" % len(cumulative_cost))
+    #     for i in range(0, len(cumulative_cost)):
+    #         current_cost = hopsfs_cost[-1] + (32 * c2_standard_16_cost_per_second)
+    #         hopsfs_cost.append(current_cost)
+    #     cost_axs.plot(list(range(len(hopsfs_cost))), hopsfs_cost, linewidth = 4, color = '#348ABD', label = "HopsFS")
 
 with open(input_file_path, 'r') as input_file:
     inputs = yaml.safe_load(input_file)
@@ -314,12 +314,16 @@ if args.legend:
             lines.extend(Line)
             labels.extend(Label)
 
-    fig.legend(lines, labels, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.21, 0.975), framealpha=0.0, handlelength=1, labelspacing=0.2)
+    lines, labels = axs.get_legend_handles_labels()
+    lines2, labels2 = secondary_axis.get_legend_handles_labels()
+    ax.legend(lines + lines2, labels + labels2, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.21, 0.975), framealpha=0.0, handlelength=1, labelspacing=0.2)
 
-if plot_cost:
-    cost_axs.set_xlabel("Time (seconds)", color = 'black')
-    cost_axs.set_ylabel("Cumulative Cost (USD)", color = 'black')
-    cost_fig.legend(loc = 'upper left', bbox_to_anchor=(0.16, 0.85))
+    # fig.legend(lines, labels, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.21, 0.975), framealpha=0.0, handlelength=1, labelspacing=0.2)
+
+# if plot_cost:
+#     cost_axs.set_xlabel("Time (seconds)", color = 'black')
+#     cost_axs.set_ylabel("Cumulative Cost (USD)", color = 'black')
+#     cost_fig.legend(loc = 'upper left', bbox_to_anchor=(0.16, 0.85))
 
 plt.tight_layout()
 
@@ -331,5 +335,5 @@ if output_path is not None:
 if args.show:
     plt.show()
 
-    if plot_cost:
-        cost_fig.show()
+    # if plot_cost:
+    #     cost_fig.show()
