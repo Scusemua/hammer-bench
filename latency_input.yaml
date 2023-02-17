@@ -1,51 +1,51 @@
 -
-  label: L-MDS 25k
+  label: λ 25k
   path: "./Data/Latency/l-mds-25k"
   linestyle: solid
-  marker: 'D'
-  markersize: 7
+  marker: "(5, 1, 0)"
+  markersize: 12
   markevery: 0.05
   linewidth: 3
 -
-  label: L-MDS 50k
+  label: λ 50k
   path: "./Data/Latency/l-mds-50k"
   secondarylabel: L-MDS NNs
   secondarypath: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-14-2022/S1 (25k 12GB NNs)/nns.csv
-  linestyle: solid
-  marker: 'D'
-  markersize: 7
+  linestyle: "(0, (4, 0.5))"
+  marker: "(5, 1, 180)"
+  markersize: 12
   markevery: 0.05
   linewidth: 3
 -
-  label: HopsFS 25k
+  label: H 25k
   path: "./Data/Latency/hopsfs-25k"
-  linestyle: "(1.25, (5, 1.95))"
-  marker: '.'
+  linestyle: solid
+  marker: "(3, 0, 0)"
   markersize: 14
   markevery: 0.05
   linewidth: 3
 -
-  label: HopsFS 50k
+  label: H 50k
   path: "./Data/Latency/hopsfs-50k"
-  linestyle: "(1.25, (5, 1.95))"
-  marker: '.'
+  linestyle: "(0, (4, 0.5))"
+  marker: "(3, 0, 180)"
   markersize: 14
   markevery: 0.05
   linewidth: 3
 -
-  label: HopsFS+Cache 25k
+  label: H+C 25k
   path: "./Data/Latency/hopsfs-cache-25k"
-  linestyle: "(1.25, (5, 1.95))"
-  marker: d
-  markersize: 11
+  linestyle: solid
+  marker: D
+  markersize: 9
   markevery: 0.05
   linewidth: 3
 -
-  label: HopsFS+Cache 50k
+  label: H+C 50k
   path: "./Data/Latency/hopsfs-cache-50k"
-  linestyle: "(1.25, (5, 1.95))"
+  linestyle: "(0, (4, 0.5))"
   marker: d
-  markersize: 11
+  markersize: 10
   markevery: 0.05
   linewidth: 3
 

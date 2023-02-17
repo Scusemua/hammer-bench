@@ -34,11 +34,11 @@ font = {'weight' : 'bold',
         'size'   : 32}
 mpl.rc('font', **font)
 
-x_label_font_size = 32
-y_label_font_size = 32
-xtick_font_size = 32
-markersize = 10
-linewidth = 4
+x_label_font_size = 40
+y_label_font_size = 40
+xtick_font_size = 38
+#markersize = 10
+#linewidth = 4
 
 parser = argparse.ArgumentParser()
 
@@ -93,7 +93,7 @@ input2_colors = ["#BF4141", "#1D75A7", "#BF703C", "#149526", "#5D6375", "#4F1287
 input3_colors = ["#802B2B", "#144E6F", "#804B28", "#0D6319", "#3E424E", "#350C5A", "#751646", "#007B80", "#3A3B41"]
 input4_colors = ["#401515", "#0A2738", "#402514", "#07320D", "#1F2127", "#1A062D", "#3B0B23", "#003D40", "#1D1E20"]
 
-base_colors = ["tab:red", "tab:blue", "tab:green", "tab:orange", "tab:purple", "tab:pink", "tab:brown", "tab:cyan", "tab:olive", "tab:gray", "tab:brown"]
+base_colors = ["tab:red", "tab:blue", "tab:green", "tab:orange", "#8755b5", "#d738a7", "tab:brown", "tab:cyan", "tab:olive", "tab:gray", "tab:brown"]
 color_adjustment = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
 
 MARKERS = ['x', '.', 'X', 'o', 'v', '^', '<', '>']
@@ -143,7 +143,7 @@ def plot_data(input_yaml, dataset = 0, axis = None):
     print("Label: %s" % label)
 
     # Adding the 'or' part ensures that, if an empty value is specified in the yaml (i.e., "markersize: " with no number), then we still default to a valid value.
-    marker = input_yaml.get("marker", "None") or "None"
+    marker = input_yaml.get("marker", ".") or "."
     markersize = input_yaml.get("markersize", 8) or 8
     linestyle = input_yaml.get("linestyle", "solid") or "solid"
     linewidth = input_yaml.get("linewidth", 4) or 4
@@ -155,6 +155,13 @@ def plot_data(input_yaml, dataset = 0, axis = None):
         try:
             linestyle = make_tuple(linestyle)
             print("Setting linestyle to tuple: %s (type is %s)" % (str(linestyle), type(linestyle)))
+        except:
+            pass 
+
+    if len(marker) > 1:
+        try:
+            marker = make_tuple(marker)
+            print("Setting marker to tuple: %s (type is %s)" % (str(marker), type(marker)))
         except:
             pass 
 
@@ -245,24 +252,25 @@ def plot_data(input_yaml, dataset = 0, axis = None):
         if idx == 0:
             axis[idx].set_ylabel("Cumulative Probability", fontsize = y_label_font_size)
         axis[idx].tick_params(labelsize=xtick_font_size)
-        axis[idx].set_title(fs_operation_name, fontdict={"fontsize": 36})
+        axis[idx].set_title(fs_operation_name, fontdict={"fontsize": 40})
         #axis[idx].set_xlim(left = -1, right = 250) #(xlim_percent * latencies[-1]) * 1.05)
         axis[idx].set_ylim(bottom = ylim_percent, top = 1.0125)
         axis[idx].xaxis.label.set_color('black')
         axis[idx].yaxis.label.set_color('black')
+        axis[idx].yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
 
         if fs_operation_name != "MKDIR":
             if fs_operation_name in sub_axis:
                 axins = sub_axis[fs_operation_name]
             else:
-                axins = inset_axes(axis[idx], 2, 2, bbox_transform=axis[idx].transAxes, bbox_to_anchor=(0.95, 0.97))
+                axins = inset_axes(axis[idx], 6, 3, bbox_transform=axis[idx].transAxes, bbox_to_anchor=(0.96, 0.935))
                 axins.set_xlim(left = -10, right = min(latencies[-1] * 0.25, 200))
                 axins.set_ylim(bottom = 0.95, top = 1.00125)
                 axins.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
                 axins.yaxis.set_major_locator(ticker.MultipleLocator(0.02))
                 sub_axis[fs_operation_name] = axins
 
-            axins.plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = label, linewidth = linewidth / 2, markersize = markersize * 0.675, marker = marker, markevery = markevery, color = colors[idx])
+            axins.plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = label, linewidth = linewidth * .75, linestyle = linestyle, markersize = markersize * 0.75, marker = marker, markevery = markevery, color = colors[idx])
 
     print("Removed a total of %d points." % num_cold_starts)
 
@@ -272,7 +280,7 @@ if len(ONLY_PLOT_THESE) > 0:
 
 print("Plotting data now...")
 
-fig, axs = plt.subplots(nrows = 1, ncols = num_columns, figsize=(75, 9))
+fig, axs = plt.subplots(nrows = 1, ncols = num_columns, figsize=(81, 9))
 plot_start = time.time()
 
 with open(input_file_path, 'r') as input_file:
@@ -283,23 +291,9 @@ print("There are %d input(s) to plot." % len(inputs))
 for i, input in enumerate(inputs):
     print("\n\n\nPlotting dataset %d/%d: '%s'. Path: '%s'" % (i+1, len(inputs), input["label"], input["path"]))
     plot_data(input, dataset = i, axis = axs)
-
-# lambdamds_25k_input_path = args.input1
-# lambdamds_50k_input_path = args.input2
-# hopsfs_25k_input_path = args.input3
-# hopsfs_50k_input_path = args.input4
-
-# if lambdamds_25k_input_path is not None:
-#     plot_data(lambdamds_25k_input_path, axis = axs, dataset = 1, label = label1 + " 25k", columns = columns1)
-# df_s_create = None
-# df_s_complete = None
-# if lambdamds_50k_input_path is not None:
-#     plot_data(lambdamds_50k_input_path, axis = axs, dataset = 2, label = label1 + " 50k", columns = columns2)
-
-# if hopsfs_25k_input_path is not None:
-#     plot_data(hopsfs_25k_input_path, axis = axs, dataset = 3, label = label2 + " 25k", columns = columns2)
-# if hopsfs_50k_input_path is not None:
-#     plot_data(hopsfs_50k_input_path, axis = axs, dataset = 4, label = label2 + " 50k", columns = columns2)
+    
+    df_s_complete = None 
+    df_s_create = None 
 
 print("Done. Plotted all data points in %f seconds." % (time.time() - plot_start))
 
@@ -308,17 +302,16 @@ if skip_plot:
 
 if show_legend:
     for ax in axs:
-        leg = ax.legend(loc = 'lower left', prop={'size': 32}, labelspacing=0.16, framealpha=0.0, handlelength=0.9, handletextpad = 0.175, ncol=2, columnspacing = 0.2, bbox_to_anchor = (0.065, 0), borderaxespad = 0.05)
+        leg = ax.legend(loc = 'lower left', prop={'size': 40}, labelspacing=0.16, framealpha=0.0, handlelength=0.9, handletextpad = 0.175, ncol=2, columnspacing = 0.2, bbox_to_anchor = (0.08, -0.0125), borderaxespad = 0.05)
         if leg:
             leg.set_zorder(999)
             leg.set_draggable(state = True)
         ax.xaxis.set_major_formatter(ticker.EngFormatter(sep=""))
-        ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
+        ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
 
 fig.tight_layout()
-
 plt.tight_layout()
-plt.subplots_adjust(wspace=0.225)
+plt.subplots_adjust(wspace=0.15)
 
 if output_path is not None:
   print("Saving plot to file '%s' now" % output_path)
