@@ -1,0 +1,52 @@
+-
+  label: L-MDS 25k
+  path: "./Data/Latency/l-mds-25k"
+  linestyle: solid
+  marker: 'D'
+  markersize: 7
+  markevery: 0.05
+  linewidth: 3
+-
+  label: L-MDS 50k
+  path: "./Data/Latency/l-mds-50k"
+  secondarylabel: L-MDS NNs
+  secondarypath: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-14-2022/S1 (25k 12GB NNs)/nns.csv
+  linestyle: solid
+  marker: 'D'
+  markersize: 7
+  markevery: 0.05
+  linewidth: 3
+-
+  label: HopsFS 25k
+  path: "./Data/Latency/hopsfs-25k"
+  linestyle: "(1.25, (5, 1.95))"
+  marker: '.'
+  markersize: 14
+  markevery: 0.05
+  linewidth: 3
+-
+  label: HopsFS 50k
+  path: "./Data/Latency/hopsfs-50k"
+  linestyle: "(1.25, (5, 1.95))"
+  marker: '.'
+  markersize: 14
+  markevery: 0.05
+  linewidth: 3
+-
+  label: HopsFS+Cache 25k
+  path: "./Data/Latency/hopsfs-cache-25k"
+  linestyle: "(1.25, (5, 1.95))"
+  marker: d
+  markersize: 11
+  markevery: 0.05
+  linewidth: 3
+-
+  label: HopsFS+Cache 50k
+  path: "./Data/Latency/hopsfs-cache-50k"
+  linestyle: "(1.25, (5, 1.95))"
+  marker: d
+  markersize: 11
+  markevery: 0.05
+  linewidth: 3
+
+# python latency_25k_50k.py --show --legend -n 1000 -ylim 0.75 -i "./latency_input.yaml" -o "latency_cdf.pdf"

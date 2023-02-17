@@ -117,13 +117,14 @@ def plot(input:dict):
     linestyle = input.get("linestyle", "solid") or "solid"
     linewidth = input.get("linewidth", 4) or 4
     markevery = input.get("markevery", 0.1)
-    secondary_label = input.get("secondarylabel", None)
+    # secondary_label = input.get("secondarylabel", None)
     secondary_path = input.get("secondarypath", None) 
     buckets_path = input.get("buckets-path", None)
         
     if secondary_path is not None and secondary_axis is None:
         print("Creating secondary axis!")
         secondary_axis = axs.twinx()
+        secondary_axis.set_ylabel("Perf. per Cost")
     
     if "linecolor" in input:
         linecolor = input["linecolor"]
@@ -177,7 +178,7 @@ def plot(input:dict):
     st_time = time.time()
     if 'ts' not in df.columns:
         # Sort the DataFrame by timestamp.
-        print("Sorting now...")
+        print("Sorting DF and creating `ts` column now...")
         start_sort = time.time()
         df = df.sort_values('timestamp')
         print("Sorted dataframe in %f seconds." % (time.time() - start_sort))
@@ -216,6 +217,7 @@ def plot(input:dict):
     cumulative_cost = [0]
     
     if buckets_path is None:
+        print("Creating buckets now...")
         # For each second of the workload, count all the data points that occur during that second.
         # These are the points that we'll plot.
         buckets = [0 for _ in range(0, duration + 1)]
@@ -237,6 +239,7 @@ def plot(input:dict):
             pickle.dump(buckets, bucket_file)
             print("Wrote 'buckets' file for %s to file at ./%s_buckets.pkl" % (label, label))
     else:
+        print("Loading buckets from file at '%s'" % buckets_path)
         with open(buckets_path, "rb") as bucket_file:
             buckets = pickle.load(bucket_file)
     
