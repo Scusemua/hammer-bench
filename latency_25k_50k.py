@@ -34,9 +34,9 @@ font = {'weight' : 'bold',
         'size'   : 32}
 mpl.rc('font', **font)
 
-x_label_font_size = 40
-y_label_font_size = 40
-xtick_font_size = 38
+x_label_font_size = 42
+y_label_font_size = 42
+xtick_font_size = 40
 #markersize = 10
 #linewidth = 4
 
@@ -259,18 +259,19 @@ def plot_data(input_yaml, dataset = 0, axis = None):
         axis[idx].yaxis.label.set_color('black')
         axis[idx].yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
 
-        if fs_operation_name != "MKDIR":
-            if fs_operation_name in sub_axis:
-                axins = sub_axis[fs_operation_name]
-            else:
-                axins = inset_axes(axis[idx], 6, 3, bbox_transform=axis[idx].transAxes, bbox_to_anchor=(0.96, 0.935))
-                axins.set_xlim(left = -10, right = min(latencies[-1] * 0.25, 200))
-                axins.set_ylim(bottom = 0.95, top = 1.00125)
-                axins.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
-                axins.yaxis.set_major_locator(ticker.MultipleLocator(0.02))
-                sub_axis[fs_operation_name] = axins
+        #if fs_operation_name != "MKDIR":
+        if fs_operation_name in sub_axis:
+            axins = sub_axis[fs_operation_name]
+        else:
+            axins = inset_axes(axis[idx], 6, 3, bbox_transform=axis[idx].transAxes, bbox_to_anchor=(0.95, 0.915))
+            axins.set_xlim(left = -10, right = min(latencies[-1] * 0.25, 200))
+            axins.set_ylim(bottom = 0.95, top = 1.00125)
+            axins.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
+            axins.yaxis.set_major_locator(ticker.MultipleLocator(0.02))
+            axins.tick_params(labelsize = xtick_font_size + 4)
+            sub_axis[fs_operation_name] = axins
 
-            axins.plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = label, linewidth = linewidth * .75, linestyle = linestyle, markersize = markersize * 0.75, marker = marker, markevery = markevery, color = colors[idx])
+        axins.plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = label, linewidth = linewidth, linestyle = linestyle, markersize = markersize * 0.875, marker = marker, markevery = markevery, color = colors[idx])
 
     print("Removed a total of %d points." % num_cold_starts)
 
@@ -280,7 +281,7 @@ if len(ONLY_PLOT_THESE) > 0:
 
 print("Plotting data now...")
 
-fig, axs = plt.subplots(nrows = 1, ncols = num_columns, figsize=(81, 9))
+fig, axs = plt.subplots(nrows = 1, ncols = num_columns, figsize=(81, 9.5))
 plot_start = time.time()
 
 with open(input_file_path, 'r') as input_file:
@@ -302,7 +303,7 @@ if skip_plot:
 
 if show_legend:
     for ax in axs:
-        leg = ax.legend(loc = 'lower left', prop={'size': 40}, labelspacing=0.16, framealpha=0.0, handlelength=0.9, handletextpad = 0.175, ncol=2, columnspacing = 0.2, bbox_to_anchor = (0.08, -0.0125), borderaxespad = 0.05)
+        leg = ax.legend(loc = 'lower left', prop={'size': 44}, labelspacing=0.16, framealpha=0.0, handlelength=0.9, handletextpad = 0.175, ncol=2, columnspacing = 0.2, bbox_to_anchor = (0.0725, -0.0145), borderaxespad = 0.05)
         if leg:
             leg.set_zorder(999)
             leg.set_draggable(state = True)
@@ -311,7 +312,7 @@ if show_legend:
 
 fig.tight_layout()
 plt.tight_layout()
-plt.subplots_adjust(wspace=0.15)
+plt.subplots_adjust(wspace=0.16)
 
 if output_path is not None:
   print("Saving plot to file '%s' now" % output_path)
