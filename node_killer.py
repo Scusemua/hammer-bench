@@ -54,7 +54,7 @@ def kill_pod(pod: str):
         logger.info("Output from killing pod:")
         logger.info(lines)
     else:
-        print("<PREENDING TO KILL POD '%s'" % pod)
+        logger.info("<PREENDING TO KILL POD '%s'" % pod)
 
 def kill_round_robin(pods: dict, last_deployment_killed = -1, num_deployments = 20):
     """
@@ -77,7 +77,7 @@ def kill_round_robin(pods: dict, last_deployment_killed = -1, num_deployments = 
         candidate_pods = pods[candidate_deployment]
         
         if len(candidate_pods) > 0:
-            logger.info("Deployment %d has candidate pod(s)." % len(candidate_pods))
+            logger.info("Deployment %d has %d candidate pod(s)." % (candidate_deployment, len(candidate_pods)))
             target_pod = random.choice(candidate_pods)
             logger.info("Selected pod '%s' for termination from pool of %d candidate pod(s)." % (target_pod, len(candidate_pods)))
             kill_pod(target_pod)
@@ -95,7 +95,7 @@ def kill_round_robin(pods: dict, last_deployment_killed = -1, num_deployments = 
 
     # Emulate a do-while loop.
     namenode_killed, idx = search_for_target_pod(idx)
-    while idx != stop_at:
+    while idx != stop_at and not namenode_killed:
         namenode_killed, idx = search_for_target_pod(idx)
     
     if namenode_killed:
@@ -250,9 +250,6 @@ while (current_milli_time() - start < duration_ms):
         except:
             deployment = int(line_split[0][-1:])
         pods_per_deployment[deployment].append(line_split[0])
-    
-    now = datetime.now()
-    logger.info("%s: There are %d NNs actively running." % (now.strftime("%d/%m/%Y %H:%M:%S"), current_num_nns))
 
     # for i in range(num_deployments):
     #     if i in pods_per_deployment:
@@ -267,6 +264,6 @@ while (current_milli_time() - start < duration_ms):
     
     last_deployment_killed = method_funcs[method](pods_per_deployment, last_deployment_killed = last_deployment_killed, num_deployments = num_deployments)
 
-    logger.info("Going to sleep for %.2f seconds." % interval)
+    logger.info("Going to sleep for %.2f seconds.\n\n" % interval)
     time.sleep(interval)
     logger.info("Woke up.")
