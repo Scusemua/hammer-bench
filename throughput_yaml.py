@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import glob
 import os
+import pickle 
 import yaml 
 from ast import literal_eval as make_tuple
 import re
@@ -118,6 +119,7 @@ def plot(input:dict):
     markevery = input.get("markevery", 0.1)
     secondary_label = input.get("secondarylabel", None)
     secondary_path = input.get("secondarypath", None) 
+    buckets_path = input.get("buckets-path", None)
         
     if secondary_path is not None and secondary_axis is None:
         print("Creating secondary axis!")
@@ -141,16 +143,20 @@ def plot(input:dict):
             pass 
     
     print("Marker: %s\nMarker Size: %s\nLine style: %s\nLine color: %s\nLine width: %s" % (str(marker), str(markersize), linestyle, linecolor, str(linewidth)))
+
+    start_time = time.time()
     
     # If we pass a single .txt file, then just create DataFrame from the .txt file.
     # Otherwise, merge all .txt files in the specified directory.
     if input_path.endswith(".txt") or input_path.endswith(".csv"):
+        print("Reading existing DF from file at '%s'" % input_path)
         df = pd.read_csv(input_path, index_col=None, header=0)
-        print("Read DF")
-        try:
+        print("Existing DF has the following columns: %s" % str(df.columns))
+        if len(df.columns) == 2:
             df.columns = COLUMNS
-        except:
-            pass 
+            print("Set DF's columns to %s" % str(COLUMNS))
+        
+        print("Loaded existing DF in %f seconds" % (time.time() - start_time))
     else:
         print("input_path: " + input_path)
         print("joined: " + str(os.path.join(input_path, "*.txt")))
@@ -165,10 +171,13 @@ def plot(input:dict):
             li.append(tmp_df)
         df = pd.concat(li, axis=0, ignore_index=True)
         df.columns = COLUMNS
+        
+        print("Loaded data and created DF in %f seconds" % (time.time() - start_time))
 
+    st_time = time.time()
     if 'ts' not in df.columns:
         # Sort the DataFrame by timestamp.
-        print("Sorting now...")
+        print("Sorting DF and creating `ts` column now...")
         start_sort = time.time()
         df = df.sort_values('timestamp')
         print("Sorted dataframe in %f seconds." % (time.time() - start_sort))
@@ -196,6 +205,8 @@ def plot(input:dict):
             df['ts'] = df['ts'].map(adjust2)
 
         #df.to_csv("df" + str(dataset) + ".csv")
+        
+        print("Added `ts` column to DF in %f seconds" % (time.time() - st_time))
     print(df)
 
     print("Total number of points: %d" % len(df))
@@ -206,27 +217,35 @@ def plot(input:dict):
     print("Done.")
     cumulative_cost = [0]
 
+    st_time = time.time() 
     # For each second of the workload, count all the data points that occur during that second.
     # These are the points that we'll plot.
-    buckets = [0 for _ in range(0, duration + 1)]
-    total = 0
-    for i in range(1, duration + 1):
-        start = i-1
-        end = i
-        res = df[((df['ts'] >= start) & (df['ts'] <= end))]
-        #print("%d points between %d and %d" % (len(res), start, end))
-        buckets[i] = len(res)
-        total += len(res)
+    if buckets_path is None:
+        print("Creating buckets now...")
+        # For each second of the workload, count all the data points that occur during that second.
+        # These are the points that we'll plot.
+        buckets = [0 for _ in range(0, duration + 1)]
+        total = 0
+        for i in range(1, duration + 1):
+            start = i-1
+            end = i
+            res = df[((df['ts'] >= start) & (df['ts'] <= end))]
+            #print("%d points between %d and %d" % (len(res), start, end))
+            buckets[i] = len(res)
+            total += len(res)
 
-        if plot_cost:
-            current_cost = res['cost'].values[::10].sum()
-            last_cost = cumulative_cost[-1]
-            cumulative_cost.append(last_cost + current_cost)
-
-    print("Sum of buckets: %d" % total)
-
-    print("Average Throughput: " + str(np.mean(buckets)) + " ops/sec.")
-    print("Average Latency: " + str(df['ts'].mean()) + " ms.")
+        print("Sum of buckets: %d" % total)
+        print("Average Throughput: " + str(np.mean(buckets)) + " ops/sec.")
+        print("Average Latency: " + str(df['ts'].mean()) + " ms.")
+        print("Computed cost for all buckets in %f seconds" % (time.time() - st_time))
+        
+        with open('%s_buckets.pkl' % label, 'wb') as bucket_file:
+            pickle.dump(buckets, bucket_file)
+            print("Wrote 'buckets' file for %s to file at ./%s_buckets.pkl" % (label, label))
+    else:
+        print("Loading buckets from file at '%s'" % buckets_path)
+        with open(buckets_path, "rb") as bucket_file:
+            buckets = pickle.load(bucket_file)
 
     if secondary_path is not None:
         print("Plotting secondary dataset.")
@@ -234,16 +253,16 @@ def plot(input:dict):
         min_val = min(secondary_df["time"])
 
         def adjust_nn_timestamp(timestamp):
-            return (timestamp - min_val) / 1e3
+            return (timestamp - min_val)# / 1e3
 
         secondary_df["ts"] = secondary_df["time"].map(adjust_nn_timestamp)
 
         # Adjust to account for the warm-up.
-        t = 12
+        #t = 12
         xs = secondary_df["ts"].values
         ys = secondary_df["nns"].values
         ys = [y for y in ys]
-        ys = ys[0:t] + ys[t+t:]
+        #ys = ys[0:t] + ys[t+t:]
 
         xs = xs[0:300]
         ys = ys[0:300]

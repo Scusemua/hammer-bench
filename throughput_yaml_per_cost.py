@@ -94,10 +94,8 @@ assert(input_file_path is not None)
 fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,10))
 axs.set_xlabel("Time (seconds)", color = 'black')
 if not no_y_axis_labels:
-    axs.set_ylabel("Throughput (ops/sec)", color = 'black')
+    axs.set_ylabel("Performance per Cost", color = 'black')
 axs.yaxis.set_major_formatter(ticker.EngFormatter(sep=""))
-axs.yaxis.set_major_locator(ticker.MultipleLocator(25_000))
-secondary_axis = None 
 
 def compute_cost_of_operation(row):
     end_to_end_latency_ms = row["latency"]
@@ -106,7 +104,6 @@ def compute_cost_of_operation(row):
 def plot(input:dict):
     global color_idx
     global marker_idx
-    global secondary_axis
     
     input_path = input["path"]
     label = input.get("label", "No-Label-Specified")
@@ -121,10 +118,10 @@ def plot(input:dict):
     secondary_path = input.get("secondarypath", None) 
     buckets_path = input.get("buckets-path", None)
         
-    if secondary_path is not None and secondary_axis is None:
-        print("Creating secondary axis!")
-        secondary_axis = axs.twinx()
-        secondary_axis.set_ylabel("Perf. per Cost")
+    # if secondary_path is not None and secondary_axis is None:
+    #     print("Creating secondary axis!")
+    #     secondary_axis = axs.twinx()
+    #     secondary_axis.set_ylabel("Perf. per Cost")
     
     if "linecolor" in input:
         linecolor = input["linecolor"]
@@ -287,15 +284,15 @@ def plot(input:dict):
         start_time = time.time() 
         print("Computed costs for %s in %f seconds" % (label, time.time() - start_time))
         start_time = time.time() 
-        axs.plot(list(range(len(buckets))), buckets, label = label + " Throughput", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
-        secondary_axis.plot(list(range(len(metric_values))), metric_values, label = label + " Throughput/Cost", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#752013") 
+        #axs.plot(list(range(len(buckets))), buckets, label = label + " Throughput", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
+        axs.plot(list(range(len(metric_values))), metric_values, label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
         
         print("Plotting series %s in %f seconds" % (label, time.time() - start_time))
     else:
         cost_factor = (16 * 0.03827 * 32) / 3600
         cost_factor += (19 * 0.00512 * 32) / 3600
-        axs.plot(list(range(len(buckets))), buckets, label = label + " Throughput", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
-        secondary_axis.plot(list(range(len(buckets))), [b / cost_factor for b in buckets], label = label + " Throughput/Cost", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = "#30642A") 
+        #axs.plot(list(range(len(buckets))), buckets, label = label + " Throughput", linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
+        axs.plot(list(range(len(buckets))), [b / cost_factor for b in buckets], label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
         
         print("Plotting series %s in %f seconds" % (label, time.time() - start_time))
         
@@ -317,12 +314,6 @@ for i, input in enumerate(inputs):
 
 axs.tick_params(axis='x', labelsize=40)
 axs.tick_params(axis='y', labelsize=40)
-try:
-    if secondary_axis is not None:
-        secondary_axis.tick_params(axis='y', labelsize=40)
-except:
-    print("[ERROR] No axs2 exists...")
-    pass
 
 if args.legend:
     lines = []
@@ -340,8 +331,7 @@ if args.legend:
             labels.extend(Label)
 
     lines, labels = axs.get_legend_handles_labels()
-    lines2, labels2 = secondary_axis.get_legend_handles_labels()
-    ax.legend(lines + lines2, labels + labels2, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.0, 1), framealpha=0.0, handlelength=1, labelspacing=0.2)
+    ax.legend(lines, labels, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.0, 1), framealpha=0.0, handlelength=1, labelspacing=0.2)
 
     # fig.legend(lines, labels, loc='upper left', prop={'size': 40}, bbox_to_anchor=(0.21, 0.975), framealpha=0.0, handlelength=1, labelspacing=0.2)
 

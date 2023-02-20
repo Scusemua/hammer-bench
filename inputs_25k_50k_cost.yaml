@@ -1,0 +1,47 @@
+-
+  label: L-MDS 25k
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\L-MDS [GCP]-cost-df.csv
+  secondarylabel: L-MDS NNs
+  secondarypath: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\nns.csv
+  linecolor: EA4027
+  buckets-path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\L-MDS [GCP]_buckets.pkl
+  linestyle: solid
+  marker: 'D'
+  markersize: 11
+  markevery: 0.05
+  linewidth: 4.5
+- 
+  label: HopsFS+Cache 25k
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-07-2023\f8ec8248-89bf-4ea6-871a-3a4b7a0d3a97 (V+C 25k)\HopsFS+Cache [AWS]-cost-df.csv
+  buckets-path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-07-2023\f8ec8248-89bf-4ea6-871a-3a4b7a0d3a97 (V+C 25k)\HopsFS+Cache [AWS]_buckets.pkl
+  linecolor: "333232"
+  linestyle: "solid"
+  marker: "."
+  markersize: 16
+  markevery: 0.05
+  linewidth: 4.5
+
+-
+  label: L-MDS 50k
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S3 (50k)\L-MDS [GCP]-cost-df.csv
+  secondarylabel: L-MDS NNs
+  secondarypath: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S3 (50k)\nns.csv
+  buckets-path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S3 (50k)\L-MDS [GCP]_buckets.pkl
+  linecolor: "4D7EA8"
+  linestyle: "(0, (4, 0.25))"
+  marker: 'd'
+  markersize: 12
+  markevery: 0.05
+  linewidth: 4.5
+- 
+  label: HopsFS+Cache 50k
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-10-2023\4cfb035b-7b2b-4737-9741-07dbfacda6b2 (HopsFS+Cache 50k AWS v2)\HopsFS+Cache [AWS]-cost-df.csv
+  buckets-path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-10-2023\4cfb035b-7b2b-4737-9741-07dbfacda6b2 (HopsFS+Cache 50k AWS v2)\HopsFS+Cache [AWS]_buckets.pkl
+  linecolor: "8CB369"
+  linestyle: "(2, (4, 0.5))"
+  marker: '*'
+  markersize: 12
+  markevery: 0.05
+  linewidth: 4.5
+
+# python throughput_yaml_per_cost.py -d 300 -u ms --show --legend -i "./inputs_25k_50k_cost.yaml"
