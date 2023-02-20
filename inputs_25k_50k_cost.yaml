@@ -1,7 +1,7 @@
 -
   label: L-MDS 25k
   path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\L-MDS [GCP]-cost-df.csv
-  secondarylabel: L-MDS NNs
+  secondarylabel: L-MDS NNs (right y-axis)
   secondarypath: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\nns.csv
   linecolor: EA4027
   buckets-path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\L-MDS [GCP]_buckets.pkl

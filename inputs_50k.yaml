@@ -1,16 +1,17 @@
 -
-  label: L-MDS [GCP]
-  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S3 (50k)\ALL_OPS.txt
-  secondarylabel: L-MDS NNs
-  secondarypath: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S3 (50k)\nns.csv
+  label: L-MDS 
+  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-20-2023\40db817a-4529-4dbb-89d6-f5958d109521 (LMDS-OP 50k ALC3 v1)\ # G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S3 (50k)\ALL_OPS.txt
+  secondarylabel: L-MDS NNs (right y-axis)
+  secondarypath: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-20-2023\40db817a-4529-4dbb-89d6-f5958d109521 (LMDS-OP 50k ALC3 v1)\nns.csv # G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-11-2022\S3 (50k)\nns.csv
   linecolor: EA4027
   linestyle: solid
   marker: 'D'
   markersize: 7
   markevery: 0.05
   linewidth: 4
+  #buckets-path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-20-2023\bb1e1483-c75b-413e-85c7-86fc2a2fdd8b (LMDS-OP 50k ALC4 v1)\L-MDS_buckets.pkl
 -
-  label: HopsFS [GCP]
+  label: HopsFS 
   path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-9-2022\V2
   linecolor: 3D85C6
   linestyle: "(1.25, (5, 1.95))"
@@ -18,24 +19,25 @@
   markersize: 11
   markevery: 0.05
   linewidth: 4 
-- 
-  label: HopsFS+Cache [AWS]
-  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-10-2023\4cfb035b-7b2b-4737-9741-07dbfacda6b2 (HopsFS+Cache 50k AWS v2)\
-  linecolor: 60C955
-  linestyle: "(3.75, (5, 1.95))"
-  marker: x
-  markersize: 10
-  markevery: 0.05
-  linewidth: 4
--
-  label: CN HopsFS+Cache [AWS]
-  path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-10-2023\b9ea0ca1-4a6a-4ff2-b1da-6b981e0e9cab (Cost-Normal-50 HopsFS+Cache 50k)
-  linecolor: 2F9824
-  linestyle: "(5, (5, 1.95))"
-  marker: "X"
-  markersize: 9
-  markevery: 0.05
-  linewidth: 4
+  buckets-path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-9-2022\V2\HopsFS_buckets.pkl
+# - 
+#   label: HopsFS+Cache 
+#   path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-10-2023\4cfb035b-7b2b-4737-9741-07dbfacda6b2 (HopsFS+Cache 50k AWS v2)\
+#   linecolor: 60C955
+#   linestyle: "(3.75, (5, 1.95))"
+#   marker: x
+#   markersize: 10
+#   markevery: 0.05
+#   linewidth: 4
+# -
+#   label: CN HopsFS+Cache 
+#   path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-10-2023\b9ea0ca1-4a6a-4ff2-b1da-6b981e0e9cab (Cost-Normal-50 HopsFS+Cache 50k)
+#   linecolor: 2F9824
+#   linestyle: "(5, (5, 1.95))"
+#   marker: "X"
+#   markersize: 9
+#   markevery: 0.05
+#   linewidth: 4
 # -
 #   label: HopsFS [AWS]
 #   path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-10-2023\3f8bd1a7-7af3-479f-8f39-8ddd49a254ee (HopsFS 50k AWS)\

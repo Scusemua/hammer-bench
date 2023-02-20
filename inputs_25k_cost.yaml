@@ -1,7 +1,7 @@
 -
-  label: L-MDS [GCP]
+  label: L-MDS 
   path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\L-MDS [GCP]-cost-df.csv
-  secondarylabel: L-MDS NNs
+  secondarylabel: L-MDS NNs (right y-axis)
   secondarypath: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\nns.csv
   linecolor: EA4027
   buckets-path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\10-14-2022\S1 (25k 12GB NNs)\L-MDS [GCP]_buckets.pkl
@@ -11,7 +11,7 @@
   markevery: 0.05
   linewidth: 4
 - 
-  label: HopsFS+Cache [AWS]
+  label: HopsFS+Cache
   path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-07-2023\f8ec8248-89bf-4ea6-871a-3a4b7a0d3a97 (V+C 25k)\HopsFS+Cache [AWS]-cost-df.csv
   buckets-path: G:\Documents\School\College\MasonLeapLab_Research\ServerlessMDS\Benchmark\Spotify (MyApp)\Revision\02-07-2023\f8ec8248-89bf-4ea6-871a-3a4b7a0d3a97 (V+C 25k)\HopsFS+Cache [AWS]_buckets.pkl
   linecolor: 60C955

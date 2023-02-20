@@ -91,7 +91,7 @@ assert(input_file_path is not None)
 
 if plot_cost:
     cost_fig, cost_axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,10))
-fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(12,10))
+fig, axs = plt.subplots(nrows = 1, ncols = 1, figsize=(20,10))
 axs.set_xlabel("Time (seconds)", color = 'black')
 if not no_y_axis_labels:
     axs.set_ylabel("Throughput (ops/sec)", color = 'black')
@@ -193,18 +193,18 @@ def plot(input:dict):
         # seconds different. So, I basically adjust all of that data so it fits within the interval
         # of the rest of the data.
         df['ts'] = df['timestamp'].map(adjust)
-        df2 = df[((df['ts'] >= duration+5))]
-        if len(df2) > 0:
-            min_val2 = min(df2['ts'])
+        # df2 = df[((df['ts'] >= duration+5))]
+        # if len(df2) > 0:
+        #     min_val2 = min(df2['ts'])
 
-            def adjust2(x):
-                if x >= min_val2:
-                    return x - min_val2
-                return x
+        #     def adjust2(x):
+        #         if x >= min_val2:
+        #             return x - min_val2
+        #         return x
 
-            df['ts'] = df['ts'].map(adjust2)
+        #     df['ts'] = df['ts'].map(adjust2)
 
-        #df.to_csv("df" + str(dataset) + ".csv")
+        # df.to_csv("df.csv")
         
         print("Added `ts` column to DF in %f seconds" % (time.time() - st_time))
     print(df)
@@ -253,7 +253,7 @@ def plot(input:dict):
         min_val = min(secondary_df["time"])
 
         def adjust_nn_timestamp(timestamp):
-            return (timestamp - min_val)# / 1e3
+            return (timestamp - min_val) / 1e3
 
         secondary_df["ts"] = secondary_df["time"].map(adjust_nn_timestamp)
 
@@ -275,7 +275,7 @@ def plot(input:dict):
             secondary_axis.plot(xs, ys, color = 'grey', linewidth = 4, linestyle='dashed', label = secondary_label)
 
         if not no_y_axis_labels and secondary_axis is not None:
-            secondary_axis.set_ylabel(secondary_label, color = 'black')
+            secondary_axis.set_ylabel("L-MDS NameNodes", color = 'black')
     
     axs.plot(list(range(len(buckets))), buckets, label = label, linestyle = linestyle, linewidth = linewidth, marker = marker, markevery=markevery, markersize = markersize, color = linecolor) 
         

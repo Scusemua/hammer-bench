@@ -42,8 +42,6 @@ while (current_milli_time() - start < duration_ms):
   for line in lines:
     if "namenode" not in line:
       continue 
-    #if "prewarm" in line:
-    #  continue 
     current_num_nns += 1
   
   now = datetime.now()
