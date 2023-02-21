@@ -18,19 +18,21 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--interval", type = float, default = 0.5, help = "How frequently (in seconds) to kill a NameNode.")
+parser.add_argument("-f", "--frequency", type = float, default = 0.5, help = "How frequently (in seconds) to kill a NameNode.")
 parser.add_argument("--how", type = str, default = "round-robin", help = "How to select a NameNode to be killed. Valid options include: \"round-robin\", \"random\"")
 parser.add_argument("-d", "--duration", type = float, default = 60, help = "Duration (in seconds) to run the script.")
 parser.add_argument("-n", "--num-deployments", dest = "num_deployments", type = int, default = 20, help = "The number of available deployments.")
+parser.add_argument("-i", "--initial-delay", dest = "initial_delay", type = int, default = 30, help = "Initial delay (in seconds) before killing the first NameNode.")
 parser.add_argument("--sample", action = 'store_true', help = "Use the hard-coded sample input for debugging.")
 args = parser.parse_args()
 
-interval = args.interval
+frequency = args.frequency
 duration_sec = args.duration
 method = args.how 
 num_deployments = args.num_deployments
 use_sample_input = args.sample
 duration_ms = duration_sec * 1000
+initial_delay = args.initial_delay
 
 # Requires Python 3.7
 def current_milli_time():
@@ -39,8 +41,8 @@ def current_milli_time():
 start_time = datetime.now()
 start = current_milli_time()
 
-if interval <= 0 or interval > 2:
-    logger.error("Interval must be within the interval (0, 2).")
+if frequency <= 0 or frequency > 2:
+    logger.error("Frequency must be within the interval (0, 2).")
 
 last_deployment_killed = -1 
 
@@ -229,6 +231,8 @@ wskowdev-invoker-22-8-whisksystem-namenode2                  1/1     Running   0
 wskowdev-invoker-22-9-whisksystem-namenode5                  1/1     Running   0          4m40s
 """
 
+logger.info("Delaying for %f seconds." % initial_delay)
+time.sleep(initial_delay)
 logger.info("Starting...")
 while (current_milli_time() - start < duration_ms):
     if not use_sample_input:
@@ -264,6 +268,6 @@ while (current_milli_time() - start < duration_ms):
     
     last_deployment_killed = method_funcs[method](pods_per_deployment, last_deployment_killed = last_deployment_killed, num_deployments = num_deployments)
 
-    logger.info("Going to sleep for %.2f seconds.\n\n" % interval)
-    time.sleep(interval)
+    logger.info("Going to sleep for %.2f seconds.\n\n" % frequency)
+    time.sleep(frequency)
     logger.info("Woke up.")
