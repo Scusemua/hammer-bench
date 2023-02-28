@@ -108,6 +108,9 @@ def plot(input:dict):
     input_path = input["path"]
     label = input.get("label", "No-Label-Specified")
 
+    if "L-MDS" in label:
+        label = label.replace("L-MDS", r'$\lambda$' + "MDS")
+
     # Adding the 'or' part ensures that, if an empty value is specified in the yaml (i.e., "markersize: " with no number), then we still default to a valid value.
     marker = input.get("marker", "None") or "None"
     markersize = input.get("markersize", 8) or 8
@@ -144,76 +147,76 @@ def plot(input:dict):
     
     start_time = time.time()
     
-    # If we pass a single .txt file, then just create DataFrame from the .txt file.
-    # Otherwise, merge all .txt files in the specified directory.
-    if input_path.endswith(".txt") or input_path.endswith(".csv"):
-        print("Reading existing DF from file at '%s'" % input_path)
-        df = pd.read_csv(input_path, index_col=None, header=0)
-        print("Existing DF has the following columns: %s" % str(df.columns))
-        if len(df.columns) == 2:
-            df.columns = COLUMNS
-            print("Set DF's columns to %s" % str(COLUMNS))
-        
-        print("Loaded existing DF in %f seconds" % (time.time() - start_time))
-    else:
-        print("input_path: " + input_path)
-        print("joined: " + str(os.path.join(input_path, "*.txt")))
-        all_files = glob.glob(os.path.join(input_path, "*.txt"))
-        li = []
-        print("Merging the following files: %s" % str(all_files))
-        # Merge the .txt files into a single DataFrame.
-        for filename in all_files:
-            print("Reading file: " + filename)
-            tmp_df = pd.read_csv(filename, index_col=None, header=0)
-            tmp_df.columns = COLUMNS
-            li.append(tmp_df)
-        df = pd.concat(li, axis=0, ignore_index=True)
-        df.columns = COLUMNS
-        
-        print("Loaded data and created DF in %f seconds" % (time.time() - start_time))
-
-    st_time = time.time()
-    if 'ts' not in df.columns:
-        # Sort the DataFrame by timestamp.
-        print("Sorting DF and creating `ts` column now...")
-        start_sort = time.time()
-        df = df.sort_values('timestamp')
-        print("Sorted dataframe in %f seconds." % (time.time() - start_sort))
-
-        min_val = min(df['timestamp'])
-        max_val = max(df['timestamp'])
-        print("max_val - min_val =", max_val - min_val)
-        print("max_val - min_val =", (max_val - min_val) / adjust_divisor)
-        def adjust(x):
-            return (x - min_val) / adjust_divisor
-
-        # Sometimes, there's a bunch of data with WAY different timestamps -- like, several THOUSAND
-        # seconds different. So, I basically adjust all of that data so it fits within the interval
-        # of the rest of the data.
-        df['ts'] = df['timestamp'].map(adjust)
-        df2 = df[((df['ts'] >= duration+5))]
-        if len(df2) > 0:
-            min_val2 = min(df2['ts'])
-
-            def adjust2(x):
-                if x >= min_val2:
-                    return x - min_val2
-                return x
-
-            df['ts'] = df['ts'].map(adjust2)
-
-        #df.to_csv("df" + str(dataset) + ".csv")
-        
-        print("Added `ts` column to DF in %f seconds" % (time.time() - st_time))
-    print(df)
-
-    print("Total number of points: %d" % len(df))
-    df.to_csv("./%s-cost-df.csv" % label)
-    print("Done.")
-    st_time = time.time()
-    cumulative_cost = [0]
-    
     if buckets_path is None:
+        # If we pass a single .txt file, then just create DataFrame from the .txt file.
+        # Otherwise, merge all .txt files in the specified directory.
+        if input_path.endswith(".txt") or input_path.endswith(".csv"):
+            print("Reading existing DF from file at '%s'" % input_path)
+            df = pd.read_csv(input_path, index_col=None, header=0)
+            print("Existing DF has the following columns: %s" % str(df.columns))
+            if len(df.columns) == 2:
+                df.columns = COLUMNS
+                print("Set DF's columns to %s" % str(COLUMNS))
+            
+            print("Loaded existing DF in %f seconds" % (time.time() - start_time))
+        else:
+            print("input_path: " + input_path)
+            print("joined: " + str(os.path.join(input_path, "*.txt")))
+            all_files = glob.glob(os.path.join(input_path, "*.txt"))
+            li = []
+            print("Merging the following files: %s" % str(all_files))
+            # Merge the .txt files into a single DataFrame.
+            for filename in all_files:
+                print("Reading file: " + filename)
+                tmp_df = pd.read_csv(filename, index_col=None, header=0)
+                tmp_df.columns = COLUMNS
+                li.append(tmp_df)
+            df = pd.concat(li, axis=0, ignore_index=True)
+            df.columns = COLUMNS
+            
+            print("Loaded data and created DF in %f seconds" % (time.time() - start_time))
+
+        st_time = time.time()
+        if 'ts' not in df.columns:
+            # Sort the DataFrame by timestamp.
+            print("Sorting DF and creating `ts` column now...")
+            start_sort = time.time()
+            df = df.sort_values('timestamp')
+            print("Sorted dataframe in %f seconds." % (time.time() - start_sort))
+
+            min_val = min(df['timestamp'])
+            max_val = max(df['timestamp'])
+            print("max_val - min_val =", max_val - min_val)
+            print("max_val - min_val =", (max_val - min_val) / adjust_divisor)
+            def adjust(x):
+                return (x - min_val) / adjust_divisor
+
+            # Sometimes, there's a bunch of data with WAY different timestamps -- like, several THOUSAND
+            # seconds different. So, I basically adjust all of that data so it fits within the interval
+            # of the rest of the data.
+            df['ts'] = df['timestamp'].map(adjust)
+            df2 = df[((df['ts'] >= duration+5))]
+            if len(df2) > 0:
+                min_val2 = min(df2['ts'])
+
+                def adjust2(x):
+                    if x >= min_val2:
+                        return x - min_val2
+                    return x
+
+                df['ts'] = df['ts'].map(adjust2)
+
+            #df.to_csv("df" + str(dataset) + ".csv")
+            
+            print("Added `ts` column to DF in %f seconds" % (time.time() - st_time))
+        print(df)
+
+        print("Total number of points: %d" % len(df))
+        #df.to_csv("./%s-cost-df.csv" % label)
+        print("Done.")
+        st_time = time.time()
+        cumulative_cost = [0]
+    
         print("Creating buckets now...")
         # For each second of the workload, count all the data points that occur during that second.
         # These are the points that we'll plot.
@@ -265,9 +268,9 @@ def plot(input:dict):
         xs = xs[0:300]
         ys = ys[0:300]
 
-        for i in range(0, len(xs)):
-            if xs[i] > 300:
-                xs[i] = 300
+        # for i in range(0, len(xs)):
+        #     if xs[i] > 300:
+        #         xs[i] = 300
         
         print("len(buckets):", len(buckets))
         print("len(ys):", len(ys))
@@ -275,7 +278,7 @@ def plot(input:dict):
         metric_values = []
         cost_factor_vcpu = 0.03827 / 3600 # Per second
         cost_factor_mem  = 0.00512 / 3600 # Per second
-        for i in range(300):
+        for i in range(len(ys)):
             instantaneous_throughput = buckets[i]
             instantaneous_cost = (ys[i] * cost_factor_vcpu * 5) + (ys[i] * cost_factor_mem * 12)
             metric = instantaneous_throughput / instantaneous_cost

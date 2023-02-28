@@ -1,25 +1,52 @@
 -
+  label: L-MDS+Failures
+  path: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-22-2023/e683c2ea-bb8d-4cb1-bfe8-53fcad3b411b (L-MDS NewOW 25k Failure v3)/
+  secondarylabel: L-MDS+Failures NNs (right y-axis)
+  secondarypath: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-22-2023/e683c2ea-bb8d-4cb1-bfe8-53fcad3b411b (L-MDS NewOW 25k Failure v3)/nns.csv
+  secondary-line-width: 8
+  linecolor: 27ddea
+  linestyle: solid
+  marker: None
+  markersize: 0.01
+  markevery: 0.01
+  linewidth: 7
+  buckets-path: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-22-2023/e683c2ea-bb8d-4cb1-bfe8-53fcad3b411b (L-MDS NewOW 25k Failure v3)/throughput.dat
+  secondary_color: "424242"
+-
   label: L-MDS 
   path: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-20-2023/fcc4db52-8d9c-41a7-a899-2c4ca52f13ac (LMDS-OP 25k ALC4 v3) #G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-14-2022/S1 (25k 12GB NNs)/df1.csv
   secondarylabel: L-MDS NNs (right y-axis)
   secondarypath: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-20-2023/fcc4db52-8d9c-41a7-a899-2c4ca52f13ac (LMDS-OP 25k ALC4 v3)/nns.csv #G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-14-2022/S1 (25k 12GB NNs)/nns.csv
   linecolor: EA4027
-  linestyle: solid
-  marker: 'D'
-  markersize: 7
-  markevery: 0.05
-  linewidth: 4
+  linestyle: (0, (3, 1))
+  marker: None
+  markersize: 0.01
+  markevery: 0.01
+  linewidth: 6
+  secondary-line-width: 8
   buckets-path: "G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-20-2023/fcc4db52-8d9c-41a7-a899-2c4ca52f13ac (LMDS-OP 25k ALC4 v3)/L-MDS_buckets.pkl"
--
-  label: HopsFS 
-  path: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-10-2022/V1/df2.csv
-  linecolor: 3D85C6
-  linestyle: "(1.25, (5, 1.95))"
-  marker: +
-  markersize: 11
-  markevery: 0.05
-  linewidth: 4
-  buckets-path: "G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-10-2022/V1/HopsFS_buckets.pkl"
+# -
+#   label: L-MDS 
+#   path: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-20-2023/fcc4db52-8d9c-41a7-a899-2c4ca52f13ac (LMDS-OP 25k ALC4 v3) #G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-14-2022/S1 (25k 12GB NNs)/df1.csv
+#   secondarylabel: L-MDS NNs (right y-axis)
+#   secondarypath: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-20-2023/fcc4db52-8d9c-41a7-a899-2c4ca52f13ac (LMDS-OP 25k ALC4 v3)/nns.csv #G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-14-2022/S1 (25k 12GB NNs)/nns.csv
+#   linecolor: EA4027
+#   linestyle: solid
+#   marker: 'D'
+#   markersize: 7
+#   markevery: 0.05
+#   linewidth: 4
+#   buckets-path: "G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-20-2023/fcc4db52-8d9c-41a7-a899-2c4ca52f13ac (LMDS-OP 25k ALC4 v3)/L-MDS_buckets.pkl"
+#-
+#   label: HopsFS 
+#   path: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-10-2022/V1/df2.csv
+#   linecolor: 3D85C6
+#   linestyle: "(1.25, (5, 1.95))"
+#   marker: +
+#   markersize: 11
+#   markevery: 0.05
+#   linewidth: 4
+#   buckets-path: "G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/10-10-2022/V1/HopsFS_buckets.pkl"
 # - 
 #   label: HopsFS+Cache [AWS]
 #   path: G:/Documents/School/College/MasonLeapLab_Research/ServerlessMDS/Benchmark/Spotify (MyApp)/Revision/02-07-2023/f8ec8248-89bf-4ea6-871a-3a4b7a0d3a97 (V+C 25k)

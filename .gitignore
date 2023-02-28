@@ -9,3 +9,4 @@ test.csv
 HopsFS+Cache [AWS]-cost-df.csv
 L-MDS [GCP]-cost-df.csv
 *.pkl
+./*.csv

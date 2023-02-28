@@ -244,6 +244,8 @@ def plot_data(input_yaml, dataset = 0, axis = None):
 
         ys = list(range(0, len(latencies)))
         ys = [y / len(ys) for y in ys]
+        
+        with open("%s-latencies.pkl", 'wb'):
 
         axis[idx].plot(latencies[::n] + [latencies[-1]], ys[::n] + [ys[-1]], label = label, linewidth = linewidth, linestyle = linestyle, markersize = markersize, marker = marker, markevery = markevery, color = colors[idx])
         #axis[idx].plot(latencies, ys, label = current_label, linewidth = 2, markersize = markersize, marker = marker, markevery = 0.1, color = colors[idx])
@@ -281,7 +283,7 @@ if len(ONLY_PLOT_THESE) > 0:
 
 print("Plotting data now...")
 
-fig, axs = plt.subplots(nrows = 1, ncols = num_columns, figsize=(81, 9.5))
+fig, axs = plt.subplots(nrows = 1, ncols = num_columns, figsize=(81, 10))
 plot_start = time.time()
 
 with open(input_file_path, 'r') as input_file:

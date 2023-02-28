@@ -8,10 +8,11 @@ import pandas as pd
 import argparse
 import logging
 import random
+import requests
 from kazoo.client import KazooClient
 
 logging.basicConfig(
-     level=logging.DEBUG,
+     level=logging.INFO,
      format= '[%(asctime)s] - %(message)s',
      datefmt='%H:%M:%S'
  )
@@ -19,7 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--frequency", type = float, default = 0.5, help = "How frequently (in seconds) to kill a NameNode.")
+parser.add_argument("-f", "--frequency", type = float, default = 30, help = "How frequently (in seconds) to kill a NameNode.")
 parser.add_argument("--how", type = str, default = "round-robin", help = "How to select a NameNode to be killed. Valid options include: \"round-robin\", \"random\"")
 parser.add_argument("-d", "--duration", type = float, default = 60, help = "Duration (in seconds) to run the script.")
 parser.add_argument("-n", "--num-deployments", dest = "num_deployments", type = int, default = 20, help = "The number of available deployments.")
@@ -48,8 +49,13 @@ def current_milli_time():
 start_time = datetime.now()
 start = current_milli_time()
 
-if frequency <= 0 or frequency > 2:
-    logger.error("Frequency must be within the interval (0, 2).")
+headers = {
+    # Already added when you pass json=
+    # 'Content-Type': 'application/json',
+    'Authorization': 'Basic 789c46b1-71f6-4ed5-8c54-816aa4f8c502:abczO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP',
+}
+
+json_data = {"TERMINATE": True}
 
 last_deployment_killed = -1 
 
@@ -65,17 +71,18 @@ def get_num_active_nns():
     return nodes_per_deployment, total_nns
 
 def kill_node_in_deployment(deployment: int):
-    logger.info("Killing NameNode in deployment '%d' now..." % deployment)
+    logger.info("Killing NameNode in deployment '%d' now." % deployment)
     
-    command = "curl -s -v -k %s%d -H 'Content-Type: application/json' -X POST -H \"Authorization: Basic 789c46b1-71f6-4ed5-8c54-816aa4f8c502:abczO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP\" -d '{\"TERMINATE\":\"true\"}'" % (endpoint, deployment)
+    response = requests.post(
+        "http://internal-abff98336a53646dabc8bdcbdb5b1bd9-571651522.us-east-1.elb.amazonaws.com:80/api/v1/web/whisk.system/default/namenode%d" % deployment,
+        headers=headers,
+        json=json_data,
+        verify=False,
+    )
     
-    result = subprocess.run([command], stdout=subprocess.PIPE)
-    lines = result.stdout.decode().split("\n")    
+    logger.info(response)
 
-    logger.info("Output from killing pod:")
-    logger.info(lines)
-
-def kill_round_robin(nodes_per_deployment: dict, last_deployment_killed = -1, num_deployments = 20):
+def kill_round_robin(nodes_per_deployment: list, last_deployment_killed = -1, num_deployments = 20):
     """
     Returns:
         int: The deployment of the killed NN.
@@ -95,9 +102,9 @@ def kill_round_robin(nodes_per_deployment: dict, last_deployment_killed = -1, nu
         
         candidate_nodes = nodes_per_deployment[candidate_deployment]
         
-        if len(candidate_nodes) > 0:
-            logger.info("Killing NameNode in deployment %d" % candidate_deployment)
-            kill_node_in_deployment(candidate_nodes)
+        if candidate_nodes > 1:
+            logger.info("Found target deployment: there are %d active NameNodes in deployment %d." % (candidate_nodes, candidate_deployment))
+            kill_node_in_deployment(candidate_deployment)
             return True, candidate_deployment 
         else:
             logger.info("Deployment %d has 0 candidate NameNodes. Skipping." % candidate_deployment)
@@ -121,14 +128,14 @@ def kill_round_robin(nodes_per_deployment: dict, last_deployment_killed = -1, nu
         logger.warn("Could not find a NameNode to kill...")
         return last_deployment_killed
     
-def kill_random(nodes_per_deployment: dict, last_deployment_killed = -1, num_deployments = 20):
+def kill_random(nodes_per_deployment: list, last_deployment_killed = -1, num_deployments = 20):
     """
     Returns:
         int: The deployment of the killed NN.
     """
     logger.info("Selecting NameNode to kill via random.") 
     
-    candidate_deployments = list(nodes_per_deployment.keys())
+    candidate_deployments = [x for x in range(0, len(nodes_per_deployment)) if nodes_per_deployment[x] > 0]
     target_deployment = random.choice(candidate_deployments)
     
     kill_node_in_deployment(target_deployment)
